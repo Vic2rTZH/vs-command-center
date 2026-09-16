@@ -588,7 +588,7 @@ body {
     <div class="header-date" id="headerDate"></div>
   </div>
   <div class="header-meta">
-    <div class="sync-pill">
+    <div class="sync-pill" style="cursor:pointer;" onclick="retrySbConnect()" title="Click to retry connection">
       <span class="sync-dot spin" id="sbDot"></span>
       <span id="sbLabel">Connecting…</span>
     </div>
@@ -1351,6 +1351,11 @@ CREATE POLICY "anon_all" ON bantuwa_status
   FOR ALL TO anon USING (true) WITH CHECK (true);`;
 
 /* ── SUPABASE CLIENT ── */
+function sbFetch(url, opts, timeoutMs=8000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(t));
+}
 const SB = {
   h() {
     return {
@@ -1361,13 +1366,13 @@ const SB = {
     };
   },
   async get(table, q='') {
-    const r = await fetch(`${SB_URL}/rest/v1/${table}${q}`, { headers: this.h() });
+    const r = await sbFetch(`${SB_URL}/rest/v1/${table}${q}`, { headers: this.h() });
     if (!r.ok) throw new Error(await r.text());
     return r.json();
   },
   async upsert(table, rows, q='') {
     const h = { ...this.h(), 'Prefer': 'resolution=merge-duplicates,return=representation' };
-    const r = await fetch(`${SB_URL}/rest/v1/${table}${q}`, {
+    const r = await sbFetch(`${SB_URL}/rest/v1/${table}${q}`, {
       method:'POST', headers:h,
       body: JSON.stringify(Array.isArray(rows)?rows:[rows])
     });
@@ -1375,14 +1380,14 @@ const SB = {
     return r.json();
   },
   async patch(table, q, data) {
-    const r = await fetch(`${SB_URL}/rest/v1/${table}${q}`, {
+    const r = await sbFetch(`${SB_URL}/rest/v1/${table}${q}`, {
       method:'PATCH', headers:this.h(), body:JSON.stringify(data)
     });
     if (!r.ok) throw new Error(await r.text());
     return r.json();
   },
   async del(table, q) {
-    const r = await fetch(`${SB_URL}/rest/v1/${table}${q}`, {
+    const r = await sbFetch(`${SB_URL}/rest/v1/${table}${q}`, {
       method:'DELETE', headers:this.h()
     });
     if (!r.ok) throw new Error(await r.text());
@@ -4132,6 +4137,32 @@ function sdSuggestAAR() {
   Object.entries(suggestions).forEach(function(pair){ var domain=pair[0], score=pair[1]; if (score > 0 && !scores[domain]) { if (!sdData.aar[today]) sdData.aar[today] = {}; sdData.aar[today][domain] = score; changed = true; } });
   if (changed) { sdSave(); renderSelfDev(); toast('AAR pre-filled from today\'s habits — adjust as needed'); }
   else { toast('All domains already scored, or no habits completed yet'); }
+}
+
+/* ── SUPABASE RETRY ── */
+let sbConnecting = false;
+async function retrySbConnect() {
+  if (sbConnecting) return;
+  sbConnecting = true;
+  setSbStatus('spin','Connecting…');
+  sbOnline = await sbPing();
+  if (sbOnline) {
+    setSbStatus('ok','Supabase ✓');
+    const t = await sbCheckTables();
+    sbTasks=t.tasks; sbOkrs=t.okrs; sbSchedule=t.schedule; sbMilestones=t.milestones;
+    const ops = [];
+    if (sbTasks)      ops.push(sbLoadTasks());
+    if (sbOkrs)       ops.push(sbLoadOKRs());
+    if (sbSchedule)   ops.push(sbLoadSchedule());
+    if (sbMilestones) ops.push(sbLoadMilestones());
+    ops.push(sbLoadApiKey());
+    await Promise.all(ops);
+    renderAll();
+    toast('Supabase connected ✓');
+  } else {
+    setSbStatus('err','Offline — click to retry');
+  }
+  sbConnecting = false;
 }
 
 /* ── INIT ── */
