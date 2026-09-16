@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bantuwa Innovate — Content HQ</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --gold: #c8a84b;
+    --gold-light: #f5ecd1;
+    --teal: #0f6e56;
+    --teal-light: #e1f5ee;
+    --surface: #f8f7f4;
+    --card: #ffffff;
+    --border: rgba(26,39,68,0.12);
+    --text: #1a2744;
+    --text-muted: #5f6b82;
+    --text-light: #8e97a8;
+    --red: #a32d2d;
+    --red-light: #fcebeb;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--surface); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+  /* Layout */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--navy); flex-shrink: 0; display: flex; flex-direction: column; }
+  .main { flex: 1; overflow-y: auto; }
+
+  /* Sidebar */
+  .sidebar-logo { padding: 20px 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .logo-text { color: #fff; font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
+  .logo-sub { color: var(--gold); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+  .sidebar-section { padding: 14px 10px 6px; }
+  .sidebar-label { color: rgba(255,255,255,0.35); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; padding: 0 8px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 7px; cursor: pointer; color: rgba(255,255,255,0.6); font-size: 13px; transition: all 0.15s; margin-bottom: 2px; }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+  .nav-item.active { background: rgba(200,168,75,0.18); color: var(--gold); }
+  .nav-icon { font-size: 16px; width: 18px; text-align: center; }
+  .sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .profile-pill { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--navy); flex-shrink: 0; }
+  .profile-name { color: #fff; font-size: 12px; font-weight: 500; }
+  .profile-role { color: rgba(255,255,255,0.4); font-size: 11px; }
+
+  /* Panels */
+  .panel { display: none; padding: 28px 32px; }
+  .panel.active { display: block; }
+  .panel-header { margin-bottom: 24px; }
+  .panel-title { font-size: 20px; font-weight: 600; color: var(--navy); }
+  .panel-sub { color: var(--text-muted); font-size: 13px; margin-top: 3px; }
+
+  /* Cards */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .card-sm { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  /* Stats */
+  .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .stat-value { font-size: 26px; font-weight: 600; color: var(--navy); }
+  .stat-delta { font-size: 12px; margin-top: 4px; }
+  .delta-up { color: var(--teal); }
+  .delta-down { color: var(--red); }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: var(--navy); color: #fff; }
+  .btn-primary:hover { background: #253560; }
+  .btn-gold { background: var(--gold); color: var(--navy); }
+  .btn-gold:hover { background: #b8963e; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--surface); }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+  /* Form elements */
+  select, input, textarea { font-family: var(--font); font-size: 13px; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; width: 100%; transition: border 0.15s; }
+  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--navy); }
+  textarea { resize: vertical; line-height: 1.6; }
+  label { font-size: 12px; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.6px; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-navy { background: rgba(26,39,68,0.1); color: var(--navy); }
+  .badge-gold { background: var(--gold-light); color: #7a5e1a; }
+  .badge-teal { background: var(--teal-light); color: var(--teal); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+
+  /* Platform tags */
+  .platform-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .platform-tab { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text-muted); transition: all 0.15s; }
+  .platform-tab:hover { border-color: var(--navy); color: var(--navy); }
+  .platform-tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .platform-tab.li.active { background: #0077b5; border-color: #0077b5; }
+  .platform-tab.tw.active { background: #1da1f2; border-color: #1da1f2; }
+  .platform-tab.ig.active { background: #e1306c; border-color: #e1306c; }
+  .platform-tab.fb.active { background: #1877f2; border-color: #1877f2; }
+
+  /* Output box */
+  .output-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 13px; line-height: 1.8; color: var(--text); white-space: pre-wrap; min-height: 120px; position: relative; }
+  .output-actions { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+  .char-count { font-size: 12px; color: var(--text-light); margin-left: auto; }
+
+  /* Calendar */
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .cal-header { background: var(--navy); color: rgba(255,255,255,0.7); font-size: 11px; text-align: center; padding: 8px 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; }
+  .cal-day { background: var(--card); min-height: 90px; padding: 6px; cursor: pointer; transition: background 0.1s; }
+  .cal-day:hover { background: #f0eeea; }
+  .cal-day.today { background: rgba(26,39,68,0.04); }
+  .cal-day.other-month { background: var(--surface); }
+  .cal-date { font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; }
+  .cal-date.today-num { width: 22px; height: 22px; background: var(--navy); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .cal-event { font-size: 10px; padding: 2px 5px; border-radius: 3px; margin-bottom: 2px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ev-li { background: rgba(0,119,181,0.12); color: #0055a0; }
+  .ev-tw { background: rgba(29,161,242,0.12); color: #0a7cbf; }
+  .ev-ig { background: rgba(225,48,108,0.12); color: #b01f5a; }
+  .ev-ar { background: var(--gold-light); color: #7a5e1a; }
+
+  /* Vault */
+  .vault-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+  .vault-item:hover { background: var(--surface); }
+  .vault-item:last-child { border-bottom: none; }
+  .vault-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .vault-meta { flex: 1; }
+  .vault-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .vault-detail { font-size: 12px; color: var(--text-muted); }
+
+  /* Analytics */
+  .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; margin: 8px 0; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar { width: 100%; background: var(--navy); border-radius: 4px 4px 0 0; transition: height 0.3s; opacity: 0.8; }
+  .bar-label { font-size: 10px; color: var(--text-light); }
+  .bar-val { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* Pillar pills */
+  .pillar-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pillar-pill { padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); transition: all 0.15s; background: var(--card); color: var(--text-muted); }
+  .pillar-pill:hover { border-color: var(--navy); color: var(--navy); }
+  .pillar-pill.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 13px; z-index: 999; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+
+  /* Scheduler modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--card); border-radius: 12px; padding: 24px; width: 420px; max-width: 90vw; }
+  .modal-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 16px; }
+  .modal-row { margin-bottom: 14px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+  /* Section spacing */
+  .section { margin-bottom: 24px; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--navy); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+
+  /* Engagement ring */
+  .ring-wrap { display: flex; align-items: center; gap: 20px; }
+  .ring-svg { flex-shrink: 0; }
+  .ring-legend { display: flex; flex-direction: column; gap: 8px; }
+  .ring-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .ring-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Responsive tweak */
+  @media (max-width: 900px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">BANTUWA</div>
+      <div class="logo-sub">Content HQ</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Overview</div>
+      <div class="nav-item active" onclick="switchPanel('dashboard')">
+        <span class="nav-icon">◻</span> Dashboard
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Create</div>
+      <div class="nav-item" onclick="switchPanel('generator')">
+        <span class="nav-icon">✦</span> Post Generator
+      </div>
+      <div class="nav-item" onclick="switchPanel('article')">
+        <span class="nav-icon">≡</span> Article Writer
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Manage</div>
+      <div class="nav-item" onclick="switchPanel('calendar')">
+        <span class="nav-icon">⬡</span> Content Calendar
+      </div>
+      <div class="nav-item" onclick="switchPanel('vault')">
+        <span class="nav-icon">⬢</span> Content Vault
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Measure</div>
+      <div class="nav-item" onclick="switchPanel('analytics')">
+        <span class="nav-icon">↗</span> Analytics
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="profile-pill" style="margin-bottom:12px;">
+        <div class="avatar">VS</div>
+        <div>
+          <div class="profile-name">Victor Simz</div>
+          <div class="profile-role">Strategy Lead</div>
+        </div>
+      </div>
+      <div id="api-key-wrap">
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">Claude API Key</div>
+        <div style="display:flex;gap:5px;">
+          <input type="password" id="api-key-input" placeholder="sk-ant-…"
+            style="font-size:11px;padding:5px 8px;border-radius:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;flex:1;width:0;"
+            oninput="saveApiKey()" />
+          <button onclick="toggleApiKeyVis()" class="btn btn-sm btn-outline"
+            style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:4px 8px;font-size:11px;">👁</button>
+        </div>
+        <div id="api-key-status" style="font-size:10px;margin-top:4px;color:rgba(255,255,255,0.3);">Enter key to enable AI generation</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ═══════════════ DASHBOARD ═══════════════ -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="panel-header">
+        <div class="panel-title">Content Dashboard</div>
+        <div class="panel-sub" id="dash-subtitle">Week of May 19, 2026 — Building Africa's Knowledge Systems for the Future</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-4 section">
+        <div class="card-sm">
+          <div class="stat-label">Posts This Month</div>
+          <div class="stat-value" id="dash-posts-val">—</div>
+          <div class="stat-delta" id="dash-posts-delta" style="color:var(--text-light)">Calculating...</div>
+        </div>
+        <div class="card-sm">
+          <div class="stat-label">Total Reach</div>
+          <div class="stat-value" id="dash-reach-val">—</div>
+          <div class="stat-delta" id="dash-reach-delta" style="color:var(--text-light)">Log analytics to track</div>
+        </div>
+        <div class="card-sm">
+          <div class="stat-label">Scheduled</div>
+          <div class="stat-value" id="dash-sched-val">—</div>
+          <div class="stat-delta" id="dash-sched-next" style="color:var(--text-light)">Loading...</div>
+        </div>
+        <div class="card-sm">
+          <div class="stat-label">Avg Engagement</div>
+          <div class="stat-value" id="dash-eng-val">—</div>
+          <div class="stat-delta" id="dash-eng-delta" style="color:var(--text-light)">Log analytics to track</div>
+        </div>
+      </div>
+
+      <div class="grid-2 section">
+        <!-- This week -->
+        <div class="card">
+          <div class="section-title">This Week's Schedule</div>
+          <div id="dash-week-schedule" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
+        <!-- Content pillars + Platform Mix (live) -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div class="section-title" style="margin-bottom:0;">Content Pillars</div>
+            <span id="dash-pillar-source" style="font-size:11px;color:var(--text-light);"></span>
+          </div>
+          <div id="dash-pillar-bars" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+          <hr class="divider">
+          <div class="section-title">Platform Mix</div>
+          <div id="dash-platform-mix" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="section">
+        <div class="section-title">Quick Actions</div>
+        <div class="grid-4" style="gap:12px;">
+          <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('generator')">
+            <div style="font-size:22px;margin-bottom:6px;">✦</div>
+            <div style="font-size:13px;font-weight:500;">Generate Post</div>
+            <div style="font-size:11px;color:var(--text-muted);">Any platform</div>
+          </div>
+          <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('article')">
+            <div style="font-size:22px;margin-bottom:6px;">≡</div>
+            <div style="font-size:13px;font-weight:500;">Write Article</div>
+            <div style="font-size:11px;color:var(--text-muted);">Long-form content</div>
+          </div>
+          <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('calendar')">
+            <div style="font-size:22px;margin-bottom:6px;">⬡</div>
+            <div style="font-size:13px;font-weight:500;">View Calendar</div>
+            <div style="font-size:11px;color:var(--text-muted);">Posting schedule</div>
+          </div>
+          <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('analytics')">
+            <div style="font-size:22px;margin-bottom:6px;">↗</div>
+            <div style="font-size:13px;font-weight:500;">Analytics</div>
+            <div style="font-size:11px;color:var(--text-muted);">Track performance</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ POST GENERATOR ═══════════════ -->
+    <div class="panel" id="panel-generator">
+      <div class="panel-header">
+        <div class="panel-title">Post Generator</div>
+        <div class="panel-sub">Generate platform-optimised posts in Victor Simz's voice</div>
+      </div>
+
+      <div class="grid-2" style="gap:24px;align-items:start;">
+
+        <!-- Left: Controls -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="section-title" style="margin-bottom:14px;">Platform</div>
+            <div class="platform-tabs">
+              <div class="platform-tab li active" onclick="setActivePlatform(this,'li')">LinkedIn</div>
+              <div class="platform-tab tw" onclick="setActivePlatform(this,'tw')">Twitter / X</div>
+              <div class="platform-tab ig" onclick="setActivePlatform(this,'ig')">Instagram</div>
+              <div class="platform-tab fb" onclick="setActivePlatform(this,'fb')">Facebook</div>
+            </div>
+
+            <div class="modal-row">
+              <label>Content Pillar</label>
+              <select id="pillar-select">
+                <option value="aiks">AIKS® Framework</option>
+                <option value="indigenous">African Indigenous Knowledge</option>
+                <option value="education">Education Systems</option>
+                <option value="leadership">Leadership Development</option>
+                <option value="innovation">Innovation & AI in Africa</option>
+                <option value="zhist">The Z Historian / Victor Simz</option>
+                <option value="custom">Custom Topic</option>
+              </select>
+            </div>
+
+            <div class="modal-row">
+              <label>Topic / Angle</label>
+              <input type="text" id="topic-input" placeholder="e.g. Why Africa needs to own its AI future" />
+            </div>
+
+            <div class="modal-row">
+              <label>Tone</label>
+              <select id="tone-select">
+                <option value="thought">Thought leadership — declarative, confident</option>
+                <option value="provoke">Provocative — challenge assumptions</option>
+                <option value="narrative">Narrative — story-driven, personal</option>
+                <option value="data">Data-led — evidence-first</option>
+                <option value="call">Call to action — movement-building</option>
+              </select>
+            </div>
+
+            <div class="modal-row">
+              <label>Key Message (optional)</label>
+              <textarea id="key-msg" rows="2" placeholder="Core idea you want to communicate..."></textarea>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <button class="btn btn-primary" onclick="generatePost()" style="flex:1;">Generate Post</button>
+              <button class="btn btn-outline" onclick="clearGen()">Clear</button>
+            </div>
+          </div>
+
+          <!-- Hashtag block -->
+          <div class="card" id="hashtag-block" style="display:none;">
+            <div class="section-title">Hashtags</div>
+            <div id="hashtag-output" style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:#0077b5;"></div>
+          </div>
+        </div>
+
+        <!-- Right: Output -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div class="section-title" style="margin-bottom:0;">Generated Post</div>
+              <span id="platform-badge" class="badge badge-navy">LinkedIn</span>
+            </div>
+            <div class="output-box" id="post-output">Your generated post will appear here. Select your platform, pillar, and topic — then hit Generate.</div>
+            <div class="output-actions">
+              <button class="btn btn-sm btn-outline" onclick="copyOutput('post-output')">Copy</button>
+              <button class="btn btn-sm btn-outline" onclick="saveToVault()">Save to Vault</button>
+              <button class="btn btn-sm btn-gold" onclick="openScheduleModal()">Schedule</button>
+              <span class="char-count" id="post-charcount"></span>
+            </div>
+          </div>
+
+          <div class="card" id="tips-card">
+            <div class="section-title">Platform Best Practices</div>
+            <div id="platform-tips" style="font-size:12px;color:var(--text-muted);line-height:1.8;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ ARTICLE WRITER ═══════════════ -->
+    <div class="panel" id="panel-article">
+      <div class="panel-header">
+        <div class="panel-title">Article Writer</div>
+        <div class="panel-sub">Long-form content — analytical, structured, in Victor Simz's voice</div>
+      </div>
+
+      <div class="grid-2" style="gap:24px;align-items:start;">
+        <div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="section-title">Article Brief</div>
+
+            <div class="modal-row">
+              <label>Working Title</label>
+              <input type="text" id="art-title" placeholder="e.g. The AI Inflection Point Africa Cannot Afford to Miss" />
+            </div>
+            <div class="modal-row">
+              <label>Thesis / Core Argument</label>
+              <textarea id="art-thesis" rows="3" placeholder="What is the central claim? What do you want readers to walk away believing or doing?"></textarea>
+            </div>
+            <div class="modal-row">
+              <label>Target Audience</label>
+              <select id="art-audience">
+                <option>Policy makers & government</option>
+                <option>Educators & academics</option>
+                <option>Tech & innovation leaders</option>
+                <option>Funders & development orgs</option>
+                <option>African youth & practitioners</option>
+                <option>General thought leadership</option>
+              </select>
+            </div>
+            <div class="modal-row">
+              <label>Article Type</label>
+              <select id="art-type">
+                <option value="opinion">Opinion / Op-Ed</option>
+                <option value="explainer">Explainer / Educational</option>
+                <option value="case">Case for Action</option>
+                <option value="analysis">Strategic Analysis</option>
+              </select>
+            </div>
+            <div class="modal-row">
+              <label>Length</label>
+              <select id="art-length">
+                <option value="short">Short (600–900 words)</option>
+                <option value="medium" selected>Medium (1,000–1,500 words)</option>
+                <option value="long">Long (2,000+ words)</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <button class="btn btn-primary" onclick="generateArticle()" style="flex:1;">Generate Full Draft</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div class="section-title" style="margin-bottom:0;">Article Draft</div>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <span id="art-wordcount" style="font-size:12px;color:var(--text-light);"></span>
+                <button class="btn btn-sm btn-outline" onclick="copyOutput('art-output')">Copy</button>
+                <button class="btn btn-sm btn-gold" onclick="saveArticleToVault()">Save</button>
+              </div>
+            </div>
+            <div class="output-box" id="art-output" style="min-height:420px;font-size:13px;line-height:1.9;">Your full article draft will appear here. Fill in the brief and hit Generate Full Draft.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ CALENDAR ═══════════════ -->
+    <div class="panel" id="panel-calendar">
+      <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="panel-title" id="cal-month-label">May 2026</div>
+          <div class="panel-sub">Content posting schedule — click any day to add</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-outline btn-sm" onclick="changeMonth(-1)">← Prev</button>
+          <button class="btn btn-outline btn-sm" onclick="changeMonth(1)">Next →</button>
+          <button class="btn btn-gold btn-sm" onclick="openScheduleModal()">+ Schedule Post</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><div style="width:10px;height:10px;border-radius:2px;background:#0077b5;opacity:0.5;"></div> LinkedIn</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><div style="width:10px;height:10px;border-radius:2px;background:#1da1f2;opacity:0.5;"></div> Twitter/X</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><div style="width:10px;height:10px;border-radius:2px;background:#e1306c;opacity:0.5;"></div> Instagram</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><div style="width:10px;height:10px;border-radius:2px;background:var(--gold);opacity:0.7;"></div> Article</div>
+          <div style="margin-left:auto;font-size:12px;color:var(--text-muted);" id="cal-post-count">Loading schedule...</div>
+        </div>
+      </div>
+
+      <div class="cal-grid" id="cal-grid"></div>
+
+      <div class="card" style="margin-top:16px;" id="day-detail" style="display:none;">
+        <div class="section-title" id="day-detail-title">Select a day to see posts</div>
+        <div id="day-detail-content" style="font-size:13px;color:var(--text-muted);">Click any day on the calendar above.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ VAULT ═══════════════ -->
+    <div class="panel" id="panel-vault">
+      <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="panel-title">Content Vault</div>
+          <div class="panel-sub">Saved posts, drafts, and published content</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" placeholder="Search vault..." style="width:200px;" id="vault-search" oninput="filterVault()" />
+          <select style="width:140px;" id="vault-filter" onchange="filterVault()">
+            <option value="all">All platforms</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="Twitter/X">Twitter/X</option>
+            <option value="Instagram">Instagram</option>
+            <option value="Article">Article</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-4 section" style="gap:12px;">
+        <div class="card-sm">
+          <div class="stat-label">Total Saved</div>
+          <div class="stat-value" id="vault-total">0</div>
+        </div>
+        <div class="card-sm">
+          <div class="stat-label">Drafts</div>
+          <div class="stat-value" id="vault-drafts">0</div>
+        </div>
+        <div class="card-sm">
+          <div class="stat-label">Published</div>
+          <div class="stat-value" id="vault-published">0</div>
+        </div>
+        <div class="card-sm">
+          <div class="stat-label">Scheduled</div>
+          <div class="stat-value" id="vault-sched">0</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div id="vault-list"></div>
+        <div id="vault-empty" style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px;">No saved content yet. Generate and save posts from the Post Generator or Article Writer.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ ANALYTICS ═══════════════ -->
+    <div class="panel" id="panel-analytics">
+      <div class="panel-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="panel-title">Analytics</div>
+          <div class="panel-sub" id="an-period-label">No data logged yet — enter your first month below</div>
+        </div>
+        <button class="btn btn-gold" onclick="toggleLogForm()">+ Log Month</button>
+      </div>
+
+      <!-- Log Data Form -->
+      <div id="log-form" style="display:none;margin-bottom:24px;">
+        <div class="card" style="border:1px solid var(--gold);border-radius:10px;">
+          <div class="section-title" style="margin-bottom:16px;">Log Monthly Data — pull these numbers from each platform's native analytics</div>
+          <div class="grid-2" style="gap:20px;align-items:start;">
+            <div>
+              <div class="modal-row">
+                <label>Month</label>
+                <input type="month" id="log-month" />
+              </div>
+              <div style="font-size:12px;font-weight:600;color:var(--navy);margin:14px 0 10px;text-transform:uppercase;letter-spacing:0.6px;">LinkedIn</div>
+              <div class="grid-2" style="gap:8px;">
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Impressions</label>
+                  <input type="number" id="li-imp" placeholder="0" min="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Engagements</label>
+                  <input type="number" id="li-eng" placeholder="0" min="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Followers gained</label>
+                  <input type="number" id="li-fol" placeholder="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Profile clicks</label>
+                  <input type="number" id="li-clk" placeholder="0" min="0" />
+                </div>
+              </div>
+              <div style="font-size:12px;font-weight:600;color:#0077b5;margin:14px 0 10px;text-transform:uppercase;letter-spacing:0.6px;">Twitter / X</div>
+              <div class="grid-2" style="gap:8px;">
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Impressions</label>
+                  <input type="number" id="tw-imp" placeholder="0" min="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Engagements</label>
+                  <input type="number" id="tw-eng" placeholder="0" min="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Followers gained</label>
+                  <input type="number" id="tw-fol" placeholder="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Link clicks</label>
+                  <input type="number" id="tw-clk" placeholder="0" min="0" />
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:#e1306c;margin:0 0 10px;text-transform:uppercase;letter-spacing:0.6px;">Instagram</div>
+              <div class="grid-2" style="gap:8px;">
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Reach</label>
+                  <input type="number" id="ig-imp" placeholder="0" min="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Engagements</label>
+                  <input type="number" id="ig-eng" placeholder="0" min="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Followers gained</label>
+                  <input type="number" id="ig-fol" placeholder="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Profile visits</label>
+                  <input type="number" id="ig-clk" placeholder="0" min="0" />
+                </div>
+              </div>
+              <div style="font-size:12px;font-weight:600;color:#1877f2;margin:14px 0 10px;text-transform:uppercase;letter-spacing:0.6px;">Facebook (optional)</div>
+              <div class="grid-2" style="gap:8px;">
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Reach</label>
+                  <input type="number" id="fb-imp" placeholder="0" min="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Engagements</label>
+                  <input type="number" id="fb-eng" placeholder="0" min="0" />
+                </div>
+              </div>
+              <div style="font-size:12px;font-weight:600;color:var(--gold);margin:14px 0 10px;text-transform:uppercase;letter-spacing:0.6px;">Top Post This Month</div>
+              <div class="modal-row">
+                <label>Post title / opening line</label>
+                <input type="text" id="top-title" placeholder="e.g. Africa is not behind..." />
+              </div>
+              <div class="grid-2" style="gap:8px;">
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Platform</label>
+                  <select id="top-plat">
+                    <option>LinkedIn</option><option>Twitter/X</option><option>Instagram</option><option>Facebook</option>
+                  </select>
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Impressions</label>
+                  <input type="number" id="top-imp" placeholder="0" min="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Engagements</label>
+                  <input type="number" id="top-eng" placeholder="0" min="0" />
+                </div>
+                <div class="modal-row" style="margin-bottom:0;">
+                  <label>Posts published total</label>
+                  <input type="number" id="total-posts" placeholder="0" min="0" />
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:16px;">
+                <button class="btn btn-primary" onclick="saveAnalyticsEntry()" style="flex:1;">Save Month</button>
+                <button class="btn btn-outline" onclick="toggleLogForm()">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="an-empty" style="text-align:center;padding:48px 24px;color:var(--text-muted);">
+        <div style="font-size:32px;margin-bottom:12px;">↗</div>
+        <div style="font-size:15px;font-weight:500;color:var(--navy);margin-bottom:6px;">No analytics data yet</div>
+        <div style="font-size:13px;margin-bottom:20px;">Log your first month to start tracking real performance. Pull numbers from LinkedIn Analytics, X Analytics, and Instagram Insights.</div>
+        <button class="btn btn-primary" onclick="toggleLogForm()">Log First Month</button>
+      </div>
+
+      <!-- Dashboard (shown once data exists) -->
+      <div id="an-dashboard" style="display:none;">
+
+        <!-- Period selector -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <label style="text-transform:none;font-size:13px;color:var(--text-muted);margin:0;">Viewing:</label>
+          <select id="an-period-select" onchange="renderAnalyticsDash()" style="width:180px;"></select>
+          <span style="font-size:12px;color:var(--text-light);">|</span>
+          <span id="an-entry-count" style="font-size:12px;color:var(--text-muted);"></span>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="grid-4 section" id="an-stats-row"></div>
+
+        <!-- Charts row -->
+        <div class="grid-2 section">
+          <div class="card">
+            <div class="section-title">Monthly Impressions — All Platforms</div>
+            <div id="an-imp-chart" class="bar-chart" style="height:130px;"></div>
+            <div id="an-imp-note" style="font-size:11px;color:var(--text-light);margin-top:6px;"></div>
+          </div>
+          <div class="card">
+            <div class="section-title">Platform Breakdown — This Month</div>
+            <div id="an-platform-breakdown" style="display:flex;flex-direction:column;gap:10px;margin-top:4px;"></div>
+          </div>
+        </div>
+
+        <!-- Bottom row -->
+        <div class="grid-2 section">
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div class="section-title" style="margin-bottom:0;">Top Posts Logged</div>
+            </div>
+            <div id="an-top-posts"></div>
+          </div>
+          <div class="card">
+            <div class="section-title">Strategic Insights</div>
+            <div id="an-insights"></div>
+          </div>
+        </div>
+
+        <!-- History table -->
+        <div class="card section">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div class="section-title" style="margin-bottom:0;">Full History</div>
+            <button class="btn btn-sm btn-outline" onclick="exportCSV()">Export CSV</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table id="an-history-table" style="width:100%;font-size:12px;border-collapse:collapse;"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Schedule Modal -->
+<div class="modal-overlay" id="schedule-modal">
+  <div class="modal">
+    <div class="modal-title" id="sched-modal-title">Schedule Post</div>
+    <input type="hidden" id="sched-edit-idx" value="" />
+    <div class="modal-row">
+      <label>Title / Label</label>
+      <input type="text" id="sched-title" placeholder="Post title for calendar reference" />
+    </div>
+    <div class="modal-row">
+      <label>Platform</label>
+      <select id="sched-platform">
+        <option>LinkedIn</option>
+        <option>Twitter/X</option>
+        <option>Instagram</option>
+        <option>Facebook</option>
+        <option>Article</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <label>Content Pillar</label>
+      <select id="sched-pillar">
+        <option value="aiks">AIKS® Framework</option>
+        <option value="indigenous">African Indigenous Knowledge</option>
+        <option value="education">Education Systems</option>
+        <option value="leadership">Leadership Development</option>
+        <option value="innovation">Innovation & AI in Africa</option>
+        <option value="zhist">The Z Historian / Victor Simz</option>
+        <option value="custom">Other / Custom</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <label>Date</label>
+      <input type="date" id="sched-date" />
+    </div>
+    <div class="modal-row">
+      <label>Time (CAT)</label>
+      <input type="time" id="sched-time" value="09:00" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeScheduleModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSchedule()">Add to Calendar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Persistence helpers ───
+const STORE = {
+  save(key, val) { try { localStorage.setItem('bantuwa_' + key, JSON.stringify(val)); } catch(e) {} },
+  load(key, fallback) { try { const v = localStorage.getItem('bantuwa_' + key); return v ? JSON.parse(v) : fallback; } catch(e) { return fallback; } }
+};
+
+// ─── State (loaded from localStorage, falls back to defaults) ───
+let currentPlatform = 'li';
+
+const defaultScheduled = [
+  { date: '2026-05-19', title: 'AIKS® — What It Is Not', platform: 'LinkedIn', time: '10:00' },
+  { date: '2026-05-20', title: "Africa's 800M Youth — The Real Urgency", platform: 'Twitter/X', time: '09:00' },
+  { date: '2026-05-21', title: 'Knowledge Is Infrastructure — Article Drop', platform: 'Article', time: '08:00' },
+  { date: '2026-05-23', title: 'The Z Historian — Heritage Thread', platform: 'Instagram', time: '12:00' },
+  { date: '2026-05-27', title: 'AIKS® Design Process Explained', platform: 'LinkedIn', time: '08:30' },
+  { date: '2026-05-28', title: 'Community Ownership vs Extraction', platform: 'Twitter/X', time: '09:00' },
+  { date: '2026-05-30', title: 'Bantuwa Academy — Coming Soon', platform: 'Instagram', time: '11:00' },
+];
+
+let vault          = STORE.load('vault', []);
+let analyticsData  = STORE.load('analytics', []);
+let scheduledPosts = STORE.load('scheduled', defaultScheduled);
+let calYear = 2026, calMonth = 4;
+
+// ─── Nav ───
+function switchPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget && event.currentTarget.classList.add('active');
+  // Find nav item by onclick text
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(id)) n.classList.add('active');
+  });
+  if (id === 'calendar') renderCalendar();
+  if (id === 'vault') renderVault();
+  if (id === 'dashboard') renderDashboard();
+  updatePlatformTips();
+}
+
+// ─── Platform ───
+function setActivePlatform(el, code) {
+  document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentPlatform = code;
+  const names = { li: 'LinkedIn', tw: 'Twitter / X', ig: 'Instagram', fb: 'Facebook' };
+  document.getElementById('platform-badge').textContent = names[code];
+  updatePlatformTips();
+}
+
+function updatePlatformTips() {
+  const tips = {
+    li: '• Ideal length: 1,200–1,800 characters\n• Open with a bold, declarative statement — no preamble\n• Use line breaks for visual breathing room\n• End with a pointed question or call to reflection\n• Post Tue–Thu between 7–9 AM CAT for maximum reach',
+    tw: '• Hard limit: 280 characters per tweet\n• Lead with the sharpest version of the idea\n• Use threads for arguments requiring more space\n• 1–2 hashtags max — more dilutes signal\n• Retweet your own threads to re-surface them',
+    ig: '• Caption: 150–300 words optimal for engagement\n• Open with a hook in the first two lines (above the fold)\n• 5–10 hashtags in the caption or first comment\n• Stories drive discovery; Reels drive reach\n• Post Fri–Sat, 12–2 PM CAT',
+    fb: '• 100–250 words perform best for organic reach\n• Native video and link posts outperform plain text\n• Engage with comments within the first hour of posting\n• Groups are high-leverage for Bantuwa\'s community mission'
+  };
+  const el = document.getElementById('platform-tips');
+  if (el) el.textContent = tips[currentPlatform] || '';
+}
+
+// ─── API Key Management ───
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  STORE.save('apiKey', key);
+  const statusEl = document.getElementById('api-key-status');
+  if (key.startsWith('sk-ant-')) {
+    statusEl.textContent = '✓ Key saved';
+    statusEl.style.color = '#6ee7b7';
+  } else if (key.length > 0) {
+    statusEl.textContent = '⚠ Key format looks off';
+    statusEl.style.color = '#fcd34d';
+  } else {
+    statusEl.textContent = 'Enter key to enable AI generation';
+    statusEl.style.color = 'rgba(255,255,255,0.3)';
+  }
+}
+
+function toggleApiKeyVis() {
+  const inp = document.getElementById('api-key-input');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function getApiKey() {
+  return STORE.load('apiKey', '') || document.getElementById('api-key-input').value.trim();
+}
+
+// ─── Claude API call ───
+async function callClaude(systemPrompt, userPrompt, maxTokens = 1200) {
+  const key = getApiKey();
+  if (!key) {
+    showToast('Add your Claude API key in the sidebar');
+    throw new Error('No API key');
+  }
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error ${resp.status}`);
+  }
+  const data = await resp.json();
+  return data.content[0].text;
+}
+
+const VICTOR_VOICE = `You are writing as Victor Simz — Strategy Lead and co-founder of Bantuwa Innovate, and creator of the AIKS® (Augmented Indigenous Knowledge Systems) framework. Also known as "The Z Historian."
+
+Voice characteristics:
+- Declarative, precise, high-conviction — no hedging, no filler, no corporate speak
+- Analytically rigorous: treats indigenous African knowledge as systems and infrastructure, not cultural artefacts
+- Strategic framing: every piece connects local/cultural reality to global power dynamics
+- Personal but not confessional — vulnerability is intellectual (admitting complexity), not emotional
+- Uses short, punchy sentences for emphasis, longer sentences for argument
+- Never uses: "It's time to...", "In conclusion...", "I believe...", clichés about Africa being the "cradle of civilisation" without substance
+- Africa is not a victim in this voice — it is an actor with leverage and a knowledge inheritance to deploy
+- Bantuwa Innovate's mission: systematise African indigenous knowledge using AI and modern systems design so it becomes scalable, searchable, and globally competitive
+
+Content pillars: AIKS® Framework, African Indigenous Knowledge, Education Systems, Leadership Development, Innovation & AI in Africa, The Z Historian / Victor Simz personal brand.`;
+
+// ─── Post Generator ───
+// (templates replaced by live Claude API calls)
+const _unused = {
+  aiks: {
+    li: {
+      thought: `There is a question that has haunted African development for decades: why do communities with centuries of accumulated intelligence still import the frameworks that are supposed to serve them?
+
+The answer is not capacity. It is architecture.
+
+Africa's indigenous knowledge systems are not the problem — the absence of a system to capture, structure, and deploy them is.
+
+That is precisely what the AIKS® framework exists to solve.
+
+AIKS® — Augmented Indigenous Knowledge Systems — is not digitization for archival purposes. It is not a cultural museum project. It is a deliberate systems-design discipline that takes what African communities already know and makes it scalable, searchable, teachable, and applied to real problems in real time.
+
+The formula is direct:
+Indigenous Knowledge + AI and Technology = Relevance + Competitiveness + Cultural Authenticity.
+
+Africa does not need to import knowledge architectures designed for other realities. It needs to engineer its own. That work is underway.
+
+— Victor Simz | Co-founder, Bantuwa Innovate`,
+      provoke: `We have been asking the wrong question.
+
+The question has never been: "How do we preserve African culture?" The question is: "Why are we still treating Africa's deepest intelligence as folklore rather than infrastructure?"
+
+Indigenous knowledge is not a heritage exhibit. It is a functional system — one that solved water management, conflict resolution, agricultural innovation, and community governance long before the institutions we imported arrived.
+
+The crisis is not that this knowledge is disappearing. The crisis is that we have not yet built the architecture to make it scale.
+
+That is the work. AIKS® is the method. The urgency is now.
+
+What are you building with what Africa already knows?
+
+#AIKS #BantuwainInnovate #AfricanKnowledge #IndigenousIntelligence`
+    },
+    tw: {
+      thought: `Africa's indigenous knowledge is not dying. It's unstructured.
+
+Structure it. Scale it. Deploy it.
+
+That's what AIKS® does.
+
+#AfricanKnowledge #AIKS #BantuwainInnovate`,
+      provoke: `You cannot solve African problems with frameworks designed for different realities.
+
+Africa has its own intelligence. It needs its own architecture.
+
+AIKS® is that architecture.
+
+#IndigenousKnowledge #AfricaTech`
+    },
+    ig: {
+      thought: `What if Africa's greatest competitive advantage has been sitting undocumented for centuries?
+
+Not waiting to be discovered — waiting to be systematized.
+
+Indigenous knowledge systems: water management, governance, conflict resolution, healing, ecological intelligence — built through centuries of adaptive problem-solving in African environments.
+
+The AIKS® framework exists to close that gap: encoding this knowledge into intelligent, scalable, deployable systems for education, leadership, and innovation.
+
+Not preservation. Production.
+
+Africa moves from consumer to architect.
+
+Follow @bantuwainnovate for more.
+
+#AIKS #BantuwainInnovate #AfricanKnowledge #IndigenousIntelligence #AfricaRising #KnowledgeSystems #AIinAfrica #AfricanTech #Zambia`
+    }
+  },
+  indigenous: {
+    li: {
+      thought: `Africa sits at one of the most consequential paradoxes of our time.
+
+It is home to the world's youngest population — over 60% under 25, with 800 million youth projected by 2050. These are digitally connected, tech-native, globally engaged young people.
+
+And they are increasingly disconnected from the continent's deepest intellectual reservoirs.
+
+That is not a cultural problem. It is a systems problem.
+
+The knowledge exists. What does not yet exist — at scale — is the architecture to make that knowledge accessible, structured, and useful in a digital age.
+
+At Bantuwa Innovate, we call this the generational knowledge disconnect. And we are building the bridge.
+
+The window is not infinite. Many of the custodians of Africa's deepest indigenous knowledge systems are aging. What we do not systematize now, we will not recover.
+
+The work is urgent. The method is AIKS®. The purpose is Africa's intellectual future.
+
+— Victor Simz | Strategy Lead, Bantuwa Innovate`
+    },
+    tw: {
+      thought: `800 million African youth by 2050.
+
+Disconnected from centuries of indigenous knowledge.
+
+The window to close that gap is not infinite.
+
+It is closing.
+
+#AfricanKnowledge #BantuwainInnovate`
+    },
+    ig: {
+      thought: `A continent's wisdom — accumulated over millennia — exists largely in oral traditions, in the memories of aging custodians, in fragmented community practices.
+
+Undocumented. Unstructured. At risk.
+
+Africa is the youngest continent on earth. Its youth are digital natives. And they are growing up increasingly disconnected from the intellectual heritage that should be their greatest asset.
+
+This is the paradox Bantuwa Innovate was founded to resolve.
+
+Not through preservation. Through engineering.
+
+The knowledge systems Africa's communities carry are not relics. They are functional intelligence. They need to be systematized, digitized, and scaled — before the window closes.
+
+#AfricanHeritage #IndigenousKnowledge #BantuwainInnovate #Africa2050 #KnowledgeIsInfrastructure`
+    }
+  },
+  zhist: {
+    li: {
+      narrative: `I did not grow up in a museum. I grew up in a story.
+
+The Z Historian was not a title I chose — it was a function I recognized I had to fill. Someone had to sit at the intersection of where African history lives and where African youth spend their time.
+
+History is not what happened. History is what gets told. And for too long, the stories told about Africa have been told by people who were not in the room when Africa was writing its own chapters.
+
+My work is not nostalgia. It is reconnection — using storytelling, media, and technology to make African history, philosophy, and identity not just accessible, but urgent.
+
+Because identity is not inherited. It is built. And you cannot build an identity on a foundation you do not understand.
+
+— Victor Simz | The Z Historian | Co-founder, Bantuwa Innovate`
+    },
+    tw: {
+      narrative: `History is not what happened.
+
+It is what gets told.
+
+For too long, Africa's story has been told by others.
+
+I am changing that.
+
+— The Z Historian | @BantuwainInnovate`
+    },
+    ig: {
+      narrative: `Identity is not inherited. It is built.
+
+And you cannot build on a foundation you do not understand.
+
+That is the work of The Z Historian — reconnecting a generation to the philosophy, the systems, and the intelligence that African communities have always possessed.
+
+Not as nostalgia. As infrastructure.
+
+Follow along. The story is still being written.
+
+#TheZHistorian #VictorSimz #AfricanIdentity #AfricanHistory #BantuwainInnovate #AfricaRising`
+    }
+  }
+};
+
+async function generatePost() {
+  const pillar     = document.getElementById('pillar-select').value;
+  const toneVal    = document.getElementById('tone-select').value;
+  const topic      = document.getElementById('topic-input').value.trim();
+  const keyMsg     = document.getElementById('key-msg').value.trim();
+
+  const platNames  = { li: 'LinkedIn', tw: 'Twitter/X', ig: 'Instagram', fb: 'Facebook' };
+  const platName   = platNames[currentPlatform];
+
+  const pillarLabels = {
+    aiks: 'AIKS® Framework (Augmented Indigenous Knowledge Systems)',
+    indigenous: 'African Indigenous Knowledge Systems',
+    education: 'Education Systems & Curriculum Reform in Africa',
+    leadership: 'African Leadership Development',
+    innovation: 'Innovation & AI in Africa',
+    zhist: 'The Z Historian / Victor Simz personal brand',
+    custom: 'Custom topic'
+  };
+
+  const toneLabels = {
+    thought: 'thought leadership — declarative, confident, high-conviction',
+    provoke: 'provocative — challenge assumptions, name uncomfortable truths',
+    narrative: 'narrative — story-driven, first-person, personal insight',
+    data: 'data-led — evidence-first, specific numbers or structural facts',
+    call: 'call to action — movement-building, direct invitation to act or join'
+  };
+
+  const platformGuides = {
+    li: 'LinkedIn post: 1,200–1,800 characters. Open with a bold declarative statement — no preamble. Use short paragraphs with line breaks for breathing room. End with a pointed question or call to reflection. Include 2–3 relevant hashtags at the end. Sign off as "— Victor Simz | Strategy Lead, Bantuwa Innovate".',
+    tw: 'Twitter/X post: HARD LIMIT 280 characters total including hashtags. Be surgical — one sharp idea, no filler. 1–2 hashtags max. Every word must earn its place.',
+    ig: 'Instagram caption: 150–300 words. Open with a powerful hook (first 2 lines must stop the scroll). Use short paragraphs. End with a CTA like "Follow @bantuwainnovate". Include 7–10 relevant hashtags.',
+    fb: 'Facebook post: 100–250 words. Conversational but substantive. End with an engaging question to drive comments. 2–3 hashtags.'
+  };
+
+  const outEl = document.getElementById('post-output');
+  const btnEl = document.querySelector('#panel-generator .btn-primary');
+  outEl.textContent = '✦ Generating…';
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Generating…'; }
+  document.getElementById('hashtag-block').style.display = 'none';
+  document.getElementById('post-charcount').textContent = '';
+
+  const userPrompt = `Write a ${platName} post for Bantuwa Innovate.
+
+Content pillar: ${pillarLabels[pillar] || pillar}
+Topic / angle: ${topic || '(draw from the content pillar — choose a specific, sharp angle)'}
+Tone: ${toneLabels[toneVal] || toneVal}
+${keyMsg ? `Key message to communicate: ${keyMsg}` : ''}
+
+Platform requirements:
+${platformGuides[currentPlatform]}
+
+Output ONLY the post text, ready to publish. No preamble, no explanation, no "Here is your post:" — just the post itself.`;
+
+  try {
+    const output = await callClaude(VICTOR_VOICE, userPrompt, currentPlatform === 'tw' ? 300 : 800);
+    outEl.textContent = output;
+    document.getElementById('post-charcount').textContent = output.length + ' characters';
+    showHashtags(pillar);
+    updatePlatformTips();
+  } catch (e) {
+    outEl.textContent = 'Generation failed: ' + e.message + '\n\nCheck your API key in the sidebar.';
+    showToast('Error: ' + e.message);
+  } finally {
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Generate Post'; }
+  }
+}
+
+function showHashtags(pillar) {
+  const tags = {
+    aiks:       ['#AIKS', '#BantuwainInnovate', '#AfricanKnowledge', '#IndigenousIntelligence', '#AfricaTech', '#KnowledgeSystems'],
+    indigenous: ['#IndigenousKnowledge', '#AfricanHeritage', '#BantuwainInnovate', '#Africa2050', '#KnowledgeIsInfrastructure', '#AfricaRising'],
+    education:  ['#AfricanEducation', '#BantuwainInnovate', '#LearnAfrica', '#EducationForAll', '#AfricanCurriculum', '#AIKS'],
+    leadership: ['#AfricanLeadership', '#LeadershipDevelopment', '#BantuwainInnovate', '#IndigenousLeadership', '#AfricaBuilds'],
+    innovation: ['#AfricaTech', '#AIinAfrica', '#Innovation', '#BantuwainInnovate', '#AfricanInnovation', '#TechForGood'],
+    zhist:      ['#TheZHistorian', '#VictorSimz', '#AfricanHistory', '#AfricanIdentity', '#BantuwainInnovate', '#AfricaRising'],
+    custom:     ['#BantuwainInnovate', '#AIKS', '#AfricanKnowledge', '#AfricaRising', '#IndigenousIntelligence']
+  };
+  const block = document.getElementById('hashtag-block');
+  const out   = document.getElementById('hashtag-output');
+  const htags = tags[pillar] || tags.custom;
+  out.innerHTML = htags.map(t => `<span style="background:rgba(0,119,181,0.1);color:#0055a0;padding:3px 8px;border-radius:12px;font-size:12px;">${t}</span>`).join('');
+  block.style.display = 'block';
+}
+
+function clearGen() {
+  document.getElementById('post-output').textContent = 'Your generated post will appear here. Select your platform, pillar, and topic — then hit Generate.';
+  document.getElementById('post-charcount').textContent = '';
+  document.getElementById('topic-input').value = '';
+  document.getElementById('key-msg').value = '';
+  document.getElementById('hashtag-block').style.display = 'none';
+}
+
+// ─── Article Writer ───
+async function generateArticle() {
+  const rawTitle = document.getElementById('art-title').value.trim();
+  const thesis   = document.getElementById('art-thesis').value.trim();
+  const type     = document.getElementById('art-type').value;
+  const audience = document.getElementById('art-audience').value;
+  const length   = document.getElementById('art-length').value;
+
+  if (!rawTitle) { showToast('Enter a working title first'); return; }
+
+  const wordTargets = { short: '600–900 words', medium: '1,000–1,500 words', long: '2,000–2,500 words' };
+  const typeLabels  = {
+    opinion:  'Opinion / Op-Ed — first-person, assertive, takes a clear position',
+    explainer:'Explainer / Educational — structured, accessible, builds understanding progressively',
+    case:     'Case for Action — builds an evidence-based argument for a specific course of action',
+    analysis: 'Strategic Analysis — rigorous, structured sections, examines multiple dimensions'
+  };
+
+  const outEl  = document.getElementById('art-output');
+  const btnEl  = document.querySelector('#panel-article .btn-primary');
+  outEl.textContent = '✦ Generating full draft…';
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Generating…'; }
+  document.getElementById('art-wordcount').textContent = '';
+
+  const userPrompt = `Write a full article draft for Victor Simz / Bantuwa Innovate.
+
+Working title: ${rawTitle}
+${thesis ? `Core thesis / argument: ${thesis}` : ''}
+Article type: ${typeLabels[type] || type}
+Target audience: ${audience}
+Target length: ${wordTargets[length] || wordTargets.medium}
+
+Structure requirements:
+- Open with a compelling, substantive introduction that establishes the stakes immediately — no throat-clearing
+- Use clear section headings (Roman numerals or bold headers)
+- Build the argument progressively — each section should earn the reader's continued attention
+- Integrate specific evidence, historical examples, or structural analysis (do not use vague generalities)
+- Conclude with a call to action or a forward-looking synthesis — not a summary
+- Sign off: "— Victor Simz | Strategy Lead, Bantuwa Innovate | www.bantuwa.org"
+
+Output ONLY the article text, formatted and ready to publish. No meta-commentary.`;
+
+  const maxTok = length === 'long' ? 3500 : length === 'medium' ? 2200 : 1400;
+
+  try {
+    const draft = await callClaude(VICTOR_VOICE, userPrompt, maxTok);
+    outEl.textContent = draft;
+    const wc = draft.split(/\s+/).filter(Boolean).length;
+    document.getElementById('art-wordcount').textContent = wc.toLocaleString() + ' words';
+  } catch (e) {
+    outEl.textContent = 'Generation failed: ' + e.message + '\n\nCheck your API key in the sidebar.';
+    showToast('Error: ' + e.message);
+  } finally {
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Generate Full Draft'; }
+  }
+}
+
+function _buildFullDraft_REMOVED(title, thesis, topic, type, audience, length) { return ''; }
+function buildFullDraft(title, thesis, topic, type, audience, length) {
+  const byline = `By Victor Simz | Strategy Lead, Bantuwa Innovate`;
+  const hr = '─'.repeat(60);
+
+  const intro   = buildIntro(title, thesis, topic, type);
+  const body    = buildBody(title, thesis, topic, type, length);
+  const closing = buildClosing(title, thesis, topic, type);
+
+  return `${title}\n${byline}\n\n${hr}\n\n${intro}\n\n${body}\n\n${hr}\n\n${closing}\n\n— Victor Simz\n  Strategy Lead, Bantuwa Innovate\n  www.bantuwa.org`;
+}
+
+function buildIntro(title, thesis, topic, type) {
+  const intros = {
+    geopolitics: {
+      opinion: `There is a tendency, in discussions about Africa's geopolitical position, to frame the continent as a stage — a theater upon which external actors perform their strategic competitions. This framing is not only analytically insufficient. It is dangerous.\n\n${thesis}\n\nAfrica is not a passive variable in the equations of great power competition. It is an actor — one whose choices, coalitions, and postures will increasingly shape the contours of the emerging world order. The failure to recognize this is not a small intellectual error. It is a foundational misreading of where power is being redistributed in the twenty-first century.`,
+      analysis: `Any serious analysis of ${title} must begin not with normative prescription but with structural diagnosis. What forces are actually in motion? What historical patterns are being repeated, and which have genuinely broken? And what does the evidence — beyond the noise of diplomatic statements and media cycles — tell us about Africa's real position?\n\nThe diagnosis is direct: Africa is navigating a moment of compounding geopolitical pressure at precisely the point in its historical trajectory when its demographic weight, resource endowment, and institutional maturation give it unprecedented leverage. Whether that leverage translates into strategic agency or is eroded by external dependence is the defining question of this decade.`,
+      explainer: `To understand what ${title} actually means for Africa, one must resist the instinct to begin with the external powers and work inward. That approach — mapping what America wants, what China is doing, what Russia is attempting — treats Africa as an object of analysis rather than a subject of it.\n\nBegin instead with Africa's position. What does the continent bring to this moment? What are the structural realities that any serious foreign actor must reckon with? And what does history tell us about how similar moments have played out — and for whom?\n\n${thesis}`,
+      case: `The case being made here is not sentimental. It does not appeal to African solidarity as a substitute for strategic thinking. It appeals to something more durable: the alignment of structural reality with political will.\n\n${thesis}\n\nThe argument rests on three claims — each independently defensible, and collectively decisive.`
+    },
+    history: {
+      opinion: `History, properly understood, is not a record of what happened. It is a record of what was allowed to be remembered — and by whom.\n\nAfrica's historical record has been subject to one of the most sustained acts of intellectual misrepresentation in modern scholarship: the systematic minimization, distortion, and erasure of African agency, political sophistication, and civilizational achievement. This is not ancient grievance. It is contemporary consequence. The frameworks through which Africa's past is taught, analyzed, and recalled continue to shape how its present is understood — and how its future is constrained.\n\n${thesis}`,
+      analysis: `The historical record demands a more rigorous accounting than it has typically received in mainstream scholarship. To analyze ${title} seriously is to confront a body of evidence that unsettles comfortable assumptions — about African development, about the origins of contemporary crises, and about the relationship between past patterns and present possibilities.\n\n${thesis}\n\nThis analysis proceeds in phases: establishing what the historical record actually shows, identifying the structural mechanisms that produced the outcomes under examination, and drawing the lines of continuity that connect that past to the present.`,
+      explainer: `${title} is not a subject that can be approached from a neutral position. Every account of African history carries within it a set of assumptions about cause, agency, and consequence — assumptions that, once surfaced, reveal as much about the analyst as about the history itself.\n\nWith that acknowledged, the aim here is precision: what happened, in what sequence, under what conditions, and with what structural effects that persist into the present.\n\n${thesis}`,
+      case: `The case for re-examining ${title} rests on a simple but consequential observation: the dominant historical account is not neutral. It was produced under specific political conditions, by specific institutional actors, with specific interests — and it has had specific effects on how Africa's contemporary challenges are framed and addressed.\n\n${thesis}\n\nThree propositions anchor this argument.`
+    },
+    economy: {
+      opinion: `Africa's development story has been narrated, for the better part of six decades, through a framework of deficit: insufficient institutions, insufficient capital, insufficient governance capacity. The language of insufficiency has produced an entire global industry — development finance, technical assistance, structural adjustment — built on the premise that Africa needs to be completed by external inputs.\n\nThis premise is not a neutral diagnosis. It is a political position. And it has been wrong, systematically and consequentially, in ways that the evidence now makes impossible to ignore.\n\n${thesis}`,
+      analysis: `To analyze ${title} with precision is to engage a question that sits at the intersection of economic history, political economy, and strategic planning. The surface-level data — GDP growth rates, investment flows, trade balances — tells part of the story. The structural dynamics that produce and constrain those numbers tell the rest.\n\n${thesis}\n\nThe analysis proceeds in four movements: the structural inheritance, the contemporary configuration, the emerging inflection points, and the strategic implications.`,
+      explainer: `${title} cannot be understood without understanding the economic architecture that Africa inherited at independence — and has been attempting to navigate, reform, and at times subvert ever since.\n\nThat architecture was not designed for African prosperity. It was designed for the extraction and export of African resources in forms and on terms that maximized value to external actors. Understanding this is not anti-development polemic. It is the prerequisite for any serious analysis of what economic transformation in Africa actually requires.\n\n${thesis}`,
+      case: `The argument here is specific. It is not a general appeal for African economic reform — that conversation has been conducted, with varying degrees of honesty, for decades. It is a targeted case for a particular strategic orientation, grounded in the structural realities that current frameworks consistently obscure.\n\n${thesis}\n\nThree structural realities anchor the argument.`
+    },
+    leadership: {
+      opinion: `Leadership in Africa is a subject that attracts an extraordinary quantity of commentary and a remarkably thin body of precise analysis. The commentary tends toward two poles: the uncritical celebration of particular leaders, and the sweeping indictment of African governance as structurally incapable of producing effective institutions.\n\nBoth positions are intellectually irresponsible. And both obscure the more interesting and more consequential question: what do the most effective African leadership models actually have in common, and what do they tell us about the conditions under which good governance is possible?\n\n${thesis}`,
+      analysis: `${title} requires an analytical framework that moves beyond the binary of "good governance" versus "failed states" — a binary that has proven more useful as a funding category than as an explanatory tool.\n\nThe more productive question is structural: what institutional conditions, historical inheritances, and strategic choices produce durable governance capacity? And what does the comparative evidence — across African contexts and across time — actually show?\n\n${thesis}`,
+      explainer: `${title} is a question that matters beyond the academic. Leadership capacity — or its absence — is not an abstract variable. It produces measurable differences in institutional performance, in the quality of public decisions, and in whether a community's resources are directed toward its own development or extracted for external benefit.\n\nUnderstanding what effective African leadership looks like — its sources, its characteristics, its constraints — is therefore not an elective intellectual exercise. It is a practical and urgent inquiry.\n\n${thesis}`,
+      case: `The case for the argument advanced here is built not on aspiration but on evidence: the comparative record of African leadership across contexts where governance has worked and where it has not.\n\n${thesis}\n\nThree conditions define the argument.`
+    },
+    technology: {
+      opinion: `The conversation about technology in Africa is being conducted in the wrong register. It tends toward either enthusiasm — the narrative of leapfrogging, of mobile money and startup ecosystems, of a digital revolution in progress — or anxiety, focused on the risks of data colonialism, algorithmic bias, and technological dependency.\n\nBoth registers miss the structural question. Technology, in itself, is neither liberation nor dependency. It is infrastructure. And the critical question is always the same: who owns it, who governs it, and whose values are encoded in it?\n\n${thesis}`,
+      analysis: `To analyze ${title} requires separating signal from noise in a conversation that is currently saturated with both. The technology sector generates extraordinary quantities of narrative — about disruption, about potential, about risk — much of it produced by actors with strong interests in particular conclusions.\n\nThe structural questions are more durable and more useful: what is the actual distribution of technological capability and ownership? What are the realistic pathways from current configurations to more sovereign ones? And what does the comparative evidence tell us about which interventions have actually worked?\n\n${thesis}`,
+      explainer: `${title} is, at its core, a question about power — who holds it, how it is being redistributed by technological change, and what Africa's position in that redistribution is likely to be.\n\nThat question has a technical dimension, but it is not primarily a technical question. It is a political economy question: who controls the infrastructure, who sets the standards, who captures the economic value, and who bears the costs.\n\n${thesis}`,
+      case: `The case for the position advanced here is not utopian. It does not assume that technology is inherently democratizing or that African actors will necessarily seize the opportunities that present themselves.\n\nIt assumes instead that opportunity structures are real, that they are time-limited, and that the organizations and governments that act with clarity and speed in this period will occupy structurally different positions from those that do not.\n\n${thesis}`
+    },
+    aiks: {
+      opinion: `African indigenous knowledge is not a heritage exhibit. It is not a subject for museums, ethnography journals, or cultural preservation projects. It is a functional intelligence system — one that solved complex problems across ecology, governance, health, agriculture, and community organization long before the frameworks now offered as solutions arrived on the continent.\n\nThe question is not whether this knowledge has value. It does. The question is whether Africa will build the architecture to make that value accessible, scalable, and applied — before the window to do so closes.\n\n${thesis}`,
+      analysis: `${title} requires engaging both the promise and the structural complexity of what it means to systematize knowledge that has, by design and by historical circumstance, existed outside formal documentation systems.\n\nThe analytical challenge is real: indigenous knowledge is not monolithic, not static, and not uniformly held. It is contextual, community-specific, and — in many cases — held by aging custodians whose transmission pathways have been disrupted by colonization, urbanization, and the structural devaluation of indigenous epistemologies in formal education systems.\n\n${thesis}\n\nWith that complexity acknowledged, the analysis proceeds.`,
+      explainer: `To understand what ${title} actually involves, one must first establish what indigenous knowledge systems are — and, just as importantly, what they are not.\n\nThey are not static collections of tradition awaiting documentation. They are not cultural artifacts to be preserved in the way one preserves a manuscript or a monument. They are functional systems — adaptive, relational, and contextually sophisticated — that have been operating, evolving, and solving real problems across millennia.\n\n${thesis}`,
+      case: `The case for the urgency of this work is not built on cultural sentiment. It is built on strategic timing.\n\n${thesis}\n\nThree converging realities make this moment singular.`
+    },
+    culture: {
+      opinion: `Culture is not soft power. It is the infrastructure of power — the set of assumptions, values, and cognitive frameworks that determine what questions a society asks, what solutions it considers legitimate, and what futures it can imagine.\n\nAfrica's cultural moment is therefore not a peripheral concern. It is a strategic one. The contest over African identity — over what it means, what it contains, and who gets to define it — is inseparable from the contest over Africa's political and economic trajectory.\n\n${thesis}`,
+      analysis: `${title} sits at the intersection of cultural theory, political economy, and historical analysis — a position that demands methodological care. Cultural arguments are easy to make badly: too abstract to test, too sweeping to challenge, too convenient to be trusted.\n\nThe approach here is different. The aim is to identify specific, testable claims about the relationship between culture, identity, and institutional performance — and to evaluate those claims against the available evidence.\n\n${thesis}`,
+      explainer: `${title} is a question about causality: what role does cultural identity actually play in shaping the decisions, institutions, and trajectories of African communities?\n\nThe answer is neither the romanticized version — where cultural identity automatically produces resilience and excellence — nor the dismissive version, where culture is treated as epiphenomenal to the "real" drivers of development. The evidence supports a more precise and more useful claim.\n\n${thesis}`,
+      case: `The argument here proceeds from a specific premise: that identity is not merely a philosophical or aesthetic concern. It is a practical variable that shapes how individuals, communities, and institutions make decisions under conditions of uncertainty.\n\n${thesis}`
+    }
+  };
+
+  const topicIntros = intros[topic] || intros.geopolitics;
+  return topicIntros[type] || topicIntros.opinion;
+}
+
+function buildBody(title, thesis, topic, type, length) {
+  const bodies = {
+    geopolitics: {
+      analysis: `I. The Structural Inheritance\n\nAfrica enters this moment of renewed great power competition carrying an asymmetric inheritance — one shaped decisively by the structural arrangements imposed at and after the Berlin Conference of 1884-85. The borders that define African states today were not drawn for African purposes. They were drawn for European administrative convenience, cutting across ethnic communities, severing trade networks, and creating political units whose internal coherence has been contested ever since.\n\nThis is not ancient history. It is the operating environment of contemporary African governance. The institutional fragility that external analysts attribute to African political culture is, in significant part, the predictable consequence of state structures designed for extraction rather than for the development of political community.\n\nUnderstanding this does not excuse poor governance. It contextualizes it — and more importantly, it identifies the structural variables that any serious strategy for African agency must address.\n\nII. The Contemporary Configuration\n\nThe current geopolitical moment is defined by the fracturing of the post-Cold War liberal international order and its replacement — not with any clearly articulated alternative, but with a period of contested transition whose outcomes remain genuinely open.\n\nFor Africa, this transition creates both risk and opportunity. The risk is familiar: great powers compete for influence, and that competition is often conducted without regard for the developmental interests of African populations. The extraction of resources, the cultivation of political dependencies, the supply of arms to competing factions — these are not new phenomena. They are the recurring features of African engagement with external powers across three centuries.\n\nThe opportunity is less familiar, and it is easy to understate. The collapse of unipolar clarity means that African governments now have genuine strategic options — not unlimited options, but real ones. The ability to play competing powers against each other, to leverage resource endowments for infrastructure investment, to build regional coalitions capable of projecting collective weight — these possibilities are more real today than at any point since independence.\n\nIII. The African Agency Question\n\nThe most consequential variable in this analysis is not what the United States will do, or what China is building, or what Russia is attempting. It is what Africa's own institutional actors will choose — and whether those choices will be made from a position of clarity or of dependency.\n\nThe evidence from the most effective African diplomatic performances of the past decade suggests that clarity of interest is the decisive factor. Governments that have entered negotiations with external powers knowing precisely what they want, what they will and will not concede, and what alternatives they can credibly pursue have consistently outperformed those that approach external engagement reactively or deferentially.\n\nThis is not a counsel of perfection. African governments operate under real constraints: debt burdens, institutional capacity limits, security pressures, and the persistent leverage that donor relationships create over policy autonomy. But constraints are not destiny. They are the conditions within which strategy must be designed — not an excuse for the absence of strategy.\n\nIV. What a Coherent African Position Requires\n\nA coherent African position in the current geopolitical moment requires three things that are individually achievable and collectively transformative.\n\nFirst, it requires institutional memory — the systematic accumulation of negotiating experience, precedent, and strategic knowledge within African institutions rather than in the offices of external advisors and consultants. The knowledge of how to negotiate with China on infrastructure financing, with Western donors on conditionality, with multilateral institutions on reform — this knowledge exists. The question is whether it is being captured, systematized, and transmitted within African institutions in ways that produce durable diplomatic capacity.\n\nSecond, it requires regional coherence — not the ritual invocation of African unity, but the hard, specific work of aligning African positions on concrete issues: debt restructuring, trade rules, security arrangements, and the governance of emerging technologies. The African Union has, on its best days, demonstrated that this kind of coherence is possible. It has also demonstrated how quickly it collapses under the pressure of bilateral relationships that undercut collective positions.\n\nThird, it requires narrative sovereignty — the capacity to define Africa's interests, Africa's challenges, and Africa's achievements in Africa's own terms, for African and global audiences. The current information environment is not neutral. The dominant narratives about Africa — its governance failures, its development deficits, its strategic dependencies — are produced primarily by external actors with specific interests in particular conclusions. Contesting those narratives is not a public relations exercise. It is a strategic imperative.`,
+      opinion: `I. The Framing Problem\n\nThe discourse around ${title} has a structural flaw that precedes any specific policy disagreement: it begins from the wrong vantage point.\n\nMost analyses of Africa's geopolitical position begin with the external actors — mapping American strategy, Chinese investment, Russian military presence — and then ask what Africa means for those calculations. This is, methodologically, a category error. It treats Africa as an object of geopolitical analysis rather than a subject of it.\n\nThe correct starting point is Africa's interests, Africa's leverage, and Africa's choices. Not because external powers are irrelevant — they are not — but because the analytical framework one begins with determines the conclusions one is capable of reaching. Start with Washington's objectives, and Africa will always appear as a secondary consideration. Start with Africa's strategic reality, and a different — and more accurate — picture emerges.\n\nII. The Leverage That Is Being Undervalued\n\n${thesis}\n\nAfrica's strategic leverage in the current moment is real, and it is being systematically undervalued — including, in some cases, by African governments themselves.\n\nConsider the facts. Africa holds approximately 30% of the world's mineral reserves, including the overwhelming majority of global reserves of cobalt, manganese, and platinum — materials that are not optional for the clean energy transition or for advanced technology manufacturing. Africa's agricultural potential, at a moment of genuine global food security concern, is structurally significant. Africa's demographic trajectory — the youngest and fastest-growing population on earth — is the single most consequential variable in the long-term global labor force.\n\nNone of this leverage is automatic. Resources can be extracted without producing local benefit. Demographics can produce dependency rather than development. Potential is not the same as power. But the raw material for a position of genuine strategic agency is present. The question is whether the political and institutional architecture to convert that material into leverage is being built.\n\nIII. The Strategic Choices That Will Define the Decade\n\nThe choices being made by African governments in this period — on debt and infrastructure financing, on security partnerships, on digital infrastructure, on the governance of natural resources — will compound over the next two decades in ways that current analysis consistently underestimates.\n\nThose choices are not being made in a vacuum. They are being made under pressure — fiscal pressure, security pressure, the relentless pressure of immediate crisis that crowds out long-term strategic thinking. This is precisely why the question of African institutional capacity for strategic planning matters so much.\n\nThe governments that will navigate this moment most effectively are not necessarily those with the most resources. They are those with the clearest sense of their own interests, the most disciplined approach to external engagement, and the institutional capacity to translate strategic clarity into consistent diplomatic practice.\n\nIV. What This Requires\n\nIt requires, first, an honest accounting of the current configuration — of where leverage exists and where dependency has been allowed to become structural. That accounting is uncomfortable, because it requires African governments and African institutions to acknowledge the ways in which short-term decisions have created long-term constraints.\n\nIt requires, second, the deliberate construction of regional coalitions on specific issues — not the aspirational unity of continental declarations, but the practical alignment of interests on trade terms, debt restructuring, and the governance of shared resources.\n\nIt requires, third, a generation of African analysts, diplomats, and institutional leaders who are trained not in the frameworks of dependency but in the frameworks of strategic agency — who understand what Africa has, what it needs, and what it can credibly demand.`,
+      explainer: `I. What "Great Power Competition" Actually Means for Africa\n\nThe phrase "great power competition" has entered common use, but its application to African contexts is frequently imprecise. To apply it usefully, one must begin with what it actually denotes: the systematic competition between states capable of projecting power across multiple domains — military, economic, technological, and informational — and the ways in which that competition structures the choices available to smaller and mid-sized actors.\n\nFor Africa, great power competition has never been hypothetical. The continent has been a theater of external power competition continuously since the late fifteenth century — from the Portuguese trade networks and the Atlantic slave trade, through the scramble for colonial territory, through the Cold War proxy conflicts that shaped the post-independence trajectory of dozens of African states, to the current contest between American, Chinese, and Russian influence.\n\nWhat has changed in the current moment is not the fact of competition but its configuration — and, crucially, the degree of leverage that African actors possess within it.\n\nII. The Historical Pattern\n\nThe historical pattern of great power engagement with Africa follows a recognizable structure. External powers enter with offers that appear, in the short term, beneficial: trade access, infrastructure financing, security partnerships, diplomatic recognition. The terms attached to those offers — explicit or implicit — tend to align African policy with external interests rather than African ones.\n\nThis pattern is not inevitable. But it has recurred often enough that it must be treated as a structural tendency rather than a series of unfortunate accidents. The conditions under which African governments have successfully resisted or redirected this pattern are therefore instructive: they tend to involve coherent regional coalitions, credible alternative partners, domestic political constituencies for sovereignty, and institutional capacity to negotiate on equal terms.\n\nThose conditions are more present today than at most points in the post-independence period. Whether they are sufficient — and whether African institutions are positioned to use them — is the defining strategic question.\n\nIII. The Current Actors and Their Interests\n\nEach of the major external actors in Africa's current geopolitical environment pursues a distinct set of interests through a distinct operational approach.\n\nThe United States has historically framed its Africa engagement through a security and governance lens — emphasizing democratic institutions, anti-corruption, and counterterrorism partnerships. That framing has produced mixed results, in part because it has often been applied inconsistently, supporting governments that fail its stated criteria when strategic interests dictate otherwise.\n\nChina's engagement is organized around a different framework: economic complementarity, non-interference in domestic governance, and the construction of infrastructure as both commercial investment and diplomatic relationship. The infrastructure-for-resources model that has characterized much of China's African engagement has generated significant controversy — both in Africa, where questions of debt sustainability and local employment have become politically live, and in Western capitals, where it is framed as a competitive threat.\n\nRussia's posture has shifted significantly in the current period, toward a more direct security-provision model — offering military support, mercenary forces, and political backing to governments facing internal instability, in exchange for resource access and geopolitical alignment.\n\nIV. The African Opportunity Within the Competition\n\nThe multiplicity of external actors with genuine interests in African engagement creates a structural opportunity that African governments have, historically, underexploited. Where a single dominant external power sets the terms of engagement, the space for African agency is narrow. Where multiple powers compete for African relationships, African governments possess real leverage — the ability to play competing offers against each other, to extract better terms, and to avoid the dependency that comes from reliance on a single external patron.\n\nThis leverage is not unlimited. It operates within constraints set by debt levels, institutional capacity, security conditions, and the domestic political economy of individual states. But it is real — and it is more real today than at any point since the end of the Cold War created, briefly and misleadingly, the conditions for unipolar American dominance.`,
+      case: `I. The Argument\n\n${thesis}\n\nThis argument rests on three structural realities that are individually well-documented and collectively decisive.\n\nII. First Reality: Africa's Position Is Stronger Than the Dominant Narrative Suggests\n\nThe dominant narrative about Africa's geopolitical position emphasizes dependency: aid dependency, security dependency, institutional dependency on external technical assistance and analytical frameworks. This narrative is not entirely false. Dependencies of the kinds described do exist and do constrain African agency in real ways.\n\nBut the narrative is systematically incomplete. It omits the other side of the ledger: the structural significance of African resource endowments, demographic weight, and geographic position to external actors whose global ambitions require African cooperation, African markets, and African resources.\n\nThe cobalt reserves of the Democratic Republic of Congo are not a marginal consideration for the clean energy strategies of major powers. They are a decisive one. The agricultural potential of the Sahel and the Great Lakes region is not peripheral to global food security. It is central to it. Africa's position at the intersection of Atlantic and Indian Ocean trade routes is not strategically insignificant. It is increasingly contested precisely because it is significant.\n\nTo negotiate from a position of strength, African governments must first recognize that they have one.\n\nIII. Second Reality: The Current Moment Is Singular\n\nMoments of genuine structural transition in the international order are rare. The current moment — characterized by the fracturing of post-Cold War American unipolarity, the rise of Chinese economic power, the reassertion of Russian military leverage, and the emergence of new domains of competition in technology and space — represents one such transition.\n\nTransitional moments are simultaneously the most dangerous and the most generative periods for actors seeking to improve their structural position. The rules are genuinely in flux. Alliances are being renegotiated. The terms of engagement are open to revision in ways they are not during periods of settled order.\n\nAfrica's engagement with this transitional moment — whether reactive or proactive, whether driven by dependency or by strategic clarity — will compound over decades. The structural positions established in this period will be very difficult to revise once the new order consolidates.\n\nIV. Third Reality: The Institutional Capacity for Strategic Agency Is Being Built\n\nThe African Union's evolution over the past two decades, the growing sophistication of African diplomatic engagement in multilateral institutions, the emergence of continental frameworks on trade, finance, and security — these developments are imperfect and frequently frustrated. But they represent a genuine, if uneven, accumulation of the institutional infrastructure that strategic agency requires.\n\nThe question is not whether African institutions are capable of strategic agency. The evidence suggests they are, at their best. The question is whether the political will, the resource allocation, and the institutional design exist to make that capacity consistent rather than episodic.`
+    },
+    history: {
+      opinion: `I. The Problem with the Dominant Account\n\nEvery historical account is a selection. What distinguishes honest history from strategic narrative is the degree of transparency about that selection — about what has been included, what has been excluded, and why.\n\nThe dominant account of African history has, for the better part of three centuries, been produced by actors with a structural interest in particular conclusions: the minimization of pre-colonial African political sophistication, the naturalization of colonial intervention as a developmental necessity, and the attribution of contemporary African challenges to internal African deficiencies rather than to the external structural interventions that produced them.\n\nThis account has been so thoroughly embedded in formal education systems, academic publishing, and popular media that many of its most consequential claims have ceased to appear as claims at all — they appear as background assumptions. And background assumptions are the most difficult to contest, precisely because they are invisible.\n\nII. What the Historical Record Actually Shows\n\n${thesis}\n\nThe historical record of African political organization, economic sophistication, and intellectual production is considerably richer than the dominant account acknowledges. The empires of Mali, Songhai, Great Zimbabwe, and Kongo were not pre-political societies awaiting the imposition of external order. They were complex political entities with sophisticated administrative systems, long-distance trade networks, and bodies of knowledge that were the intellectual inheritance of large populations.\n\nThe Timbuktu manuscripts — over one million documents covering mathematics, astronomy, law, medicine, and philosophy — are the most commonly cited evidence of this intellectual tradition. But they are illustrative of a broader reality: Africa's pre-colonial societies were not epistemically empty. They were knowledge-producing systems of considerable sophistication.\n\nThe deliberate minimization of this record is not a historical accident. It was a political project — one whose purposes were to justify colonial extraction and whose legacies continue to shape how African development is framed and financed.\n\nIII. The Line from Past to Present\n\nThe structural effects of colonial extraction are not historical curiosities. They are the present operating environment of African governance and development. The borders that fragment ethnic communities and sever trade networks, the export-oriented economic structures that maximize resource extraction rather than local value addition, the educational systems that taught African populations to evaluate themselves by external standards and find themselves deficient — these are not features of an African past that has been transcended. They are features of an African present that must be consciously redesigned.\n\nUnderstanding this is the prerequisite for designing interventions that actually work — rather than interventions that address the symptoms of structural problems while leaving the structures intact.\n\nIV. What Reclaiming Historical Accuracy Makes Possible\n\nThe reclamation of historical accuracy is not nostalgia. It is not a claim that pre-colonial African societies were perfect or that their systems should be reproduced unchanged in the twenty-first century. It is a claim that accurate historical understanding is the prerequisite for accurate contemporary analysis — and that inaccurate historical understanding produces systematically distorted policy.\n\nThe communities that know their own history — that understand what they have produced, what was taken from them, and under what conditions their present challenges were created — are better positioned to make demands, design solutions, and build the institutional infrastructure that their development requires. This is not idealism. It is the consistent lesson of comparative institutional development.`,
+      analysis: `I. Establishing the Historical Record\n\nTo analyze ${title} with precision requires establishing, first, what the historical record actually contains — before examining what conclusions it supports or what patterns it reveals.\n\n${thesis}\n\nThe factual foundation is less contested than the interpretive framework applied to it. The broad outlines of African historical development — the existence of complex pre-colonial political entities, the scale and structure of the Atlantic slave trade, the mechanisms and consequences of colonial administration, the conditions of post-independence political economy — are well-documented in primary sources and in scholarship that has accumulated, if not always at the pace its significance warrants, over the past half-century.\n\nII. The Structural Mechanisms\n\nHistorical outcomes are produced by structural mechanisms — not by the preferences of individual actors alone, but by the institutional configurations, incentive structures, and power distributions within which those actors operate. The historical analysis of Africa requires identifying those mechanisms with precision.\n\nThe slave trade, at its peak, removed an estimated twelve to fifteen million people from African labor forces over four centuries — not uniformly across the continent, but concentrated in specific regions and communities in ways that produced lasting effects on population distribution, political organization, and social trust. The long-run economic effects of the slave trade on contemporary African institutions have been documented in a growing body of quantitative historical research, finding persistent negative correlations between historical slave trade intensity and contemporary institutional quality.\n\nColonial administration operated through mechanisms that varied significantly by colonial power and by colony. But across the diversity of colonial forms, certain structural features recurred: the extraction of resources and labor on terms set by colonial authorities, the suppression of existing political and legal institutions in favor of externally imposed ones, the deliberate limitation of African educational and institutional development in ways that created dependency on external expertise, and the cultivation of administrative intermediaries whose legitimacy derived from their relationship to colonial authority rather than from the communities they nominally served.\n\nIII. The Continuity Problem\n\nThe most consequential historical claim for contemporary African development is not about the distant past. It is about continuity — about the degree to which structural arrangements established during the colonial period persist in the post-independence environment.\n\nThis claim is empirically testable, and the evidence in its favor is substantial. The export-commodity orientation of African economies, the border configurations that fragment regional markets and communities, the legal and administrative systems derived from colonial codes rather than indigenous practice, the debt relationships that recreate forms of policy conditionality structurally similar to colonial fiscal control — these are not metaphors for continuity. They are specific, identifiable structural features whose origins are traceable and whose contemporary effects are measurable.\n\nIV. What This Analysis Makes Possible\n\nHistorical analysis is only as valuable as the clarity it produces for contemporary action. The analysis advanced here supports three categories of practical implication: first, a revised accounting of the sources of contemporary African institutional challenges that shifts the explanatory burden from internal African deficiency to structural inheritance; second, a more precise identification of the specific institutional features that require redesign rather than incremental reform; and third, a historical grounding for African strategic agency that moves beyond the frameworks of dependency and deficit toward the frameworks of structural transformation.`
+    },
+    education: {
+      opinion: `I. The Curriculum Is Not Neutral\n\nEvery curriculum makes choices. It decides what knowledge counts, whose knowledge counts, and what kind of person the education system is designed to produce. Those choices are not made in a vacuum — they are made within political and economic contexts that shape whose interests the curriculum ultimately serves.\n\nAfrica's formal education systems, in their majority, were designed under colonial administration. They were designed not to produce citizens equipped to build African political and economic capacity, but to produce clerks, administrators, and intermediaries — people whose intellectual formation oriented them toward European knowledge frameworks and European institutional systems.\n\nThis inheritance is not a distant problem. It operates in every classroom where African students are required to demonstrate mastery of content that has no connection to their lived reality, their community's knowledge tradition, or the actual problems they will spend their lives attempting to solve.\n\n${thesis}\n\nII. The Evidence of Irrelevance\n\nThe evidence that Africa's dominant educational model is producing graduates poorly equipped for African development challenges is substantial. Employer surveys across sub-Saharan Africa consistently identify mismatches between graduate competencies and labor market requirements. Graduate unemployment rates in countries with significant higher education expansion have failed to fall proportionally — suggesting that the problem is not simply a quantity deficit but a qualitative mismatch between what the education system produces and what African economies and communities need.\n\nMore difficult to measure, but equally significant, is the epistemological mismatch: the degree to which educational content that is disconnected from African contexts produces graduates who analyze African problems through frameworks developed for different realities — and who systematically reach solutions that replicate external models rather than building on African intellectual inheritances.\n\nIII. What Culturally Grounded Education Actually Requires\n\nThe argument for culturally grounded education is not an argument for parochialism or for the exclusion of global knowledge. It is an argument for rootedness: for an educational model that builds from African intellectual foundations outward, rather than from external frameworks inward.\n\nThis distinction matters because it determines what kind of knowledge graduates can produce, not just what kind of knowledge they can consume. An educational system that produces knowledge consumers — people who can apply external frameworks to African problems — will systematically underperform an educational system that produces knowledge creators — people who can build frameworks from African foundations that are both locally grounded and globally applicable.\n\nIV. The Systems Question\n\nThe transformation required is not a curriculum revision. It is a systems redesign — one that addresses the institutional, pedagogical, financial, and political dimensions of how knowledge is produced, transmitted, and applied in African educational contexts. The organizations building those systems — from the design of indigenous-knowledge-grounded learning tools to the training of educators equipped to deliver them — are doing the most consequential educational work on the continent. Whether that work scales is the defining educational question of this generation.`,
+      analysis: `I. Diagnosing the Educational Configuration\n\n${thesis}\n\nThe diagnosis must begin with structure. Africa's formal education systems are not uniformly configured — they vary significantly by country, by level of education, and by the specific colonial inheritance involved. But across this diversity, certain structural features recur with enough consistency to warrant analysis as system-level properties rather than local aberrations.\n\nThe most consequential of these structural features is the epistemological orientation of formal curricula: the systematic privileging of knowledge frameworks developed in and for European and North American contexts, and the corresponding marginalization or absence of knowledge traditions developed within African communities.\n\nII. The Data on Outcomes\n\nEducational investment in Africa has expanded significantly over the past three decades. Primary enrollment rates have risen substantially across the continent. Secondary and tertiary enrollment has grown, though from a lower base and with greater variation. The infrastructure of education — schools, teachers, examination systems — has been extended to populations that previously had no access to it.\n\nThe returns on this investment, measured by the most common indicators, are below what the investment level would predict. Learning outcomes as measured by international assessments remain, in most African contexts, significantly below what comparable levels of enrollment produce in other regions. Graduate unemployment rates in some of the continent's most education-expanded economies challenge the standard human capital model. And the economic returns to education — the degree to which educational attainment translates into productive capacity — vary in ways that suggest the nature of the education, not merely its quantity, is the determining variable.\n\nIII. The Structural Explanation\n\nThe structural explanation for this gap between educational investment and educational outcome is not primarily about teacher quality, infrastructure adequacy, or examination rigor — though all of these play roles. It is about relevance: the degree to which what is taught connects to the cognitive frameworks, community knowledge, and practical challenges of the learners it is supposed to serve.\n\nRelevance, in this context, is not a soft concept. It is an efficiency variable. Learning is faster, more durable, and more transferable when it builds on existing knowledge rather than requiring learners to first discard their existing frameworks and replace them with external ones. The systematic disconnection of African curricula from African knowledge traditions is not merely a cultural loss. It is an inefficiency that explains, in significant part, the gap between educational investment and human capital formation.\n\nIV. The Design Implications\n\nThe design implications of this analysis are specific. The required intervention is not the addition of "African content" to otherwise unchanged curricula — a cosmetic adjustment that leaves the underlying structure intact. It is the redesign of the epistemological foundations of the curriculum: the knowledge frameworks from which content is selected, organized, and assessed.\n\nThis redesign is possible. The knowledge traditions from which it would draw are real, documented, and sophisticated. The pedagogical frameworks for integrating indigenous knowledge with global knowledge in ways that produce neither parochialism nor dependency are being developed. The institutional actors capable of building and deploying these systems exist. The question is whether they will receive the resources, the policy support, and the institutional recognition that their work requires.`
+    }
+  };
+
+  // Get body for detected topic
+  const topicBodies = bodies[topic] || bodies.geopolitics;
+  return topicBodies[type] || topicBodies.opinion || topicBodies.analysis || Object.values(topicBodies)[0];
+}
+
+function buildClosing(title, thesis, topic, type) {
+  const closings = {
+    geopolitics: `Conclusion\n\nThe question posed by ${title} does not resolve cleanly into prescription. The variables are too many, the actors too numerous, and the structural uncertainties of a transitional international order too real for confident prediction.\n\nWhat can be said with confidence is this: the decade ahead will produce outcomes that compound in ways current analysis consistently underestimates. The structural positions established now — in debt and infrastructure, in security partnerships, in digital governance, in the institutional capacity for strategic planning — will be very difficult to revise once they are set.\n\nAfrica's strategic moment is not in the future. It is now. The organizations, governments, and institutions that understand this — and that act on it with clarity and discipline — will occupy structurally different positions from those that do not.\n\nThe horse, to borrow a useful question, is not dead. But the window to determine where it is going is shorter than the current pace of deliberation suggests.`,
+    history: `Conclusion\n\nHistorical analysis, at its most useful, does not produce nostalgia. It produces clarity — a more accurate account of how the present came to be configured as it is, and therefore a more honest basis for thinking about what it would actually take to configure it differently.\n\nThe historical analysis advanced in this piece leads to a specific conclusion: that many of Africa's most persistent contemporary challenges are structural rather than cultural — produced by specific, identifiable historical interventions rather than by any intrinsic incapacity of African institutions or African peoples.\n\nThat conclusion is not comforting, because structural problems are harder to solve than cultural ones. Structural problems require structural redesign — not better attitudes, not more training, not incremental reforms to fundamentally flawed systems.\n\nBut structural problems are also soluble. The structures that produce current outcomes were designed. They can be redesigned. The historical evidence of African political sophistication, institutional creativity, and adaptive capacity is precisely the evidence that makes that case — that redesign is possible, because it has been done before.`,
+    education: `Conclusion\n\nThe educational transformation that Africa requires is neither simple nor cheap. It requires the redesign of curricula, the retraining of teachers, the development of pedagogical materials that do not yet exist at scale, and the political will to challenge institutional arrangements that have been in place for decades.\n\nNone of that is a reason to defer the work. It is a description of the work.\n\nThe communities that invest in educational systems genuinely grounded in their own intellectual traditions — systems that produce knowledge creators rather than knowledge consumers — will compound those investments over generations. The communities that do not will continue to import the frameworks that are supposed to develop them, and will continue to find, as they have found for six decades, that frameworks designed for other realities produce predictably limited results when applied to African ones.\n\nThe window is not infinite. The generation now entering Africa's schools will either receive an education that equips them to build on their intellectual inheritance or one that teaches them to evaluate that inheritance as insufficient. That choice is being made now. It should be made deliberately.`,
+    economy: `Conclusion\n\nThe economic transformation Africa requires is possible. The structural obstacles are real but not immovable. The leverage available to African governments and institutions — in resources, in demographics, in the strategic moment created by great power competition — is underestimated by most external analysis and, occasionally, by African governments themselves.\n\nThe question is not whether African economies can be transformed. The question is whether the political will, institutional capacity, and strategic clarity exist to undertake the transformation on African terms — or whether external prescriptions and external financing will, once again, produce outcomes optimized for external interests.\n\nThat question will be answered by the specific decisions made in the next decade. By the debt structures that are accepted or rejected, by the industrial policies that are designed or deferred, by the regional coalitions that are built or fragmented. The outcomes will compound for generations.\n\nThe strategic imperative is clarity about what Africa's economic interests actually are — and the institutional capacity to pursue them consistently.`,
+    leadership: `Conclusion\n\nLeadership, ultimately, is not a personality variable. It is an institutional variable — the product of systems that select, develop, and constrain leaders in ways that align their interests with the communities they serve.\n\nThe most consequential investment Africa's institutions can make is not in the identification of exceptional individual leaders. It is in the design of leadership systems — the institutional frameworks, accountability mechanisms, knowledge transmission processes, and incentive structures that make good leadership more probable and sustainable across generations.\n\nThat design work is underway, in African universities and civil society organizations and community institutions that are developing leadership frameworks grounded in African intellectual traditions and tested against African realities.\n\nThe question is whether that work will receive the resources, recognition, and institutional support it requires — or whether it will remain the province of scattered individual efforts while the dominant frameworks for African leadership development continue to be imported from elsewhere.`,
+    technology: `Conclusion\n\nTechnology, at its most consequential, is not a tool. It is an architecture — a set of structural arrangements that determines who can participate, on what terms, and with what degree of agency in the economic and informational systems it creates.\n\nAfrica's technology moment is real, but it is not self-executing. The infrastructure being built now — the fiber cables, the data centers, the platform ecosystems, the regulatory frameworks — will determine the structural position of African actors in the digital economy for decades. Whether that infrastructure is built in ways that maximize African agency or in ways that recreate familiar forms of technological dependency is a design question, not a market question.\n\nIt is, therefore, a political question. And it requires political actors — governments, regional bodies, civil society organizations — who understand it as such and engage it with the clarity and institutional capacity it demands.`,
+    aiks: `Conclusion\n\nThe systematization of African indigenous knowledge is not, ultimately, a cultural project. It is a development project — one whose returns, properly measured, include not only cultural continuity but educational effectiveness, institutional quality, innovation capacity, and the economic value that accrues when communities can leverage their own intellectual inheritance rather than importing substitutes.\n\nThe work is urgent, because the window is finite. The custodians of Africa's deepest knowledge traditions are aging. The oral transmission pathways that sustained those traditions are being disrupted. The structural conditions for recovery — technological capacity, organizational infrastructure, political will — are more present than they have ever been.\n\nBantuwa Innovate exists to do this work. The AIKS® framework is the method. The urgency is not rhetorical — it is structural. And the question of whether this generation will build the bridge between Africa's accumulated knowledge and Africa's future capacity is not one that can be deferred.\n\nIt is being answered, right now, by the decisions being made about what to build, what to fund, and what to treat as infrastructure.`,
+    culture: `Conclusion\n\nCulture, in the end, is not ornament. It is not the aesthetic layer that sits on top of the real business of economic and political development. It is the operating system — the set of values, assumptions, and ways of knowing that determine how a society processes information, makes decisions, and responds to challenge.\n\nThe argument for taking African cultural identity seriously as a development variable is therefore not an argument against economic and political analysis. It is an argument for completing that analysis — for including the variables that are most difficult to quantify but most consequential in their effects.\n\nThe communities that know who they are — that have a coherent, grounded, and forward-looking account of their own identity and intellectual tradition — are better positioned to make the choices that their development requires. That is not an aspiration. It is the consistent lesson of the comparative institutional evidence.\n\nBuilding that identity is the work. And it is work that no external actor can do for African communities, regardless of the resources they bring.`
+  };
+
+  return closings[topic] || closings.geopolitics;
+}
+
+function saveArticleToVault() {
+  const title = document.getElementById('art-title').value || 'Untitled Article';
+  const content = document.getElementById('art-output').textContent;
+  if (content.includes('appear here') || content.length < 200) { showToast('Generate an article first'); return; }
+  vault.push({ id: Date.now(), title, platform: 'Article', status: 'Draft', content, date: new Date().toLocaleDateString('en-ZM', { day: '2-digit', month: 'short', year: 'numeric' }) });
+  STORE.save('vault', vault);
+  showToast('Article saved to vault');
+}
+
+// ─── Calendar ───
+function renderCalendar() {
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-label').textContent = monthNames[calMonth] + ' ' + calYear;
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  days.forEach(d => { const h = document.createElement('div'); h.className = 'cal-header'; h.textContent = d; grid.appendChild(h); });
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+  const today = new Date();
+
+  // Prev month fill
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.innerHTML = `<div class="cal-date">${daysInPrev - i}</div>`;
+    grid.appendChild(d);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const d = document.createElement('div');
+    const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day;
+    d.className = 'cal-day' + (isToday ? ' today' : '');
+
+    const dateStr = `${calYear}-${String(calMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const posts = scheduledPosts.filter(p => p.date === dateStr);
+
+    const dateEl = isToday
+      ? `<div class="cal-date"><div class="today-num">${day}</div></div>`
+      : `<div class="cal-date">${day}</div>`;
+
+    let eventsHtml = posts.map(p => {
+      const cls = { LinkedIn: 'ev-li', 'Twitter/X': 'ev-tw', Instagram: 'ev-ig', Article: 'ev-ar', Facebook: 'ev-li' }[p.platform] || 'ev-ar';
+      return `<div class="cal-event ${cls}" title="${p.title}">${p.title.substring(0,22)}${p.title.length > 22 ? '…' : ''}</div>`;
+    }).join('');
+
+    d.innerHTML = dateEl + eventsHtml;
+    d.onclick = () => showDayDetail(dateStr, day);
+    grid.appendChild(d);
+  }
+
+  // Fill remainder
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+  for (let i = 1; i <= totalCells - firstDay - daysInMonth; i++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.innerHTML = `<div class="cal-date">${i}</div>`;
+    grid.appendChild(d);
+  }
+
+  document.getElementById('cal-post-count').textContent = scheduledPosts.filter(p => p.date.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)).length + ' posts this month';
+}
+
+function showDayDetail(dateStr, day) {
+  const posts = scheduledPosts.filter(p => p.date === dateStr);
+  const det = document.getElementById('day-detail');
+  det.style.display = 'block';
+
+  const d = new Date(dateStr + 'T00:00:00');
+  const label = d.toLocaleDateString('en-ZM', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('day-detail-title').textContent = label;
+
+  if (posts.length === 0) {
+    document.getElementById('day-detail-content').innerHTML =
+      `<div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="color:var(--text-light);font-size:13px;">No posts scheduled for this day.</span>
+        <button class="btn btn-sm btn-gold" onclick="openScheduleModalForDate('${dateStr}')">+ Add post</button>
+      </div>`;
+  } else {
+    const platColors = { LinkedIn:'badge-navy', 'Twitter/X':'', Instagram:'', Facebook:'', Article:'' };
+    const platStyle = { LinkedIn:'', 'Twitter/X':'background:rgba(29,161,242,0.12);color:#0055a0;', Instagram:'background:rgba(225,48,108,0.12);color:#b01f5a;', Facebook:'background:rgba(24,119,242,0.12);color:#0d47a1;', Article:'background:var(--gold-light);color:#7a5e1a;' };
+    document.getElementById('day-detail-content').innerHTML =
+      posts.map((p, i) => {
+        const globalIdx = scheduledPosts.indexOf(p);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+          <span class="badge ${platColors[p.platform]||''}" style="${platStyle[p.platform]||''}font-size:11px;">${p.platform}</span>
+          <span style="flex:1;font-size:13px;font-weight:500;">${p.title}</span>
+          <span style="font-size:12px;color:var(--text-muted);margin-right:8px;">${p.time} CAT</span>
+          <button class="btn btn-sm btn-outline" onclick="openRescheduleModal(${globalIdx})" style="padding:4px 10px;">Reschedule</button>
+          <button class="btn btn-sm" onclick="deleteScheduledPost(${globalIdx})" style="padding:4px 10px;color:var(--red);border:1px solid var(--border);background:transparent;">Delete</button>
+        </div>`;
+      }).join('') +
+      `<div style="margin-top:10px;">
+        <button class="btn btn-sm btn-gold" onclick="openScheduleModalForDate('${dateStr}')">+ Add another post</button>
+      </div>`;
+  }
+}
+
+function deleteScheduledPost(idx) {
+  if (!confirm('Delete this scheduled post?')) return;
+  scheduledPosts.splice(idx, 1);
+  STORE.save('scheduled', scheduledPosts);
+  renderCalendar();
+  document.getElementById('day-detail').style.display = 'none';
+  showToast('Post deleted');
+}
+
+function openRescheduleModal(idx) {
+  const p = scheduledPosts[idx];
+  if (!p) return;
+  document.getElementById('sched-title').value = p.title;
+  document.getElementById('sched-platform').value = p.platform;
+  document.getElementById('sched-date').value = p.date;
+  document.getElementById('sched-time').value = p.time;
+  document.getElementById('sched-edit-idx').value = idx;
+  document.getElementById('sched-modal-title').textContent = 'Edit / Reschedule Post';
+  document.getElementById('schedule-modal').classList.add('open');
+}
+
+function openScheduleModalForDate(dateStr) {
+  document.getElementById('sched-date').value = dateStr;
+  document.getElementById('sched-title').value = '';
+  document.getElementById('sched-time').value = '09:00';
+  document.getElementById('sched-edit-idx').value = '';
+  document.getElementById('schedule-modal').classList.add('open');
+}
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+// ─── Schedule Modal ───
+function openScheduleModal() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('sched-date').value = today;
+  document.getElementById('sched-title').value = '';
+  document.getElementById('sched-time').value = '09:00';
+  document.getElementById('sched-edit-idx').value = '';
+  document.getElementById('sched-modal-title').textContent = 'Schedule Post';
+  document.getElementById('schedule-modal').classList.add('open');
+}
+function closeScheduleModal() {
+  document.getElementById('schedule-modal').classList.remove('open');
+}
+function confirmSchedule() {
+  const title    = document.getElementById('sched-title').value || 'Untitled Post';
+  const platform = document.getElementById('sched-platform').value;
+  const pillar   = document.getElementById('sched-pillar').value;
+  const date     = document.getElementById('sched-date').value;
+  const time     = document.getElementById('sched-time').value;
+  const editIdx  = document.getElementById('sched-edit-idx').value;
+  if (!date) { showToast('Please select a date'); return; }
+
+  if (editIdx !== '') {
+    scheduledPosts[parseInt(editIdx)] = { date, title, platform, pillar, time };
+    showToast('Post updated');
+  } else {
+    scheduledPosts.push({ date, title, platform, pillar, time });
+    showToast('Post scheduled');
+  }
+  STORE.save('scheduled', scheduledPosts);
+  closeScheduleModal();
+  renderCalendar();
+  renderDashboard();
+  document.getElementById('day-detail').style.display = 'none';
+}
+
+// ─── Vault ───
+function saveToVault() {
+  const content = document.getElementById('post-output').textContent;
+  if (content.includes('appear here') || content.includes('Select your platform') || content.includes('Generating')) { showToast('Generate a post first'); return; }
+  const platNames = { li: 'LinkedIn', tw: 'Twitter/X', ig: 'Instagram', fb: 'Facebook' };
+  const pillar = document.getElementById('pillar-select')?.value || 'custom';
+  vault.push({
+    id: Date.now(),
+    title: content.substring(0, 60).replace(/\n/g, ' ') + '…',
+    platform: platNames[currentPlatform],
+    pillar,
+    status: 'Draft',
+    content,
+    date: new Date().toLocaleDateString('en-ZM', { day: '2-digit', month: 'short', year: 'numeric' })
+  });
+  STORE.save('vault', vault);
+  renderDashboard();
+  showToast('Saved to vault');
+}
+
+function renderVault() {
+  const search = (document.getElementById('vault-search')?.value || '').toLowerCase();
+  const filter = document.getElementById('vault-filter')?.value || 'all';
+  const filtered = vault.filter(v =>
+    (filter === 'all' || v.platform === filter) &&
+    (v.title.toLowerCase().includes(search) || v.content.toLowerCase().includes(search))
+  );
+
+  document.getElementById('vault-total').textContent = vault.length;
+  document.getElementById('vault-drafts').textContent = vault.filter(v => v.status === 'Draft').length;
+  document.getElementById('vault-published').textContent = vault.filter(v => v.status === 'Published').length;
+  document.getElementById('vault-sched').textContent = vault.filter(v => v.status === 'Scheduled').length;
+
+  const list = document.getElementById('vault-list');
+  const empty = document.getElementById('vault-empty');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    const icons = { LinkedIn: '🔵', 'Twitter/X': '🐦', Instagram: '📷', Article: '📄', Facebook: '🟦' };
+    const colors = { LinkedIn: '#0077b5', 'Twitter/X': '#1da1f2', Instagram: '#e1306c', Article: 'var(--gold)', Facebook: '#1877f2' };
+    list.innerHTML = filtered.map(v => `
+      <div class="vault-item">
+        <div class="vault-icon" style="background:${colors[v.platform]}22;">
+          <span style="font-size:16px;">${icons[v.platform] || '📄'}</span>
+        </div>
+        <div class="vault-meta">
+          <div class="vault-title">${v.title}</div>
+          <div class="vault-detail">${v.platform} · ${v.date} · <span class="badge badge-gold" style="font-size:10px;padding:1px 6px;">${v.status}</span></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="btn btn-sm btn-outline" onclick="copyVaultItem(${v.id})">Copy</button>
+          <button class="btn btn-sm btn-gold" onclick="scheduleFromVault(${v.id})">Schedule</button>
+          <button class="btn btn-sm btn-outline" onclick="markPublished(${v.id})">${v.status === 'Published' ? '✓ Published' : 'Publish'}</button>
+          <button class="btn btn-sm" style="color:var(--red);background:transparent;border:1px solid var(--border);" onclick="deleteVaultItem(${v.id})">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function filterVault() { renderVault(); }
+
+function copyVaultItem(id) {
+  const item = vault.find(v => v.id === id);
+  if (item) { navigator.clipboard.writeText(item.content).then(() => showToast('Copied')); }
+}
+function scheduleFromVault(id) {
+  const item = vault.find(v => v.id === id);
+  if (!item) return;
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('sched-title').value    = item.title.replace(/…$/, '').trim();
+  document.getElementById('sched-platform').value = item.platform || 'LinkedIn';
+  document.getElementById('sched-pillar').value   = item.pillar  || 'custom';
+  document.getElementById('sched-date').value     = today;
+  document.getElementById('sched-time').value     = '09:00';
+  document.getElementById('sched-edit-idx').value = '';
+  document.getElementById('sched-modal-title').textContent = 'Schedule from Vault';
+  document.getElementById('schedule-modal').classList.add('open');
+}
+function markPublished(id) {
+  const item = vault.find(v => v.id === id);
+  if (item) { item.status = 'Published'; STORE.save('vault', vault); renderVault(); renderDashboard(); showToast('Marked as published'); }
+}
+function deleteVaultItem(id) {
+  vault = vault.filter(v => v.id !== id);
+  STORE.save('vault', vault);
+  renderVault();
+  showToast('Deleted');
+}
+
+// ─── Utilities ───
+function copyOutput(elId) {
+  const text = document.getElementById(elId).textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── Analytics Engine ───
+
+function toggleLogForm() {
+  const f = document.getElementById('log-form');
+  const open = f.style.display === 'none';
+  f.style.display = open ? 'block' : 'none';
+  if (open) {
+    const now = new Date();
+    document.getElementById('log-month').value =
+      now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  }
+}
+
+function n(id) { return parseInt(document.getElementById(id).value) || 0; }
+
+function saveAnalyticsEntry() {
+  const month = document.getElementById('log-month').value;
+  if (!month) { showToast('Select a month'); return; }
+  const totalImpressions = n('li-imp') + n('tw-imp') + n('ig-imp') + n('fb-imp');
+  const totalEngagements = n('li-eng') + n('tw-eng') + n('ig-eng') + n('fb-eng');
+  if (totalImpressions === 0 && totalEngagements === 0) { showToast('Enter at least some data'); return; }
+
+  // Remove existing entry for same month
+  analyticsData = analyticsData.filter(e => e.month !== month);
+
+  const entry = {
+    month,
+    label: fmtMonth(month),
+    li:  { imp: n('li-imp'),  eng: n('li-eng'),  fol: n('li-fol'),  clk: n('li-clk') },
+    tw:  { imp: n('tw-imp'),  eng: n('tw-eng'),  fol: n('tw-fol'),  clk: n('tw-clk') },
+    ig:  { imp: n('ig-imp'),  eng: n('ig-eng'),  fol: n('ig-fol'),  clk: n('ig-clk') },
+    fb:  { imp: n('fb-imp'),  eng: n('fb-eng'),  fol: 0,            clk: 0 },
+    topPost: {
+      title: document.getElementById('top-title').value || '',
+      platform: document.getElementById('top-plat').value,
+      imp: n('top-imp'),
+      eng: n('top-eng')
+    },
+    totalPosts: n('total-posts'),
+    totalImpressions,
+    totalEngagements,
+    engRate: totalImpressions > 0 ? ((totalEngagements / totalImpressions) * 100).toFixed(2) : '0.00',
+    totalFollowers: n('li-fol') + n('tw-fol') + n('ig-fol'),
+    totalClicks: n('li-clk') + n('tw-clk') + n('ig-clk')
+  };
+
+  analyticsData.push(entry);
+  analyticsData.sort((a, b) => a.month.localeCompare(b.month));
+  STORE.save('analytics', analyticsData);
+
+  // Reset form
+  ['li-imp','li-eng','li-fol','li-clk','tw-imp','tw-eng','tw-fol','tw-clk',
+   'ig-imp','ig-eng','ig-fol','ig-clk','fb-imp','fb-eng','top-imp','top-eng','total-posts']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('top-title').value = '';
+  toggleLogForm();
+  showToast('Month saved');
+  showAnalyticsDash();
+  renderAnalyticsDash();
+}
+
+function fmtMonth(ym) {
+  const [y, m] = ym.split('-');
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return names[parseInt(m) - 1] + ' ' + y;
+}
+
+function fmtK(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
+}
+
+function delta(curr, prev, label) {
+  if (!prev || prev === 0) return `<span style="color:var(--text-light);font-size:12px;">First entry</span>`;
+  const pct = Math.round(((curr - prev) / prev) * 100);
+  const up = pct >= 0;
+  return `<span class="${up ? 'delta-up' : 'delta-down'}" style="font-size:12px;">${up ? '↑' : '↓'} ${Math.abs(pct)}% vs ${label}</span>`;
+}
+
+function showAnalyticsDash() {
+  document.getElementById('an-empty').style.display = 'none';
+  document.getElementById('an-dashboard').style.display = 'block';
+
+  // Populate period selector
+  const sel = document.getElementById('an-period-select');
+  sel.innerHTML = analyticsData.map((e, i) =>
+    `<option value="${i}" ${i === analyticsData.length - 1 ? 'selected' : ''}>${e.label}</option>`
+  ).join('');
+  document.getElementById('an-entry-count').textContent =
+    analyticsData.length + ' month' + (analyticsData.length !== 1 ? 's' : '') + ' on record';
+}
+
+function renderAnalyticsDash() {
+  const idx = parseInt(document.getElementById('an-period-select').value);
+  const curr = analyticsData[idx];
+  const prev = idx > 0 ? analyticsData[idx - 1] : null;
+  if (!curr) return;
+
+  document.getElementById('an-period-label').textContent = 'Content performance — ' + curr.label;
+
+  // ── Stat cards ──
+  document.getElementById('an-stats-row').innerHTML = `
+    <div class="card-sm">
+      <div class="stat-label">Total Impressions</div>
+      <div class="stat-value">${fmtK(curr.totalImpressions)}</div>
+      <div class="stat-delta">${delta(curr.totalImpressions, prev?.totalImpressions, prev?.label)}</div>
+    </div>
+    <div class="card-sm">
+      <div class="stat-label">Engagements</div>
+      <div class="stat-value">${fmtK(curr.totalEngagements)}</div>
+      <div class="stat-delta">${delta(curr.totalEngagements, prev?.totalEngagements, prev?.label)}</div>
+    </div>
+    <div class="card-sm">
+      <div class="stat-label">Avg Eng. Rate</div>
+      <div class="stat-value">${curr.engRate}%</div>
+      <div class="stat-delta">${prev ? delta(parseFloat(curr.engRate), parseFloat(prev.engRate), prev.label) : '<span style="font-size:12px;color:var(--text-light);">First entry</span>'}</div>
+    </div>
+    <div class="card-sm">
+      <div class="stat-label">Followers Gained</div>
+      <div class="stat-value">+${fmtK(curr.totalFollowers)}</div>
+      <div class="stat-delta">${delta(curr.totalFollowers, prev?.totalFollowers, prev?.label)}</div>
+    </div>
+  `;
+
+  // ── Impressions bar chart ──
+  const chartEl = document.getElementById('an-imp-chart');
+  const maxImp = Math.max(...analyticsData.map(e => e.totalImpressions), 1);
+  const colColors = ['var(--navy)','var(--gold)','var(--teal)','#5f4ab7','#b8963e'];
+  chartEl.innerHTML = analyticsData.map((e, i) => {
+    const h = Math.round((e.totalImpressions / maxImp) * 100);
+    const isSelected = i === idx;
+    return `<div class="bar-col">
+      <div class="bar-val" style="font-size:10px;">${fmtK(e.totalImpressions)}</div>
+      <div class="bar" style="height:${h}%;background:${isSelected ? 'var(--gold)' : 'var(--navy)'};opacity:${isSelected ? 1 : 0.55};"></div>
+      <div class="bar-label" style="font-size:10px;${isSelected ? 'font-weight:600;color:var(--navy);' : ''}">${e.label.substring(0,3)}</div>
+    </div>`;
+  }).join('');
+
+  const note = analyticsData.length > 1
+    ? `${curr.label} highlighted. ${analyticsData.length} months on record.`
+    : 'Add more months to see trends.';
+  document.getElementById('an-imp-note').textContent = note;
+
+  // ── Platform breakdown ──
+  const platforms = [
+    { key: 'li', label: 'LinkedIn',   color: '#0077b5', imp: curr.li.imp, eng: curr.li.eng, fol: curr.li.fol },
+    { key: 'tw', label: 'Twitter/X',  color: '#1da1f2', imp: curr.tw.imp, eng: curr.tw.eng, fol: curr.tw.fol },
+    { key: 'ig', label: 'Instagram',  color: '#e1306c', imp: curr.ig.imp, eng: curr.ig.eng, fol: curr.ig.fol },
+    { key: 'fb', label: 'Facebook',   color: '#1877f2', imp: curr.fb.imp, eng: curr.fb.eng, fol: 0 },
+  ].filter(p => p.imp > 0 || p.eng > 0);
+
+  const maxPlatImp = Math.max(...platforms.map(p => p.imp), 1);
+  const breakEl = document.getElementById('an-platform-breakdown');
+  if (platforms.length === 0) {
+    breakEl.innerHTML = '<div style="font-size:13px;color:var(--text-muted);">No platform data for this month.</div>';
+  } else {
+    breakEl.innerHTML = platforms.map(p => {
+      const er = p.imp > 0 ? ((p.eng / p.imp) * 100).toFixed(1) + '%' : '—';
+      const barW = Math.round((p.imp / maxPlatImp) * 100);
+      return `<div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+          <span style="font-weight:500;">${p.label}</span>
+          <span style="color:var(--text-muted);">${fmtK(p.imp)} reach · ${er} eng · +${p.fol} followers</span>
+        </div>
+        <div style="height:6px;background:var(--surface);border-radius:4px;">
+          <div style="height:100%;width:${barW}%;background:${p.color};border-radius:4px;opacity:0.75;"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Top posts ──
+  const topEl = document.getElementById('an-top-posts');
+  const allTopPosts = analyticsData
+    .filter(e => e.topPost?.title)
+    .map(e => ({ ...e.topPost, month: e.label }))
+    .sort((a, b) => b.imp - a.imp)
+    .slice(0, 5);
+
+  if (allTopPosts.length === 0) {
+    topEl.innerHTML = '<div style="font-size:13px;color:var(--text-muted);">No top posts logged yet. Include a top post when logging each month.</div>';
+  } else {
+    const platColors = { LinkedIn: 'badge-navy', 'Twitter/X': '', Instagram: '', Facebook: '' };
+    const platBg = { LinkedIn: '', 'Twitter/X': 'background:rgba(29,161,242,0.1);color:#0055a0;', Instagram: 'background:rgba(225,48,108,0.1);color:#b01f5a;', Facebook: 'background:rgba(24,119,242,0.1);color:#0d47a1;' };
+    topEl.innerHTML = allTopPosts.map(p => {
+      const er = p.imp > 0 ? ((p.eng / p.imp) * 100).toFixed(1) + '%' : '—';
+      return `<div style="padding:10px;background:var(--surface);border-radius:7px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <span class="badge ${platColors[p.platform] || ''}" style="${platBg[p.platform] || ''}font-size:10px;">${p.platform}</span>
+          <span style="font-size:11px;color:var(--text-light);">${p.month}</span>
+        </div>
+        <div style="font-size:13px;font-weight:500;margin-bottom:3px;">"${p.title}"</div>
+        <div style="font-size:12px;color:var(--text-muted);">${fmtK(p.imp)} impressions · ${er} engagement</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Insights ──
+  const insEl = document.getElementById('an-insights');
+  const insights = generateInsights(curr, prev, analyticsData);
+  insEl.innerHTML = insights.map(ins => `
+    <div style="padding:12px;border-left:3px solid ${ins.color};background:${ins.bg};border-radius:0 7px 7px 0;margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:600;color:${ins.titleColor};margin-bottom:3px;">${ins.title}</div>
+      <div style="font-size:12px;color:${ins.bodyColor};">${ins.body}</div>
+    </div>
+  `).join('');
+
+  // ── History table ──
+  const tbl = document.getElementById('an-history-table');
+  const headers = ['Month','Impressions','Engagements','Eng. Rate','Followers','Clicks','Posts','Top Post'];
+  tbl.innerHTML = `<thead><tr>${headers.map(h =>
+    `<th style="text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;white-space:nowrap;">${h}</th>`
+  ).join('')}</tr></thead><tbody>${
+    [...analyticsData].reverse().map((e, i) => {
+      const isLatest = i === 0;
+      return `<tr style="${isLatest ? 'background:rgba(200,168,75,0.06);' : ''}">
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-weight:${isLatest ? '600' : '400'};font-size:12px;">${e.label}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;">${fmtK(e.totalImpressions)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;">${fmtK(e.totalEngagements)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;">${e.engRate}%</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;">+${fmtK(e.totalFollowers)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;">${fmtK(e.totalClicks)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;">${e.totalPosts || '—'}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.topPost?.title ? `"${e.topPost.title}"` : '—'}</td>
+      </tr>`;
+    }).join('')
+  }</tbody>`;
+}
+
+function generateInsights(curr, prev, all) {
+  const insights = [];
+
+  // Engagement rate assessment
+  const er = parseFloat(curr.engRate);
+  if (er >= 5) {
+    insights.push({ title: 'Strong engagement', color: 'var(--teal)', bg: 'var(--teal-light)', titleColor: 'var(--teal)', bodyColor: 'var(--teal)', body: `${er}% engagement rate is well above the typical 1–3% benchmark for thought leadership content. The audience is responding to the voice and substance.` });
+  } else if (er >= 2) {
+    insights.push({ title: 'Solid engagement', color: 'var(--navy)', bg: 'rgba(26,39,68,0.05)', titleColor: 'var(--navy)', bodyColor: 'var(--text-muted)', body: `${er}% engagement rate is above average. To push toward 5%+, test more declarative or provocative opening lines — the data from your top posts typically supports this.` });
+  } else if (er > 0) {
+    insights.push({ title: 'Engagement needs attention', color: '#a32d2d', bg: 'var(--red-light)', titleColor: 'var(--red)', bodyColor: 'var(--red)', body: `${er}% engagement is below the 2% baseline. Review posting frequency — over-posting can dilute engagement rates — and audit whether recent content is opening with a hook strong enough to stop the scroll.` });
+  }
+
+  // Growth trend (3+ months)
+  if (all.length >= 3) {
+    const recent3 = all.slice(-3);
+    const impTrend = recent3[2].totalImpressions - recent3[0].totalImpressions;
+    if (impTrend > 0) {
+      const pct = Math.round((impTrend / recent3[0].totalImpressions) * 100);
+      insights.push({ title: 'Growth trajectory', color: 'var(--gold)', bg: 'var(--gold-light)', titleColor: '#7a5e1a', bodyColor: '#7a5e1a', body: `Impressions are up ${pct}% over the last 3 months. The trajectory is positive. Maintain posting consistency — drops in frequency are the most common cause of plateau at this stage.` });
+    } else {
+      insights.push({ title: 'Plateau detected', color: 'var(--gold)', bg: 'var(--gold-light)', titleColor: '#7a5e1a', bodyColor: '#7a5e1a', body: `Impressions have been flat or declining over the last 3 months. This is typically a signal to diversify content type, not to post more. Consider a long-form article or a new content angle.` });
+    }
+  }
+
+  // Platform concentration
+  const platforms = [
+    { label: 'LinkedIn', imp: curr.li.imp },
+    { label: 'Twitter/X', imp: curr.tw.imp },
+    { label: 'Instagram', imp: curr.ig.imp },
+  ].filter(p => p.imp > 0).sort((a, b) => b.imp - a.imp);
+
+  if (platforms.length >= 2) {
+    const topPlatShare = Math.round((platforms[0].imp / curr.totalImpressions) * 100);
+    if (topPlatShare > 75) {
+      insights.push({ title: 'Platform concentration', color: 'var(--navy)', bg: 'rgba(26,39,68,0.05)', titleColor: 'var(--navy)', bodyColor: 'var(--text-muted)', body: `${platforms[0].label} accounts for ${topPlatShare}% of total reach. That is a concentration risk. Invest in building a second platform — if ${platforms[0].label} reach dips, you have no cushion.` });
+    } else {
+      insights.push({ title: 'Healthy platform spread', color: 'var(--teal)', bg: 'var(--teal-light)', titleColor: 'var(--teal)', bodyColor: 'var(--teal)', body: `${platforms[0].label} leads (${topPlatShare}%) but other platforms are contributing. This diversification protects against algorithm changes on any single platform.` });
+    }
+  }
+
+  // Posting volume context
+  if (curr.totalPosts > 0) {
+    const impPerPost = Math.round(curr.totalImpressions / curr.totalPosts);
+    insights.push({ title: 'Reach per post', color: '#5f4ab7', bg: 'rgba(95,74,183,0.07)', titleColor: '#3d2f96', bodyColor: 'var(--text-muted)', body: `Average of ${fmtK(impPerPost)} impressions per post this month across ${curr.totalPosts} posts. If this drops as post volume increases, consider reducing frequency and raising quality per post.` });
+  }
+
+  // Mo-mo follower growth
+  if (prev && curr.totalFollowers > 0 && prev.totalFollowers > 0) {
+    const folDelta = curr.totalFollowers - prev.totalFollowers;
+    if (folDelta > 0) {
+      insights.push({ title: 'Follower momentum', color: 'var(--teal)', bg: 'var(--teal-light)', titleColor: 'var(--teal)', bodyColor: 'var(--teal)', body: `${folDelta > 0 ? '+' : ''}${folDelta} followers vs last month. Follower growth is the compounding metric — it takes time to accelerate but compounds sharply once consistent reach is established.` });
+    }
+  }
+
+  return insights.slice(0, 4);
+}
+
+function exportCSV() {
+  if (analyticsData.length === 0) { showToast('No data to export'); return; }
+  const headers = ['Month','Total Impressions','Total Engagements','Eng Rate %','Followers Gained','Profile Clicks','Posts Published','LinkedIn Impressions','LinkedIn Engagements','Twitter Impressions','Twitter Engagements','Instagram Reach','Instagram Engagements','Top Post','Top Post Platform','Top Post Impressions','Top Post Engagements'];
+  const rows = analyticsData.map(e => [
+    e.label, e.totalImpressions, e.totalEngagements, e.engRate, e.totalFollowers, e.totalClicks, e.totalPosts,
+    e.li.imp, e.li.eng, e.tw.imp, e.tw.eng, e.ig.imp, e.ig.eng,
+    `"${(e.topPost?.title || '').replace(/"/g,'""')}"`, e.topPost?.platform || '', e.topPost?.imp || 0, e.topPost?.eng || 0
+  ].join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'bantuwa_analytics.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV downloaded');
+}
+
+// ─── Dashboard ───
+function esc(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderDashboard() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const todayStr = now.toISOString().slice(0, 10);
+
+  // ── Week label ──
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  weekStart.setHours(0,0,0,0);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  const fmtShort = d => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const subtitleEl = document.getElementById('dash-subtitle');
+  if (subtitleEl) subtitleEl.textContent = 'Week of ' + fmtShort(weekStart) + ' — Building Africa\'s Knowledge Systems for the Future';
+
+  // ── Posts This Month ──
+  const monthKey     = `${year}-${String(month+1).padStart(2,'0')}`;
+  const prevMonthKey = month === 0 ? `${year-1}-12` : `${year}-${String(month).padStart(2,'0')}`;
+  const postsThisMonth = scheduledPosts.filter(p => p.date && p.date.startsWith(monthKey)).length
+    + vault.filter(v => v.status === 'Published').length;
+  const postsPrevMonth = scheduledPosts.filter(p => p.date && p.date.startsWith(prevMonthKey)).length;
+
+  document.getElementById('dash-posts-val').textContent = postsThisMonth;
+  const postsDeltaEl = document.getElementById('dash-posts-delta');
+  if (postsPrevMonth > 0) {
+    const d = postsThisMonth - postsPrevMonth;
+    postsDeltaEl.textContent = (d >= 0 ? '↑ ' : '↓ ') + Math.abs(d) + ' vs last month';
+    postsDeltaEl.className = 'stat-delta ' + (d >= 0 ? 'delta-up' : 'delta-down');
+  } else {
+    postsDeltaEl.textContent = 'Calendar + vault data';
+    postsDeltaEl.style.color = 'var(--text-light)';
+  }
+
+  // ── Reach & Engagement ──
+  const reachEl = document.getElementById('dash-reach-val');
+  const reachDeltaEl = document.getElementById('dash-reach-delta');
+  const engEl = document.getElementById('dash-eng-val');
+  const engDeltaEl = document.getElementById('dash-eng-delta');
+  if (analyticsData.length > 0) {
+    const latest = analyticsData[analyticsData.length - 1];
+    reachEl.textContent = fmtK(latest.totalImpressions);
+    if (analyticsData.length > 1) {
+      const prev = analyticsData[analyticsData.length - 2];
+      const pct = prev.totalImpressions > 0 ? Math.round(((latest.totalImpressions - prev.totalImpressions) / prev.totalImpressions) * 100) : 0;
+      reachDeltaEl.textContent = (pct >= 0 ? '↑ ' : '↓ ') + Math.abs(pct) + '% vs last month';
+      reachDeltaEl.className = 'stat-delta ' + (pct >= 0 ? 'delta-up' : 'delta-down');
+    } else {
+      reachDeltaEl.textContent = latest.label;
+      reachDeltaEl.style.color = 'var(--text-light)';
+    }
+    engEl.textContent = latest.engRate + '%';
+    const er = parseFloat(latest.engRate);
+    engDeltaEl.textContent = er >= 1.9 ? '↑ Above industry avg 1.9%' : '↓ Industry avg: 1.9%';
+    engDeltaEl.className = 'stat-delta ' + (er >= 1.9 ? 'delta-up' : 'delta-down');
+  } else {
+    reachEl.textContent = '—'; reachDeltaEl.textContent = 'Log analytics to track'; reachDeltaEl.style.color = 'var(--text-light)';
+    engEl.textContent = '—'; engDeltaEl.textContent = 'Log analytics to track'; engDeltaEl.style.color = 'var(--text-light)';
+  }
+
+  // ── Scheduled upcoming ──
+  const upcoming = scheduledPosts.filter(p => p.date >= todayStr)
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''));
+  document.getElementById('dash-sched-val').textContent = upcoming.length;
+  const schedNextEl = document.getElementById('dash-sched-next');
+  if (upcoming.length > 0) {
+    const next = upcoming[0];
+    const nextDate = new Date(next.date + 'T00:00:00');
+    const label = next.date === todayStr ? 'Today' : nextDate.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+    schedNextEl.textContent = 'Next: ' + label + (next.time ? ', ' + next.time : '');
+  } else {
+    schedNextEl.textContent = 'No upcoming posts';
+  }
+  schedNextEl.style.color = 'var(--text-light)';
+
+  // ── This Week's Schedule ──
+  const schedEl = document.getElementById('dash-week-schedule');
+  if (!schedEl) return;
+  const weekStartStr = weekStart.toISOString().slice(0, 10);
+  const weekEndStr   = weekEnd.toISOString().slice(0, 10);
+  const DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const thisWeekPosts = scheduledPosts
+    .filter(p => p.date >= weekStartStr && p.date <= weekEndStr)
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''));
+
+  if (thisWeekPosts.length === 0) {
+    schedEl.innerHTML = `<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">No posts scheduled this week. <span style="cursor:pointer;color:var(--navy);text-decoration:underline;" onclick="switchPanel('calendar')">Open Calendar →</span></div>`;
+  } else {
+    schedEl.innerHTML = thisWeekPosts.map(p => {
+      const d = new Date(p.date + 'T00:00:00');
+      const isUpcoming = p.date >= todayStr;
+      const badge = isUpcoming ? '<span class="badge badge-teal">Scheduled</span>' : '<span class="badge badge-navy">Posted</span>';
+      const pl = (p.platform||'').toLowerCase();
+      const platColor = pl.includes('linkedin') ? '#0077b5' : pl.includes('twitter') ? '#1da1f2' : pl.includes('instagram') ? '#e1306c' : 'var(--navy)';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--surface);border-radius:7px;">
+        <div style="width:40px;text-align:center;flex-shrink:0;">
+          <div style="font-size:10px;color:var(--text-light);text-transform:uppercase;">${DAYS[d.getDay()]}</div>
+          <div style="font-size:17px;font-weight:600;color:var(--navy);">${d.getDate()}</div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.title)}</div>
+          <div style="font-size:11px;color:var(--text-muted);"><span style="color:${platColor};font-weight:500;">${esc(p.platform||'')}</span>${p.time ? ' • ' + p.time : ''}</div>
+        </div>${badge}</div>`;
+    }).join('');
+  }
+
+  // ── Content Pillars (live from vault + scheduled) ──
+  const PILLAR_META = [
+    { key: 'aiks',       label: 'AIKS® Framework',              color: 'var(--navy)' },
+    { key: 'indigenous', label: 'African Indigenous Knowledge',  color: 'var(--gold)' },
+    { key: 'education',  label: 'Education Systems',             color: 'var(--teal)' },
+    { key: 'leadership', label: 'Leadership Development',        color: '#5f4ab7' },
+    { key: 'innovation', label: 'Innovation & AI in Africa',     color: '#2a8a6e' },
+    { key: 'zhist',      label: 'The Z Historian / Victor Simz', color: '#b8963e' },
+    { key: 'custom',     label: 'Other / Custom',                color: '#8e97a8' },
+  ];
+
+  // Combine vault items and scheduled posts that have a pillar tag
+  const allTagged = [
+    ...vault.map(v => v.pillar).filter(Boolean),
+    ...scheduledPosts.map(p => p.pillar).filter(Boolean)
+  ];
+  const pillarBarsEl   = document.getElementById('dash-pillar-bars');
+  const pillarSourceEl = document.getElementById('dash-pillar-source');
+
+  if (allTagged.length === 0) {
+    pillarBarsEl.innerHTML = `<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">No pillar data yet — save posts or schedule content with a pillar tag to see your breakdown here.</div>`;
+    if (pillarSourceEl) pillarSourceEl.textContent = '';
+  } else {
+    const counts = {};
+    allTagged.forEach(k => { counts[k] = (counts[k] || 0) + 1; });
+    const total = allTagged.length;
+    // Only show pillars that have at least 1 item, sorted by count desc
+    const active = PILLAR_META.filter(p => counts[p.key] > 0).sort((a,b) => (counts[b.key]||0) - (counts[a.key]||0));
+    pillarBarsEl.innerHTML = active.map(p => {
+      const pct = Math.round((counts[p.key] / total) * 100);
+      return `<div style="display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;font-size:13px;color:var(--text);">${p.label}</div>
+        <div style="width:120px;background:var(--surface);border-radius:4px;height:8px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${p.color};border-radius:4px;transition:width 0.4s;"></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);width:32px;text-align:right;">${pct}%</div>
+      </div>`;
+    }).join('');
+    if (pillarSourceEl) pillarSourceEl.textContent = total + ' items tracked';
+  }
+
+  // ── Platform Mix (live from vault + scheduled) ──
+  const PLAT_META = [
+    { key: 'LinkedIn',   color: '#0077b5' },
+    { key: 'Twitter/X',  color: '#1da1f2' },
+    { key: 'Instagram',  color: '#e1306c' },
+    { key: 'Facebook',   color: '#1877f2' },
+    { key: 'Article',    color: 'var(--gold)' },
+  ];
+  const allPlats = [
+    ...vault.map(v => v.platform).filter(Boolean),
+    ...scheduledPosts.map(p => p.platform).filter(Boolean)
+  ];
+  const platMixEl = document.getElementById('dash-platform-mix');
+  if (allPlats.length === 0) {
+    platMixEl.innerHTML = `<div style="font-size:12px;color:var(--text-muted);">No data yet — schedule posts or save to vault to track platform mix.</div>`;
+  } else {
+    const platCounts = {};
+    allPlats.forEach(k => { platCounts[k] = (platCounts[k] || 0) + 1; });
+    const platTotal = allPlats.length;
+    const activePlats = PLAT_META.filter(p => platCounts[p.key] > 0).sort((a,b) => (platCounts[b.key]||0) - (platCounts[a.key]||0));
+    platMixEl.innerHTML = activePlats.map(p => {
+      const pct = Math.round((platCounts[p.key] / platTotal) * 100);
+      const barW = pct;
+      return `<div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:${p.color};flex-shrink:0;"></div>
+        <div style="font-size:12px;color:var(--text);width:88px;">${p.key}</div>
+        <div style="flex:1;background:var(--surface);border-radius:4px;height:6px;overflow:hidden;">
+          <div style="width:${barW}%;height:100%;background:${p.color};border-radius:4px;opacity:0.8;transition:width 0.4s;"></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);font-weight:600;width:32px;text-align:right;">${pct}%</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ─── Init ───
+// Restore API key
+(function() {
+  const savedKey = STORE.load('apiKey', '');
+  if (savedKey) {
+    document.getElementById('api-key-input').value = savedKey;
+    const statusEl = document.getElementById('api-key-status');
+    if (savedKey.startsWith('sk-ant-')) {
+      statusEl.textContent = '✓ Key loaded';
+      statusEl.style.color = '#6ee7b7';
+    }
+  }
+})();
+
+updatePlatformTips();
+renderCalendar();
+renderDashboard();
+// Restore analytics dashboard if saved data exists
+if (analyticsData.length > 0) {
+  showAnalyticsDash();
+  renderAnalyticsDash();
+}
+</script>
+</body>
+</html>

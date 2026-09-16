@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TZH HQ — The Z Historian Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;}
+body{font-family:'Inter',sans-serif;background:#080808;color:#e2ddd6;display:flex;min-height:100vh;overflow:hidden;}
+
+:root{
+  --bg:#080808;--surface:#111111;--surface2:#161616;--surface3:#1c1c1c;
+  --border:#252525;--border2:#2e2e2e;
+  --gold:#C9A84C;--gold-light:#DFBF6A;--gold-dim:rgba(201,168,76,0.1);--gold-border:rgba(201,168,76,0.28);
+  --text:#e2ddd6;--text-muted:#888880;--text-dim:#4a4a45;
+  --success:#5C9E6E;--warning:#C9924C;--danger:#9E5C5C;
+  --sidebar-w:230px;--r:6px;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;flex-shrink:0;overflow-y:auto;}
+.sidebar-logo{padding:22px 18px 18px;border-bottom:1px solid var(--border);}
+.logo-z{width:38px;height:38px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--gold);}
+.logo-mark{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold-light);letter-spacing:.05em;}
+.logo-sub{font-size:9px;font-weight:500;letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;margin-top:1px;}
+.nav{padding:14px 10px;flex:1;}
+.nav-section-label{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);padding:10px 8px 5px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:400;color:var(--text-muted);transition:all .15s;margin-bottom:1px;user-select:none;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--gold-dim);color:var(--gold-light);font-weight:500;border:1px solid var(--gold-border);}
+.nav-icon{font-size:14px;width:17px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--gold-dim);color:var(--gold);font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;border:1px solid var(--gold-border);}
+.sidebar-footer{padding:14px;border-top:1px solid var(--border);font-size:11px;color:var(--text-dim);}
+.sidebar-footer strong{color:var(--text-muted);font-weight:600;}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 26px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--text);letter-spacing:.03em;}
+.topbar-right{display:flex;gap:8px;align-items:center;font-size:11px;color:var(--text-dim);}
+.content{flex:1;overflow-y:auto;padding:24px;}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:8px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:2px;transition:width .4s;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:'Inter',sans-serif;line-height:1;}
+.btn-primary{background:var(--gold);color:#080808;}
+.btn-primary:hover{background:var(--gold-light);}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--surface2);color:var(--text);}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-border);}
+.btn-outline:hover{background:var(--gold-dim);}
+.btn-sm{padding:5px 11px;font-size:12px;}
+.btn-danger{background:transparent;color:#E57373;border:1px solid rgba(229,115,115,.25);}
+.btn-danger:hover{background:rgba(229,115,115,.1);}
+.btn-success{background:rgba(92,158,110,.15);color:#7AC99A;border:1px solid rgba(92,158,110,.3);}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;letter-spacing:.03em;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;}
+.stat-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);margin-bottom:7px;}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:var(--gold-light);line-height:1;}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:4px;}
+
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+
+/* ── FORMS ── */
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:6px;}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:8px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;transition:border-color .15s;outline:none;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold-border);box-shadow:0 0 0 3px var(--gold-dim);}
+.form-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px;}
+.form-select option{background:var(--surface2);}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.5;}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+.badge-idea{background:rgba(92,122,158,.15);color:#7A9EC9;border:1px solid rgba(92,122,158,.3);}
+.badge-research{background:rgba(158,92,158,.15);color:#C97AC9;border:1px solid rgba(158,92,158,.3);}
+.badge-scripting{background:rgba(201,168,76,.15);color:var(--gold);border:1px solid var(--gold-border);}
+.badge-filming{background:rgba(92,158,110,.15);color:#7AC99A;border:1px solid rgba(92,158,110,.3);}
+.badge-editing{background:rgba(201,146,76,.15);color:#C9924C;border:1px solid rgba(201,146,76,.3);}
+.badge-published{background:rgba(92,158,92,.15);color:#7AC97A;border:1px solid rgba(92,158,92,.3);}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);padding:0 12px 10px;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:hover{background:var(--surface2);}
+tbody tr:last-child{border-bottom:none;}
+tbody td{padding:11px 12px;color:var(--text-muted);}
+tbody td:first-child{color:var(--text);font-weight:500;}
+.td-actions{display:flex;gap:5px;justify-content:flex-end;}
+
+/* ── OUTPUT BOX ── */
+.output-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:16px;font-size:12.5px;line-height:1.7;white-space:pre-wrap;font-family:'Inter',monospace;color:var(--text);overflow-y:auto;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:18px;}
+.tab-btn{padding:8px 15px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border:none;background:transparent;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--gold-light);border-bottom-color:var(--gold);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ── FILE DROP ── */
+.file-drop{border:2px dashed var(--border2);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;transition:all .2s;}
+.file-drop:hover,.file-drop.drag-over{border-color:var(--gold-border);background:var(--gold-dim);}
+.file-drop-icon{font-size:26px;margin-bottom:8px;}
+.file-drop-text{font-size:12px;color:var(--text-muted);}
+.file-drop-text strong{color:var(--gold);}
+
+/* ── CALENDAR ── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.cal-header-day{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);text-align:center;padding-bottom:7px;}
+.cal-day{min-height:74px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:7px;font-size:11px;}
+.cal-day.other-month{opacity:.3;}
+.cal-day.today{border-color:var(--gold-border);}
+.cal-day-num{font-size:10px;color:var(--text-muted);margin-bottom:3px;font-weight:500;}
+.cal-day.today .cal-day-num{color:var(--gold);font-weight:700;}
+.cal-event{font-size:9px;padding:2px 4px;border-radius:3px;margin-top:2px;background:var(--gold-dim);color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--gold-border);}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:26px;width:520px;max-height:82vh;overflow-y:auto;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;}
+.modal-close{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px;line-height:1;}
+.modal-close:hover{color:var(--text);}
+
+/* ── PLATFORM CARDS ── */
+.platform-output{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px;}
+.platform-header{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--surface2);border-bottom:1px solid var(--border);}
+.platform-name{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text);}
+.platform-body{padding:13px;font-size:12px;line-height:1.65;color:var(--text-muted);white-space:pre-wrap;max-height:220px;overflow-y:auto;}
+
+/* ── MISC ── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#222;border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:#333;}
+.sep{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-dim);}
+.empty-state-icon{font-size:36px;margin-bottom:10px;opacity:.35;}
+.empty-state-title{font-size:14px;color:var(--text-muted);margin-bottom:5px;}
+.empty-state-sub{font-size:11px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;letter-spacing:.03em;}
+.gold-text{color:var(--gold);}
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:3px;background:var(--surface2);border:1px solid var(--border2);color:var(--text-muted);margin:2px;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:0;">
+      <div class="logo-z">Z</div>
+      <div>
+        <div class="logo-mark">TZH HQ</div>
+        <div class="logo-sub">The Z Historian</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+      <span class="nav-icon">◈</span> Dashboard
+    </div>
+    <div class="nav-item" data-page="episodes" onclick="navigate('episodes')">
+      <span class="nav-icon">🎬</span> Episodes
+      <span class="nav-badge" id="ep-badge">0</span>
+    </div>
+    <div class="nav-item" data-page="calendar" onclick="navigate('calendar')">
+      <span class="nav-icon">🗓</span> Calendar
+    </div>
+
+    <div class="nav-section-label">Create</div>
+    <div class="nav-item" data-page="studio" onclick="navigate('studio')">
+      <span class="nav-icon">✍️</span> Script Studio
+    </div>
+    <div class="nav-item" data-page="social" onclick="navigate('social')">
+      <span class="nav-icon">📢</span> Social Media
+    </div>
+
+    <div class="nav-section-label">Manage</div>
+    <div class="nav-item" data-page="research" onclick="navigate('research')">
+      <span class="nav-icon">📚</span> Research Hub
+    </div>
+    <div class="nav-item" data-page="thumbnails" onclick="navigate('thumbnails')">
+      <span class="nav-icon">🖼</span> Thumbnail Notes
+    </div>
+    <div class="nav-item" data-page="analytics" onclick="navigate('analytics')">
+      <span class="nav-icon">📈</span> Analytics Log
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+      <strong>Channel Progress</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+      <span id="sb-published">0 published</span>
+      <span id="sb-total">0 total</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="sb-progress" style="width:0%"></div></div>
+    <div style="margin-top:8px;font-size:10px;color:var(--text-dim);">thezhistorian.com</div>
+  </div>
+</aside>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard</div>
+    <div class="topbar-right" id="topbar-right">
+      <span>Experience the Past</span>
+    </div>
+  </div>
+  <div class="content" id="content"></div>
+</main>
+
+<!-- ══════════════ EPISODE MODAL ══════════════ -->
+<div class="modal-overlay" id="ep-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">New Episode</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <!-- YouTube Auto-Fill -->
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:12px;margin-bottom:16px;">
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:8px;">⚡ Auto-fill from YouTube</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" class="form-input" id="yt-paste-url" placeholder="Paste YouTube link to auto-fill details..." style="flex:1;" onpaste="setTimeout(()=>autoFillFromYT(),80)" onkeydown="if(event.key==='Enter')autoFillFromYT()">
+        <button class="btn btn-outline btn-sm" onclick="autoFillFromYT()" style="white-space:nowrap;flex-shrink:0;">Extract ▶</button>
+      </div>
+      <div id="yt-status" style="font-size:11px;margin-top:6px;display:none;"></div>
+      <div id="yt-thumb-row" style="display:none;margin-top:10px;display:none;align-items:center;gap:10px;">
+        <img id="yt-thumb" src="" style="width:80px;height:45px;object-fit:cover;border-radius:3px;border:1px solid var(--border2);">
+        <div>
+          <div id="yt-thumb-title" style="font-size:12px;font-weight:600;color:var(--text);"></div>
+          <div id="yt-thumb-channel" style="font-size:10px;color:var(--text-muted);margin-top:2px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Episode #</label>
+        <input type="number" class="form-input" id="m-num" placeholder="e.g. 42">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="m-status">
+          <option value="idea">💡 Idea</option>
+          <option value="research">🔍 Research</option>
+          <option value="scripting">✍️ Scripting</option>
+          <option value="filming">🎬 Filming</option>
+          <option value="editing">✂️ Editing</option>
+          <option value="published">✅ Published</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-input" id="m-title" placeholder="Episode title...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Topic / Subject</label>
+      <input type="text" class="form-input" id="m-topic" placeholder="e.g. Kenneth Kaunda, Battle of Isandlwana...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Historical Period</label>
+      <select class="form-select" id="m-period">
+        <option value="">Select period...</option>
+        <option>Pre-Colonial Africa (before 1880s)</option>
+        <option>Colonial Era (1880s–1960s)</option>
+        <option>Independence Era (1960s–1980s)</option>
+        <option>Modern Africa (1980s–present)</option>
+        <option>Ancient Civilizations</option>
+        <option>Trans-Atlantic Slave Trade Era</option>
+        <option>Pan-African Movements</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Target Date</label>
+        <input type="date" class="form-input" id="m-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">YouTube URL</label>
+        <input type="text" class="form-input" id="m-url" placeholder="https://youtu.be/...">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="m-notes" placeholder="Research notes, ideas, sources..."></textarea>
+    </div>
+    <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:6px;">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEpisode()">Save Episode</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+// DATA STORE
+// ══════════════════════════════════════════════
+const DB = {
+  _key: 'tzh_hq_v3',
+  d: null,
+  init() {
+    const s = localStorage.getItem(this._key);
+    this.d = s ? JSON.parse(s) : { episodes:[], research:[], thumbnails:[], analytics:[] };
+    // ensure arrays exist for old saves
+    ['research','thumbnails','analytics'].forEach(k => { if(!this.d[k]) this.d[k] = []; });
+  },
+  save() {
+    localStorage.setItem(this._key, JSON.stringify(this.d));
+    this.updateSidebar();
+  },
+  updateSidebar() {
+    const eps = this.d.episodes;
+    const pub = eps.filter(e => e.status === 'published').length;
+    document.getElementById('ep-badge').textContent = eps.length;
+    document.getElementById('sb-published').textContent = pub + ' published';
+    document.getElementById('sb-total').textContent = eps.length + ' total';
+    const pct = eps.length > 0 ? Math.round((pub / eps.length) * 100) : 0;
+    document.getElementById('sb-progress').style.width = pct + '%';
+  }
+};
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+let currentPage = 'dashboard';
+let editingId = null;
+
+const PAGE_TITLES = {
+  dashboard:'Dashboard', episodes:'Episode Tracker', calendar:'Content Calendar',
+  studio:'Script Studio', social:'Social Media Hub',
+  research:'Research Hub', thumbnails:'Thumbnail Notes', analytics:'Analytics Log'
+};
+
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  document.getElementById('page-title').textContent = PAGE_TITLES[page] || page;
+  document.getElementById('topbar-right').innerHTML = '<span>Experience the Past · thezhistorian.com</span>';
+  const el = document.getElementById('content');
+  el.innerHTML = '';
+  ({ dashboard:renderDashboard, episodes:renderEpisodes, calendar:renderCalendar,
+     studio:renderStudio, social:renderSocial, research:renderResearch,
+     thumbnails:renderThumbnails, analytics:renderAnalytics }[page] || (() => {}))(el);
+}
+
+// ══════════════════════════════════════════════
+// STATUS HELPERS
+// ══════════════════════════════════════════════
+const S_LABEL = { idea:'Idea', research:'Research', scripting:'Scripting', filming:'Filming', editing:'Editing', published:'Published' };
+const S_ICON  = { idea:'💡', research:'🔍', scripting:'✍️', filming:'🎬', editing:'✂️', published:'✅' };
+const badge = s => `<span class="badge badge-${s}">${S_ICON[s]||''} ${S_LABEL[s]||s}</span>`;
+const fmtDate = d => d ? new Date(d+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard(el) {
+  const eps = DB.d.episodes;
+  const cnt = {};
+  Object.keys(S_LABEL).forEach(k => cnt[k] = 0);
+  eps.forEach(e => { if(cnt[e.status] !== undefined) cnt[e.status]++; });
+  const inProg = eps.filter(e => !['published','idea'].includes(e.status)).length;
+  const upcoming = [...eps].filter(e => e.date && new Date(e.date) > new Date())
+    .sort((a,b) => new Date(a.date)-new Date(b.date)).slice(0,5);
+  const recent = [...eps].filter(e => e.status==='published')
+    .sort((a,b) => (b.num||0)-(a.num||0)).slice(0,4);
+
+  el.innerHTML = `
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Total Episodes</div><div class="stat-value">${eps.length}</div><div class="stat-sub">All time</div></div>
+    <div class="stat-card"><div class="stat-label">Published</div><div class="stat-value" style="color:#7AC97A">${cnt.published}</div><div class="stat-sub">Live on YouTube</div></div>
+    <div class="stat-card"><div class="stat-label">In Production</div><div class="stat-value" style="color:var(--gold)">${inProg}</div><div class="stat-sub">Active workflow</div></div>
+    <div class="stat-card"><div class="stat-label">Ideas Vault</div><div class="stat-value" style="color:#7A9EC9">${cnt.idea}</div><div class="stat-sub">Waiting to develop</div></div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Production Pipeline</div>
+        <button class="btn btn-primary btn-sm" onclick="navigate('episodes');setTimeout(openModal,80)">+ Episode</button>
+      </div>
+      ${Object.entries(S_LABEL).map(([k,v]) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);">
+            <span>${S_ICON[k]}</span><span>${v}</span>
+          </div>
+          <span style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--text);">${cnt[k]}</span>
+        </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Upcoming Deadlines</div></div>
+      ${upcoming.length === 0 ? `<div class="empty-state" style="padding:28px 0;"><div class="empty-state-icon">📅</div><div class="empty-state-title">No upcoming dates set</div><div class="empty-state-sub">Add target dates to episodes to see them here</div></div>` :
+        upcoming.map(e => `
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.title)||'Untitled'}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${fmtDate(e.date)}</div>
+            </div>
+            ${badge(e.status)}
+          </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Recent Published</div></div>
+      ${recent.length === 0 ? `<div style="color:var(--text-dim);font-size:13px;padding:10px 0;">No published episodes yet.</div>` :
+        recent.map(e => `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+            <div style="width:32px;height:32px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0;">EP${String(e.num||'?').padStart(2,'0')}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.title)||'Untitled'}</div>
+              ${e.url ? `<a href="${esc(e.url)}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none;">▶ Watch on YouTube</a>` : `<div style="font-size:10px;color:var(--text-dim);">${esc(e.period)||''}</div>`}
+            </div>
+          </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Quick Actions</div></div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-outline" style="justify-content:flex-start;" onclick="navigate('episodes');setTimeout(openModal,80)">📋 Add New Episode</button>
+        <button class="btn btn-outline" style="justify-content:flex-start;" onclick="navigate('studio')">💡 Generate Episode Ideas</button>
+        <button class="btn btn-outline" style="justify-content:flex-start;" onclick="navigate('studio');setTimeout(()=>switchTab('outline'),80)">📄 Create Script Outline</button>
+        <button class="btn btn-outline" style="justify-content:flex-start;" onclick="navigate('social')">📢 Generate Social Content</button>
+        <button class="btn btn-outline" style="justify-content:flex-start;" onclick="navigate('research')">📚 Add Research Note</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// EPISODES
+// ══════════════════════════════════════════════
+function renderEpisodes(el) {
+  document.getElementById('topbar-right').innerHTML = `<button class="btn btn-primary btn-sm" onclick="openModal()">+ New Episode</button>`;
+  const eps = [...DB.d.episodes].sort((a,b) => (b.num||0)-(a.num||0));
+
+  el.innerHTML = `
+  <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center;">
+    <input type="text" class="form-input" id="ep-search" placeholder="Search episodes..." style="max-width:260px;" oninput="filterEps()">
+    <select class="form-select" id="ep-filter" style="max-width:155px;" onchange="filterEps()">
+      <option value="">All Statuses</option>
+      ${Object.entries(S_LABEL).map(([k,v]) => `<option value="${k}">${S_ICON[k]} ${v}</option>`).join('')}
+    </select>
+    <span style="font-size:12px;color:var(--text-dim);margin-left:auto;">${eps.length} episodes total</span>
+  </div>
+  <div class="card" style="padding:0;">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:60px">#</th>
+          <th>Title</th>
+          <th>Topic</th>
+          <th>Period</th>
+          <th>Status</th>
+          <th>Target Date</th>
+          <th style="width:110px;text-align:right;padding-right:16px;">Actions</th>
+        </tr></thead>
+        <tbody id="ep-tbody">${renderEpRows(eps)}</tbody>
+      </table>
+    </div>
+    ${eps.length===0 ? `<div class="empty-state"><div class="empty-state-icon">🎬</div><div class="empty-state-title">No episodes yet</div><div class="empty-state-sub">Click "New Episode" to start tracking your content</div></div>` : ''}
+  </div>`;
+}
+
+function renderEpRows(eps) {
+  if(!eps.length) return `<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:28px;">No matching episodes</td></tr>`;
+  return eps.map(e => `
+    <tr>
+      <td style="color:var(--text-dim);font-size:11px;">${e.num ? 'EP'+String(e.num).padStart(3,'0') : '—'}</td>
+      <td>${esc(e.title)||'<em style="color:var(--text-dim)">Untitled</em>'}</td>
+      <td style="color:var(--text-muted);font-size:12px;">${esc(e.topic)||'—'}</td>
+      <td style="color:var(--text-muted);font-size:11px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.period)||'—'}</td>
+      <td>${badge(e.status)}</td>
+      <td style="font-size:12px;">${fmtDate(e.date)}</td>
+      <td>
+        <div class="td-actions">
+          <button class="btn btn-ghost btn-sm" onclick="editEp('${e.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="delEp('${e.id}')">✕</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filterEps() {
+  const q = (document.getElementById('ep-search').value||'').toLowerCase();
+  const s = document.getElementById('ep-filter').value;
+  const filtered = DB.d.episodes.filter(e => {
+    const mq = !q || [e.title,e.topic,e.period,String(e.num||'')].some(f => f && f.toLowerCase().includes(q));
+    const ms = !s || e.status === s;
+    return mq && ms;
+  }).sort((a,b) => (b.num||0)-(a.num||0));
+  document.getElementById('ep-tbody').innerHTML = renderEpRows(filtered);
+}
+
+// ── Episode Modal ──
+function openModal(ep=null) {
+  editingId = ep ? ep.id : null;
+  document.getElementById('modal-title').textContent = ep ? 'Edit Episode' : 'New Episode';
+  document.getElementById('m-num').value   = ep?.num||'';
+  document.getElementById('m-title').value = ep?.title||'';
+  document.getElementById('m-topic').value = ep?.topic||'';
+  document.getElementById('m-period').value= ep?.period||'';
+  document.getElementById('m-status').value= ep?.status||'idea';
+  document.getElementById('m-date').value  = ep?.date||'';
+  document.getElementById('m-url').value   = ep?.url||'';
+  document.getElementById('m-notes').value = ep?.notes||'';
+  // Reset YouTube extract UI
+  document.getElementById('yt-paste-url').value = ep?.url||'';
+  document.getElementById('yt-status').style.display = 'none';
+  document.getElementById('yt-thumb-row').style.display = 'none';
+  document.getElementById('ep-modal').classList.add('open');
+  // If editing and has URL, auto-run extract to show thumbnail
+  if(ep?.url) { document.getElementById('yt-paste-url').value = ep.url; setTimeout(autoFillFromYT, 100); }
+}
+
+// ── YouTube Auto-fill ──
+async function autoFillFromYT() {
+  const raw = document.getElementById('yt-paste-url').value.trim();
+  if(!raw) return;
+
+  const statusEl = document.getElementById('yt-status');
+  const thumbRow = document.getElementById('yt-thumb-row');
+
+  const ytRegex = /(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+  const match = raw.match(ytRegex);
+  if(!match) {
+    statusEl.style.display='block'; statusEl.style.color='#E57373';
+    statusEl.textContent='⚠ Not a recognised YouTube link. Try https://youtu.be/... or https://youtube.com/watch?v=...';
+    return;
+  }
+
+  statusEl.style.display='block'; statusEl.style.color='var(--text-muted)';
+  statusEl.textContent='⏳ Fetching video details...';
+  thumbRow.style.display='none';
+
+  try {
+    // ── Fetch from both APIs in parallel ──
+    const [oembedRes, noembedRes] = await Promise.allSettled([
+      fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(raw)}&format=json`),
+      fetch(`https://noembed.com/embed?url=${encodeURIComponent(raw)}`)
+    ]);
+
+    if(oembedRes.status==='rejected') throw new Error('Video not found or is private.');
+    if(!oembedRes.value.ok) throw new Error('Video not found or is private (HTTP '+oembedRes.value.status+')');
+
+    const oembed  = await oembedRes.value.json();
+    const noembed = noembedRes.status==='fulfilled' && noembedRes.value.ok
+                    ? await noembedRes.value.json() : {};
+
+    const rawTitle = oembed.title || '';
+    const channel  = oembed.author_name || '';
+    const thumbUrl = oembed.thumbnail_url || noembed.thumbnail_url || '';
+
+    // ── Clean title: strip "| The Z Historian" suffixes ──
+    let cleanTitle = rawTitle
+      .replace(/[\|｜]\s*(the z historian|tzh|z historian)\b.*/gi, '')
+      .replace(/[-–—]\s*(the z historian|tzh|z historian)\b.*/gi, '')
+      .trim();
+
+    // ── Episode number: EP42 / Ep.42 / Episode 42 / #42 / No.42 ──
+    let epNum = null;
+    const epMatch = cleanTitle.match(/\b(?:ep(?:isode)?\.?\s*#?\s*|no\.?\s*|#\s*)(\d+)\b/i);
+    if(epMatch) {
+      epNum = parseInt(epMatch[1]);
+      cleanTitle = cleanTitle.replace(epMatch[0],'').replace(/^[\s\-–—:]+|[\s\-–—:]+$/g,'').trim();
+    }
+
+    // ── Publish date from noembed upload_date (YYYYMMDD) or noembed.com ──
+    let publishDate = '';
+    const raw_date = noembed.upload_date || noembed.published || '';
+    if(raw_date) {
+      // noembed returns "YYYYMMDD" or ISO strings
+      const cleaned = raw_date.replace(/\D/g,'');
+      if(cleaned.length >= 8) {
+        const y = cleaned.slice(0,4), m = cleaned.slice(4,6), d = cleaned.slice(6,8);
+        publishDate = `${y}-${m}-${d}`;
+      }
+    }
+
+    // ── Topic: text before first colon or pipe ──
+    let topic = '';
+    const pipeSplit = cleanTitle.split(/[\|｜]/);
+    if(pipeSplit.length > 1) {
+      topic    = pipeSplit[pipeSplit.length-1].trim(); // often "Part 1" is at end, topic at start
+      cleanTitle = pipeSplit[0].trim();
+    }
+    // Also check colon splits
+    const colonSplit = cleanTitle.split(/:/);
+    if(!topic && colonSplit.length > 1) {
+      topic     = colonSplit[0].trim();
+    }
+
+    // ── Historical period: keyword + year detection from title ──
+    const period = detectPeriod(cleanTitle + ' ' + (noembed.description||''));
+
+    // ── Fill fields (only overwrite empty fields) ──
+    if(!document.getElementById('m-title').value)   document.getElementById('m-title').value  = cleanTitle;
+    if(!document.getElementById('m-num').value && epNum) document.getElementById('m-num').value = epNum;
+    if(!document.getElementById('m-topic').value && topic) document.getElementById('m-topic').value = topic;
+    if(!document.getElementById('m-url').value)     document.getElementById('m-url').value   = raw;
+    if(!document.getElementById('m-date').value && publishDate) document.getElementById('m-date').value = publishDate;
+    if(!document.getElementById('m-period').value && period)    document.getElementById('m-period').value = period;
+    if(document.getElementById('m-status').value==='idea')      document.getElementById('m-status').value = 'published';
+
+    // ── Build status summary ──
+    const filled = [];
+    if(cleanTitle)   filled.push('title');
+    if(epNum)        filled.push('episode #');
+    if(publishDate)  filled.push('publish date');
+    if(period)       filled.push('period');
+    if(topic)        filled.push('topic');
+
+    // ── Thumbnail preview ──
+    if(thumbUrl) {
+      document.getElementById('yt-thumb').src = thumbUrl;
+      document.getElementById('yt-thumb-title').textContent = cleanTitle;
+      document.getElementById('yt-thumb-channel').textContent = channel + (publishDate ? ' · '+formatDisplayDate(publishDate) : '');
+      thumbRow.style.display='flex';
+    }
+
+    statusEl.style.color='#7AC97A';
+    statusEl.textContent = '✅ Extracted: '+filled.join(', ')+(filled.length ? ' — review and adjust below.' : ' — fill in remaining fields manually.');
+
+  } catch(err) {
+    statusEl.style.color='#E57373';
+    statusEl.textContent='✕ '+(err.message||'Could not fetch details. Check the URL.');
+  }
+}
+
+// ── Detect historical period from text ──
+function detectPeriod(text) {
+  const t = text.toLowerCase();
+
+  // Strong keyword signals
+  if(/\b(slave trade|transatlantic|middle passage|enslave|slavery)\b/i.test(t))
+    return 'Trans-Atlantic Slave Trade Era';
+  if(/\b(pan.?african|marcus garvey|négritude|negritude|george padmore|c\.l\.r\. james)\b/i.test(t))
+    return 'Pan-African Movements';
+  if(/\b(pharaoh|ancient egypt|nubia|kush|mali empire|songhai|great zimbabwe|carthage|aksum|axum|timbuktu|mansa musa|sundiata)\b/i.test(t))
+    return 'Ancient Civilizations';
+  if(/\b(cold war|apartheid|liberation|uhuru|decoloni|lumumba|kaunda|nyerere|nkrumah|mugabe|freedom fight|independence movement|nationalist)\b/i.test(t))
+    return 'Independence Era (1960s–1980s)';
+  if(/\b(colonial|coloniali|scramble for africa|berlin conference|protectorate|british south africa|rhodesia|bsac|missionary|livingstone|rhodes|imperial)\b/i.test(t))
+    return 'Colonial Era (1880s–1960s)';
+  if(/\b(pre.?colonial|precolonial|lozi|bemba|ngoni|ndebele kingdom|zulu kingdom|mutapa|rozwi|monomotapa)\b/i.test(t))
+    return 'Pre-Colonial Africa (before 1880s)';
+  if(/\b(2000s|2010s|21st century|modern zambia|modern africa|contemporary)\b/i.test(t))
+    return 'Modern Africa (1980s–present)';
+
+  // Year-range signals
+  const years = [...t.matchAll(/\b(1[0-9]{3}|20[0-2][0-9])\b/g)].map(m=>parseInt(m[1]));
+  if(years.length) {
+    const avg = years.reduce((a,b)=>a+b,0)/years.length;
+    if(avg < 1500)  return 'Ancient Civilizations';
+    if(avg < 1880)  return 'Pre-Colonial Africa (before 1880s)';
+    if(avg < 1960)  return 'Colonial Era (1880s–1960s)';
+    if(avg < 1985)  return 'Independence Era (1960s–1980s)';
+    return 'Modern Africa (1980s–present)';
+  }
+
+  return ''; // Unknown — let user pick
+}
+
+function formatDisplayDate(iso) {
+  if(!iso) return '';
+  try { return new Date(iso+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+  catch(e) { return iso; }
+}
+function closeModal() { document.getElementById('ep-modal').classList.remove('open'); editingId=null; }
+function saveEpisode() {
+  const title = document.getElementById('m-title').value.trim();
+  if(!title){ alert('Please enter a title.'); return; }
+  const ep = {
+    id: editingId||uid(), num: parseInt(document.getElementById('m-num').value)||null,
+    title, topic: document.getElementById('m-topic').value.trim(),
+    period: document.getElementById('m-period').value,
+    status: document.getElementById('m-status').value,
+    date: document.getElementById('m-date').value,
+    url: document.getElementById('m-url').value.trim(),
+    notes: document.getElementById('m-notes').value.trim(),
+    createdAt: editingId ? undefined : new Date().toISOString()
+  };
+  if(editingId) { const i = DB.d.episodes.findIndex(e=>e.id===editingId); if(i>=0) DB.d.episodes[i]={...DB.d.episodes[i],...ep}; }
+  else DB.d.episodes.push(ep);
+  DB.save(); closeModal();
+  if(currentPage==='episodes') renderEpisodes(document.getElementById('content'));
+  else if(currentPage==='dashboard') renderDashboard(document.getElementById('content'));
+}
+function editEp(id) { openModal(DB.d.episodes.find(e=>e.id===id)); }
+function delEp(id) {
+  if(!confirm('Remove this episode?')) return;
+  DB.d.episodes = DB.d.episodes.filter(e=>e.id!==id);
+  DB.save();
+  if(currentPage==='episodes') renderEpisodes(document.getElementById('content'));
+  else renderDashboard(document.getElementById('content'));
+}
+
+// ══════════════════════════════════════════════
+// CALENDAR
+// ══════════════════════════════════════════════
+function renderCalendar(el) {
+  const now = new Date();
+  let year = now.getFullYear(), month = now.getMonth();
+
+  function draw() {
+    const mName = new Date(year,month).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    const firstDay = new Date(year,month,1).getDay();
+    const daysInMonth = new Date(year,month+1,0).getDate();
+    const daysInPrev = new Date(year,month,0).getDate();
+    const todayStr = now.toISOString().slice(0,10);
+
+    const epMap = {};
+    DB.d.episodes.forEach(e => { if(e.date){ if(!epMap[e.date])epMap[e.date]=[]; epMap[e.date].push(e); }});
+
+    let cells = '';
+    for(let i=firstDay-1;i>=0;i--) cells += `<div class="cal-day other-month"><div class="cal-day-num">${daysInPrev-i}</div></div>`;
+    for(let d=1;d<=daysInMonth;d++){
+      const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = ds===todayStr;
+      const dayEps = epMap[ds]||[];
+      cells += `<div class="cal-day${isToday?' today':''}">
+        <div class="cal-day-num">${d}</div>
+        ${dayEps.map(e=>`<div class="cal-event" title="${esc(e.title)}">${S_ICON[e.status]} ${esc(e.title)||'Untitled'}</div>`).join('')}
+      </div>`;
+    }
+    const total = Math.ceil((firstDay+daysInMonth)/7)*7;
+    for(let i=1;i<=total-firstDay-daysInMonth;i++) cells+=`<div class="cal-day other-month"><div class="cal-day-num">${i}</div></div>`;
+
+    el.innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <button class="btn btn-ghost btn-sm" id="cal-prev">← Prev</button>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;">${mName}</div>
+        <button class="btn btn-ghost btn-sm" id="cal-next">Next →</button>
+      </div>
+      <div class="cal-grid">
+        ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-header-day">${d}</div>`).join('')}
+        ${cells}
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-dim);">Set target dates on episodes to see them appear on the calendar.</div>`;
+    document.getElementById('cal-prev').onclick = () => { month--; if(month<0){month=11;year--;} draw(); };
+    document.getElementById('cal-next').onclick = () => { month++; if(month>11){month=0;year++;} draw(); };
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════
+// SCRIPT STUDIO
+// ══════════════════════════════════════════════
+let _fileContent = '';
+let _currentOutline = '';
+
+function renderStudio(el) {
+  el.innerHTML = `
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="ideas" onclick="switchTab('ideas')">💡 Episode Ideas</button>
+    <button class="tab-btn" data-tab="outline" onclick="switchTab('outline')">📄 Script Outline</button>
+  </div>
+
+  <!-- IDEAS TAB -->
+  <div class="tab-panel active" id="tab-ideas">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Episode Idea Generator</div></div>
+        <div class="form-group">
+          <label class="form-label">Topic / Subject</label>
+          <input class="form-input" id="i-topic" placeholder="e.g. Alice Lenshina, Katanga Secession, UNIP...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Historical Period</label>
+          <select class="form-select" id="i-period">
+            <option>Pre-Colonial Africa (before 1880s)</option>
+            <option>Colonial Era (1880s–1960s)</option>
+            <option>Independence Era (1960s–1980s)</option>
+            <option>Modern Africa (1980s–present)</option>
+            <option>Ancient Civilizations</option>
+            <option>Trans-Atlantic Slave Trade Era</option>
+            <option>Pan-African Movements</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Story Type</label>
+          <select class="form-select" id="i-type">
+            <option value="person">Biographical — Person</option>
+            <option value="event">Historical Event</option>
+            <option value="movement">Movement / Revolution</option>
+            <option value="place">Kingdom / Place</option>
+            <option value="mystery">Mystery / Lost History</option>
+            <option value="comparison">Comparative History</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Angle / Emphasis (optional)</label>
+          <input class="form-input" id="i-angle" placeholder="e.g. untold story, betrayal, triumph, forgotten legacy...">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" onclick="generateIdeas()" style="flex:1;">⚡ Generate Concepts</button>
+          <button class="btn btn-ghost" id="save-idea-btn" style="display:none" onclick="saveIdeaAsEpisode()">+ Save as Episode</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Episode Concepts</div>
+        </div>
+        <div class="output-box" id="ideas-out" style="min-height:340px;font-size:12px;">
+          <div style="color:var(--text-dim);text-align:center;padding-top:80px;">Fill in the form and click Generate to create episode concepts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTLINE TAB -->
+  <div class="tab-panel" id="tab-outline">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Script Outline Generator</div></div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Episode Title</label>
+            <input class="form-input" id="o-title" placeholder="Full episode title...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Episode Number</label>
+            <input class="form-input" id="o-num" type="number" placeholder="e.g. 42">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Key Points / Summary</label>
+          <textarea class="form-textarea" id="o-desc" style="min-height:90px" placeholder="What is this episode about? Key events, people, places, timeline, facts..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Upload Research File (optional)</label>
+          <div class="file-drop" id="file-drop" onclick="document.getElementById('file-input').click()">
+            <input type="file" id="file-input" accept=".txt,.md,.csv" style="display:none" onchange="handleFile(event)">
+            <div class="file-drop-icon">📄</div>
+            <div class="file-drop-text"><strong>Click to upload</strong> or drag & drop<br>TXT or MD files — content used to enrich the outline</div>
+            <div id="file-name" style="margin-top:7px;font-size:11px;color:var(--gold);display:none;"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Episode Length</label>
+          <select class="form-select" id="o-length">
+            <option value="short">Short (8–12 min)</option>
+            <option value="medium" selected>Medium (15–22 min)</option>
+            <option value="long">Long (25–40 min)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="generateOutline()" style="width:100%">📝 Generate Script Outline</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Script Outline</div>
+          <button class="btn btn-outline btn-sm" id="dl-btn" style="display:none" onclick="downloadOutline()">⬇ Download .txt</button>
+        </div>
+        <div class="output-box" id="outline-out" style="min-height:440px;font-size:11.5px;">
+          <div style="color:var(--text-dim);text-align:center;padding-top:100px;">Fill in the details or upload a research file, then click Generate.</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  setupFileDrop();
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+name));
+}
+
+function setupFileDrop() {
+  const drop = document.getElementById('file-drop');
+  if(!drop) return;
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+  drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag-over'); const f=e.dataTransfer.files[0]; if(f) processFile(f); });
+}
+
+function handleFile(e) { const f=e.target.files[0]; if(f) processFile(f); }
+function processFile(f) {
+  document.getElementById('file-name').textContent = '📎 '+f.name;
+  document.getElementById('file-name').style.display='block';
+  const r = new FileReader();
+  r.onload = ev => {
+    _fileContent = ev.target.result;
+    if(!document.getElementById('o-title').value) {
+      document.getElementById('o-title').value = f.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+    }
+  };
+  r.readAsText(f);
+}
+
+// ── Idea Generation ──
+function generateIdeas() {
+  const topic  = document.getElementById('i-topic').value.trim();
+  const period = document.getElementById('i-period').value;
+  const type   = document.getElementById('i-type').value;
+  const angle  = document.getElementById('i-angle').value.trim();
+  if(!topic){ document.getElementById('ideas-out').innerHTML='<span style="color:#E57373">Please enter a topic.</span>'; return; }
+
+  window._lastIdea = { topic, period, type };
+  document.getElementById('ideas-out').textContent = buildIdeas(topic, period, type, angle);
+  document.getElementById('save-idea-btn').style.display='inline-flex';
+}
+
+function buildIdeas(topic, period, type, angle) {
+  const typeMap = { person:'Biographical', event:'Historical Event', movement:'Movement', place:'Kingdom/Place', mystery:'Mystery', comparison:'Comparative' };
+  const hooks = {
+    person: [`Most people have never heard the name "${topic}" — yet their decisions shaped millions of lives.`,
+             `History books mention ${topic} in a single sentence. That sentence is wrong.`,
+             `In the archives, there is one photograph of ${topic}. What it reveals changes everything.`],
+    event:  [`On the day it happened, no one could have predicted how it would end.`,
+             `It lasted only days. But the ${topic} changed the continent forever.`,
+             `The official record says it was over quickly. The truth is far more complicated.`],
+    movement:[`They were ordinary people who decided they were done being ordinary.`,
+              `The ${topic} didn't begin with a speech. It began with a single act of defiance.`,
+              `Governments tried to erase the ${topic} from history. They almost succeeded.`],
+    place:  [`For centuries, ${topic} was the most powerful force on the continent. Then history forgot it.`,
+             `Every great kingdom falls. The story of ${topic} tells us exactly why.`,
+             `The maps colonizers drew left out ${topic} entirely. That was not an accident.`],
+    mystery:[`The evidence was there all along. Historians just refused to look.`,
+             `We know when it vanished. We know who was involved. What we don't know — is why.`,
+             `The mystery of ${topic} has puzzled researchers for over a century. Until now.`],
+    comparison:[`Two stories. Two outcomes. One critical difference.`,
+                `History doesn't repeat — but it rhymes. ${topic} proves it.`,
+                `What happens when you place these two moments side by side? The answer will surprise you.`]
+  };
+  const h = (hooks[type]||hooks.event);
+  const hook = h[Math.floor(Math.random()*h.length)];
+  const titles = {
+    person:    [`The Forgotten ${topic}: Africa's Most Overlooked History-Maker`, `${topic}: The Untold Story That Changed Everything`, `Who Was ${topic}? The Truth History Buried`],
+    event:     [`The ${topic}: What Really Happened — And Why It Still Matters`, `${topic}: The Day Africa Changed Forever`, `The Truth Behind the ${topic} — History's Hidden Chapter`],
+    movement:  [`The ${topic}: Africa's Most Radical Act of Defiance`, `Rise & Fall: The Inside Story of the ${topic}`, `How the ${topic} Rewrote History — And Was Forgotten`],
+    place:     [`The Lost World of ${topic}: Africa's Forgotten Empire`, `${topic}: A Kingdom History Tried to Erase`, `Before Colonialism: The Remarkable Story of ${topic}`],
+    mystery:   [`The Mystery of ${topic}: What We Know — And What We Don't`, `${topic}: Africa's Greatest Unanswered Question`, `The Disappearance of ${topic}: A Mystery 100 Years in the Making`],
+    comparison:[`${topic}: Two Versions of the Same Story`, `What ${topic} Can Teach Us About Power`, `${topic} Then & Now: Why History Keeps Repeating`]
+  };
+  const t = (titles[type]||titles.event);
+  const angleNote = angle ? `\n     Emphasis: ${angle}` : '';
+
+  return `╔═══════════════════════════════════════════════╗
+  EPISODE CONCEPT BRIEF — THE Z HISTORIAN
+  Topic: ${topic}
+  Type: ${typeMap[type]} | Period: ${period}
+╚═══════════════════════════════════════════════╝
+
+━━━ TITLE OPTIONS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. ${t[0]}
+  2. ${t[1]}
+  3. ${t[2]}
+
+━━━ COLD OPEN HOOK ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  "${hook}"
+
+━━━ FIVE NARRATIVE BEATS ━━━━━━━━━━━━━━━━━━━━━━
+
+  1. SETUP: The world before ${topic}.
+     Who held power? What tensions were already building?
+
+  2. INTRODUCTION: Bring ${topic} into the story.
+     Establish stakes — what is at risk for everyone involved?
+
+  3. RISING ACTION: How did events unfold?
+     Key decisions made, opposition faced, turning points hit.
+
+  4. CLIMAX: The pivotal, point-of-no-return moment.
+     What changed? Who won, who lost — and at what cost?
+
+  5. LEGACY: What did ${topic} leave behind?${angleNote}
+     Connect to Zambia / Africa today. Why does it matter now?
+
+━━━ THE CONTROVERSY ANGLE ━━━━━━━━━━━━━━━━━━━━━
+
+  What most people don't know:
+  • ${topic} is often misrepresented in mainstream accounts.
+  • The colonial / nationalist narrative omits critical details.
+  • There is a powerful counterpoint most historians ignore.
+
+━━━ THUMBNAIL CONCEPT ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  • Dark background — one striking archival image
+  • Bold text overlay: key claim, date, or name
+  • TZH gold accent typography
+  • Black & white photo + gold text = strong brand contrast
+
+━━━ RESEARCH SOURCES TO CHECK ━━━━━━━━━━━━━━━━━
+
+  Archives:
+  • National Archives of Zambia (NAZ), Lusaka
+  • Rhodes House Library, Oxford
+  • SOAS Archives, London / African Activist Archive
+
+  Academic:
+  • Journal of Southern African Studies (JSTOR)
+  • African History journal database
+  • Search WorldCat for primary sources on "${topic}"
+
+━━━ ESTIMATED LENGTH ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Recommended: 18–22 minutes | Research depth: HIGH
+
+  → Go to Script Outline tab to build the full draft. ✍️
+  → Click "Save as Episode" to add this to your tracker.`;
+}
+
+function saveIdeaAsEpisode() {
+  const d = window._lastIdea||{};
+  navigate('episodes');
+  setTimeout(() => {
+    openModal();
+    if(d.topic) document.getElementById('m-topic').value = d.topic;
+    if(d.period) document.getElementById('m-period').value = d.period;
+    document.getElementById('m-status').value = 'idea';
+  }, 100);
+}
+
+// ── Outline Generation ──
+function generateOutline() {
+  const title  = document.getElementById('o-title').value.trim();
+  const num    = document.getElementById('o-num').value.trim();
+  const desc   = document.getElementById('o-desc').value.trim();
+  const length = document.getElementById('o-length').value;
+  if(!title){ alert('Please enter an episode title.'); return; }
+
+  _currentOutline = buildOutline(title, num, _fileContent||desc, length);
+  document.getElementById('outline-out').textContent = _currentOutline;
+  document.getElementById('dl-btn').style.display='inline-flex';
+}
+
+function buildOutline(title, num, content, length) {
+  const epStr  = num ? `EP${String(num).padStart(3,'0')} — ` : '';
+  const today  = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const T = {
+    short:  { cold:'0:00–0:45', ch:'0:45–1:15', ep:'1:15–2:30', a1:'2:30–5:00',  a2:'5:00–9:00',   a3:'9:00–11:00', sig:'11:00–11:45', mod:'11:45–12:15', out:'12:15–12:45' },
+    medium: { cold:'0:00–1:00', ch:'1:00–1:45', ep:'1:45–3:00', a1:'3:00–8:00',  a2:'8:00–16:00',  a3:'16:00–20:00',sig:'20:00–21:30', mod:'21:30–22:30', out:'22:30–23:30' },
+    long:   { cold:'0:00–1:30', ch:'1:30–2:30', ep:'2:30–5:00', a1:'5:00–14:00', a2:'14:00–26:00', a3:'26:00–33:00',sig:'33:00–35:30', mod:'35:30–37:00', out:'37:00–38:30' }
+  }[length];
+
+  let notes = {};
+  if(content && content.length > 80) {
+    const w = content.split(' '); const t = Math.floor(w.length/3);
+    notes.bg   = w.slice(0,t).join(' ').slice(0,220)+'...';
+    notes.main = w.slice(t,t*2).join(' ').slice(0,220)+'...';
+    notes.end  = w.slice(t*2).join(' ').slice(0,220)+'...';
+  }
+
+  return `THE Z HISTORIAN™ — SCRIPT OUTLINE
+${epStr}"${title}"
+Generated: ${today}
+Status: WORKING DRAFT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+╔═════════════════════════════════════╗
+  SECTION 1 — COLD OPEN
+  Timestamp: ${T.cold}
+╚═════════════════════════════════════╝
+
+PURPOSE: Hook the viewer before they can leave.
+Drop them into the most dramatic moment of the story.
+Do NOT introduce yourself yet. End on a cliffhanger.
+
+[ WRITE COLD OPEN HERE ]
+→ Open with a shocking fact, dramatic scene, or question.
+→ Visual: striking archival image or dramatic recreation.
+→ Music: slow build, no lyrics.
+→ Text on screen: key date or location.
+
+───────────────────────────────────────────────────
+
+╔═════════════════════════════════════╗
+  SECTION 2 — CHANNEL INTRO
+  Timestamp: ${T.ch}
+╚═════════════════════════════════════╝
+
+[ STANDARD TZH INTRO ]
+"Welcome back to The Z Historian — the channel where
+we Experience the Past. I'm Victor Simz, and today..."
+
+→ Brief tease of what's coming in this episode.
+→ Why does this story matter to the viewer right now?
+
+───────────────────────────────────────────────────
+
+╔═════════════════════════════════════╗
+  SECTION 3 — EPISODE INTRODUCTION
+  Timestamp: ${T.ep}
+╚═════════════════════════════════════╝
+
+PURPOSE: Set the scene. Where and when are we?
+
+KEY QUESTIONS TO ANSWER:
+→ What is the historical context?
+→ Who are the main players?
+→ What are the stakes?
+${notes.bg ? '\nFROM YOUR NOTES:\n'+notes.bg : ''}
+
+[ WRITE INTRODUCTION HERE ]
+
+───────────────────────────────────────────────────
+
+╔═════════════════════════════════════╗
+  ACT ONE — BACKGROUND & SETUP
+  Timestamp: ${T.a1}
+╚═════════════════════════════════════╝
+
+PURPOSE: Build the world before the main event.
+
+BEATS TO HIT:
+→ Historical background — who and what came before
+→ Political / social forces already in play
+→ Introduce key figures with brief character context
+→ Plant seeds of the coming conflict
+
+[ ACT ONE — WRITE HERE ]
+
+───────────────────────────────────────────────────
+
+╔═════════════════════════════════════╗
+  ACT TWO — THE STORY UNFOLDS
+  Timestamp: ${T.a2}
+╚═════════════════════════════════════╝
+
+PURPOSE: The core of the episode. The main narrative.
+
+BEATS TO HIT:
+→ Chronological sequence of key events
+→ Turning points — decisions that changed everything
+→ Include direct quotes from primary sources if available
+→ Build tension steadily toward the climax
+${notes.main ? '\nFROM YOUR NOTES:\n'+notes.main : ''}
+
+[ ACT TWO — WRITE HERE ]
+
+  ─── MIDPOINT RETENTION HOOK ───
+  "But here's where it gets really interesting..."
+  [Brief recap + forward tease before continuing]
+  ────────────────────────────────
+
+───────────────────────────────────────────────────
+
+╔═════════════════════════════════════╗
+  ACT THREE — CLIMAX & CONSEQUENCES
+  Timestamp: ${T.a3}
+╚═════════════════════════════════════╝
+
+PURPOSE: The pivotal moment and its immediate aftermath.
+
+BEATS TO HIT:
+→ The point of no return
+→ What actually happened — no softening, full truth
+→ Immediate reactions and consequences
+→ Winners and losers — and the cost for each
+${notes.end ? '\nFROM YOUR NOTES:\n'+notes.end : ''}
+
+[ ACT THREE — WRITE HERE ]
+
+───────────────────────────────────────────────────
+
+╔═════════════════════════════════════╗
+  SECTION 4 — HISTORICAL SIGNIFICANCE
+  Timestamp: ${T.sig}
+╚═════════════════════════════════════╝
+
+PURPOSE: Answer the viewer's "So what?"
+
+→ Long-term consequences for Zambia / Africa
+→ What historians agree and disagree on
+→ What is consistently overlooked or misrepresented
+
+[ SIGNIFICANCE — WRITE HERE ]
+
+───────────────────────────────────────────────────
+
+╔═════════════════════════════════════╗
+  SECTION 5 — MODERN CONNECTION
+  Timestamp: ${T.mod}
+╚═════════════════════════════════════╝
+
+PURPOSE: Bridge the past to the present moment.
+
+→ How does this story echo in Africa today?
+→ What can we learn — as a continent, as individuals?
+→ Personal reflection from Victor / statement of purpose
+
+[ MODERN CONNECTION — WRITE HERE ]
+
+───────────────────────────────────────────────────
+
+╔═════════════════════════════════════╗
+  SECTION 6 — OUTRO
+  Timestamp: ${T.out}
+╚═════════════════════════════════════╝
+
+[ STANDARD TZH OUTRO ]
+"That's the story of [TOPIC]. If this episode opened
+your eyes to a history you didn't know — share it.
+These stories deserve to be heard.
+
+Like, subscribe, and I'll see you in the next one.
+I'm Victor Simz. Keep Experiencing the Past."
+
+CTA:
+→ Subscribe + Like reminder
+→ Suggest a related TZH episode
+→ Comments prompt: [Write a question to drive engagement]
+
+───────────────────────────────────────────────────
+
+PRODUCTION CHECKLIST
+□ Research complete — all sources cited
+□ Cold open finalized
+□ Full script written from this outline
+□ B-roll asset list compiled
+□ Thumbnail brief ready
+□ SEO title + description written
+□ Social media content generated (use Social Media tab)
+□ Scheduled and announced to community
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+THE Z HISTORIAN™ — Experience the Past
+www.thezhistorian.com | @TheZHistorian
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+}
+
+function downloadOutline() {
+  if(!_currentOutline) return;
+  const title = document.getElementById('o-title').value||'script-outline';
+  const blob = new Blob([_currentOutline],{type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='TZH-Outline-'+title.replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.txt';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════
+// SOCIAL MEDIA HUB
+// ══════════════════════════════════════════════
+const _socContents = {};
+
+function renderSocial(el) {
+  const eps = DB.d.episodes.filter(e => e.status==='published'||e.status==='editing');
+  el.innerHTML = `
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Episode Details</div></div>
+      <div class="form-group">
+        <label class="form-label">Episode Title</label>
+        <input class="form-input" id="s-title" placeholder="Full episode title...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Episode Number</label>
+        <input class="form-input" id="s-num" type="number" placeholder="e.g. 42">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Key Fact #1</label>
+        <input class="form-input" id="s-f1" placeholder="Most compelling fact from the episode...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Key Fact #2</label>
+        <input class="form-input" id="s-f2" placeholder="Second compelling fact...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Key Fact #3</label>
+        <input class="form-input" id="s-f3" placeholder="Third compelling fact...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">One-Line Episode Summary</label>
+        <input class="form-input" id="s-sum" placeholder="e.g. The story of a Zambian leader who defied colonial rule...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">YouTube URL</label>
+        <input class="form-input" id="s-url" placeholder="https://youtu.be/...">
+      </div>
+      <button class="btn btn-primary" onclick="generateSocial()" style="width:100%">⚡ Generate All Platform Content</button>
+    </div>
+
+    <div id="social-out">
+      <div class="card" style="text-align:center;padding:60px 20px;">
+        <div style="font-size:34px;margin-bottom:12px;opacity:.25;">📢</div>
+        <div style="color:var(--text-muted);font-size:13px;">Fill in episode details and click Generate.</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function generateSocial() {
+  const title = document.getElementById('s-title').value.trim();
+  if(!title){ alert('Please enter the episode title.'); return; }
+  const num  = document.getElementById('s-num').value.trim();
+  const f1   = document.getElementById('s-f1').value.trim();
+  const f2   = document.getElementById('s-f2').value.trim();
+  const f3   = document.getElementById('s-f3').value.trim();
+  const sum  = document.getElementById('s-sum').value.trim();
+  const url  = document.getElementById('s-url').value.trim()||'youtu.be/[link]';
+  const ep   = num ? `Ep. ${num}` : 'New Episode';
+  const facts= [f1,f2,f3].filter(Boolean);
+
+  const platforms = [
+    { name:'YouTube Description', icon:'▶', col:'#FF0000', content: genYT(title,ep,facts,sum,url) },
+    { name:'Twitter / X Thread',  icon:'✕', col:'#1DA1F2', content: genTwitter(title,ep,facts,sum,url) },
+    { name:'Instagram Caption',   icon:'◉', col:'#E1306C', content: genIG(title,ep,facts,sum,url) },
+    { name:'Facebook Post',       icon:'f', col:'#1877F2', content: genFB(title,ep,facts,sum,url) },
+    { name:'YouTube Community',   icon:'◈', col:'#C9A84C', content: genCommunity(title,ep,facts,sum,url) }
+  ];
+
+  platforms.forEach(p => { _socContents[p.name] = p.content; });
+
+  document.getElementById('social-out').innerHTML = platforms.map(p => `
+    <div class="platform-output">
+      <div class="platform-header">
+        <div class="platform-name">
+          <span style="width:20px;height:20px;border-radius:4px;background:${p.col}22;border:1px solid ${p.col}44;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:${p.col};font-weight:700;">${p.icon}</span>
+          ${p.name}
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="copyPlatform('${esc(p.name)}')">Copy</button>
+      </div>
+      <div class="platform-body">${esc(p.content)}</div>
+    </div>`).join('');
+}
+
+function copyPlatform(name) {
+  const text = _socContents[name]||'';
+  navigator.clipboard.writeText(text).then(() => {
+    // find the button
+    document.querySelectorAll('.platform-header .btn').forEach(btn => {
+      if(btn.closest('.platform-output').querySelector('.platform-name').textContent.trim() === name) {
+        const orig = btn.textContent;
+        btn.textContent='Copied!'; btn.style.color='var(--gold)';
+        setTimeout(()=>{ btn.textContent=orig; btn.style.color=''; }, 2000);
+      }
+    });
+  }).catch(()=> alert('Copy failed — please select and copy manually.'));
+}
+
+function genYT(title,ep,facts,sum,url) {
+  return `${title}
+
+${sum ? sum+'\n\n' : ''}In this episode, we dive deep into one of Africa's most compelling and under-told historical stories — drawing from archives, primary sources, and the voices that mainstream history has overlooked.
+
+${facts.length ? '📌 What you\'ll learn:\n'+facts.map(f=>'• '+f).join('\n')+'\n\n' : ''}━━━━━━━━━━━━━━━━━━
+🔔 SUBSCRIBE for new episodes every week
+👍 Like if this added to your knowledge
+💬 Share your thoughts in the comments
+━━━━━━━━━━━━━━━━━━
+
+🔗 Watch more: https://www.youtube.com/@TheZHistorian
+🌐 Website: www.thezhistorian.com
+
+CHAPTERS:
+0:00 Cold Open
+1:00 Introduction
+3:00 Historical Background
+8:00 The Full Story
+16:00 Consequences & Legacy
+21:00 Modern Connections
+22:30 Outro
+
+━━━━━━━━━━━━━━━━━━
+#ZHistorian #AfricanHistory #ZambianHistory #HistoryChannel #AfricaHistory #BlackHistory #UntoldHistory #HistoryDocumentary #ExperienceThePast`;
+}
+
+function genTwitter(title,ep,facts,sum,url) {
+  const tweets = [];
+  tweets.push(`🧵 THREAD: "${title}"\n\nMost people have never heard this story.\nThat's about to change.\n\n— ${ep} is now live on The Z Historian 👇`);
+  if(facts[0]) tweets.push(`📌 ${facts[0]}\n\nThis is not the version you were taught in school.`);
+  if(facts[1]) tweets.push(`📌 ${facts[1]}\n\nThe archives tell a very different story.`);
+  if(facts[2]) tweets.push(`📌 ${facts[2]}\n\nAnd this is just the beginning.`);
+  tweets.push(`The full episode goes deep.\n\nWatch here: ${url}\n\n#AfricanHistory #ZambianHistory #TheZHistorian`);
+  tweets.push(`If this thread taught you something new — RT the first tweet.\n\nThese stories deserve to be heard. 🌍\n\n@TheZHistorian`);
+  return tweets.map((t,i) => `[${i+1}/${tweets.length}]\n${t}`).join('\n\n─────────────────\n\n');
+}
+
+function genIG(title,ep,facts,sum,url) {
+  return `✨ NEW EPISODE: "${title}"
+
+${sum||'Another chapter of African history that deserves to be told.'}
+
+${facts.length ? facts.map(f=>'👉 '+f).join('\n')+'\n\n' : ''}This is the kind of history that changes how you see the world.
+
+Full episode now on YouTube 🎬
+🔗 Link in bio
+
+─────────────────
+#TheZHistorian #AfricanHistory #ZambianHistory #AfricaHistory #BlackHistory #HistoryFacts #UntoldHistory #ExperienceThePast #HistoryLovers #AfricanHeritage #Zambia #PanAfrica #HistoryChannel #NeverForgotten #VictorSimz`;
+}
+
+function genFB(title,ep,facts,sum,url) {
+  return `📺 NEW EPISODE IS LIVE: "${title}"
+
+${sum||'Another story from the African archive — told the way it deserves to be told.'}
+
+History is not just dates and battles. It's people. Decisions. Consequences that echo for generations.
+
+${facts.length ? 'What you\'ll learn in this episode:\n'+facts.map(f=>'✅ '+f).join('\n')+'\n\n' : ''}These are the stories that textbooks leave out. That's exactly why we tell them.
+
+▶️ Watch the full episode: ${url}
+
+Share this with someone who loves history — these stories are too important to stay hidden.
+
+Follow The Z Historian for new episodes every week 🔔
+
+#TheZHistorian #AfricanHistory #ZambianHistory #ExperienceThePast`;
+}
+
+function genCommunity(title,ep,facts,sum,url) {
+  return `📢 NEW EPISODE ALERT!
+
+"${title}" — ${ep} is now live!
+
+${sum||'Drop everything. This is one you need to watch.'}
+
+${facts[0] ? `One thing that will surprise you:\n👉 ${facts[0]}\n\n` : ''}▶️ Watch now: ${url}
+
+💬 Question for the community:
+What piece of African history do YOU wish more people knew about? Let me know in the comments — your suggestion might become the next episode! 👇
+
+Thank you for being part of The Z Historian family.
+Keep Experiencing the Past. 🏛️
+— Victor Simz`;
+}
+
+// ══════════════════════════════════════════════
+// RESEARCH HUB
+// ══════════════════════════════════════════════
+function renderResearch(el) {
+  const items = DB.d.research;
+  el.innerHTML = `
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header"><div class="card-title">Add Research Note</div></div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Source / Title</label>
+        <input class="form-input" id="r-title" placeholder="Book, article, archive document...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Link to Episode</label>
+        <select class="form-select" id="r-ep">
+          <option value="">— General / Unlinked —</option>
+          ${DB.d.episodes.map(e=>`<option value="${e.id}">${e.num?'EP'+String(e.num).padStart(3,'0')+' — ':''}${esc(e.title)||'Untitled'}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes / Key Findings</label>
+      <textarea class="form-textarea" id="r-notes" placeholder="Key quotes, findings, source location, call numbers..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">URL (optional)</label>
+      <input class="form-input" id="r-url" placeholder="https://...">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveResearch()">+ Add Note</button>
+  </div>
+
+  <div class="card" style="padding:0;">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div class="section-title">Research Library</div>
+      <span style="font-size:11px;color:var(--text-dim);">${items.length} notes</span>
+    </div>
+    ${items.length===0 ? `<div class="empty-state"><div class="empty-state-icon">📚</div><div class="empty-state-title">No research notes yet</div><div class="empty-state-sub">Add sources and findings as you research each episode</div></div>` :
+      `<div style="padding:12px;">${items.map(r => {
+        const ep = r.epId ? DB.d.episodes.find(e=>e.id===r.epId) : null;
+        return `<div style="padding:13px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:9px;background:var(--surface2);">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:5px;">
+            <div style="font-weight:600;font-size:13px;color:var(--text);">${esc(r.title)}</div>
+            <button class="btn btn-danger btn-sm" onclick="delResearch('${r.id}')">✕</button>
+          </div>
+          ${ep ? `<div style="font-size:10px;color:var(--gold);margin-bottom:5px;">📋 ${esc(ep.title||'Untitled Episode')}</div>` : ''}
+          ${r.notes ? `<div style="font-size:12px;color:var(--text-muted);line-height:1.6;">${esc(r.notes)}</div>` : ''}
+          ${r.url ? `<a href="${esc(r.url)}" target="_blank" style="font-size:10px;color:var(--gold);text-decoration:none;margin-top:5px;display:inline-block;">🔗 ${esc(r.url.slice(0,70))}${r.url.length>70?'...':''}</a>` : ''}
+        </div>`;
+      }).join('')}</div>`}
+  </div>`;
+}
+
+function saveResearch() {
+  const t = document.getElementById('r-title').value.trim();
+  if(!t){ alert('Enter a source title.'); return; }
+  DB.d.research.unshift({ id:uid(), title:t, epId:document.getElementById('r-ep').value, notes:document.getElementById('r-notes').value.trim(), url:document.getElementById('r-url').value.trim(), at:new Date().toISOString() });
+  DB.save(); renderResearch(document.getElementById('content'));
+}
+function delResearch(id) {
+  if(!confirm('Remove?')) return;
+  DB.d.research = DB.d.research.filter(r=>r.id!==id);
+  DB.save(); renderResearch(document.getElementById('content'));
+}
+
+// ══════════════════════════════════════════════
+// THUMBNAIL NOTES
+// ══════════════════════════════════════════════
+function renderThumbnails(el) {
+  const items = DB.d.thumbnails;
+  el.innerHTML = `
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header"><div class="card-title">New Thumbnail Concept</div></div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Episode</label>
+        <select class="form-select" id="t-ep">
+          <option value="">— Select Episode —</option>
+          ${DB.d.episodes.map(e=>`<option value="${e.id}">${e.num?'EP'+String(e.num).padStart(3,'0')+' — ':''}${esc(e.title||'Untitled')}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Headline Text</label>
+        <input class="form-input" id="t-text" placeholder="Bold text for thumbnail...">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Visual Concept</label>
+      <textarea class="form-textarea" id="t-visual" placeholder="Describe the image, color scheme, composition, main visual elements..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Designer Notes</label>
+      <input class="form-input" id="t-notes" placeholder="Reference images, font size, placement...">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveThumb()">+ Add Concept</button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px;">
+    ${items.length===0 ? `<div class="card" style="grid-column:1/-1;text-align:center;padding:50px;color:var(--text-dim);">No thumbnail concepts yet.</div>` : ''}
+    ${items.map(t => {
+      const ep = t.epId ? DB.d.episodes.find(e=>e.id===t.epId) : null;
+      return `<div class="card" style="position:relative;">
+        <button class="btn btn-danger btn-sm" style="position:absolute;top:10px;right:10px;" onclick="delThumb('${t.id}')">✕</button>
+        <div style="background:var(--surface2);border-radius:4px;height:90px;display:flex;align-items:center;justify-content:center;margin-bottom:11px;border:1px solid var(--border);overflow:hidden;">
+          <div style="text-align:center;padding:8px;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:var(--gold);line-height:1.2;">${esc(t.text||'—')}</div>
+            <div style="font-size:8px;color:var(--text-dim);margin-top:3px;letter-spacing:.1em;">THE Z HISTORIAN</div>
+          </div>
+        </div>
+        ${ep ? `<div style="font-size:10px;color:var(--gold);margin-bottom:5px;">📋 ${esc(ep.title||'Untitled')}</div>` : ''}
+        ${t.visual ? `<div style="font-size:11px;color:var(--text-muted);line-height:1.5;margin-bottom:5px;">${esc(t.visual)}</div>` : ''}
+        ${t.notes ? `<div style="font-size:10px;color:var(--text-dim);">${esc(t.notes)}</div>` : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function saveThumb() {
+  DB.d.thumbnails.unshift({ id:uid(), epId:document.getElementById('t-ep').value, text:document.getElementById('t-text').value.trim(), visual:document.getElementById('t-visual').value.trim(), notes:document.getElementById('t-notes').value.trim() });
+  DB.save(); renderThumbnails(document.getElementById('content'));
+}
+function delThumb(id) {
+  if(!confirm('Remove?')) return;
+  DB.d.thumbnails = DB.d.thumbnails.filter(t=>t.id!==id);
+  DB.save(); renderThumbnails(document.getElementById('content'));
+}
+
+// ══════════════════════════════════════════════
+// ANALYTICS LOG
+// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// ANALYTICS — helpers
+// ══════════════════════════════════════════════
+let _chart = null;
+
+function loadChartJS(cb) {
+  if(window.Chart) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+  s.onload = cb; document.head.appendChild(s);
+}
+
+function renderAnalytics(el) {
+  loadChartJS(() => drawAnalyticsPage(el));
+}
+
+function drawAnalyticsPage(el) {
+  const logs    = DB.d.analytics;
+  const pubEps  = DB.d.episodes.filter(e => e.status==='published');
+  const apiKey  = localStorage.getItem('tzh_yt_api_key')||'';
+  const sorted  = [...logs].sort((a,b) => new Date(a.date)-new Date(b.date));
+  const hasData = sorted.length >= 2;
+
+  el.innerHTML = `
+  <!-- API Key Row -->
+  <div class="card" style="margin-bottom:12px;padding:11px 16px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);white-space:nowrap;">🔑 YouTube API Key</span>
+      <input type="password" class="form-input" id="yt-api-key-input" value="${esc(apiKey)}" placeholder="Paste Google API key to auto-fetch live stats..." style="flex:1;min-width:180px;">
+      <button class="btn btn-outline btn-sm" onclick="saveYTApiKey()" style="white-space:nowrap;">Save Key</button>
+      <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" style="font-size:11px;color:var(--gold);text-decoration:none;white-space:nowrap;">Get free key ↗</a>
+      <span style="font-size:11px;${apiKey?'color:#7AC97A':'color:var(--text-dim)'};">${apiKey?'✅ Connected':'No key — manual entry only'}</span>
+    </div>
+  </div>
+
+  <!-- Log Form -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="card-header"><div class="card-title">Log Performance Data</div></div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;gap:9px;align-items:end;margin-bottom:10px;">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Episode</label>
+        <select class="form-select" id="a-ep" onchange="onEpSelected()">
+          <option value="">— Select Published Episode —</option>
+          ${pubEps.map(e=>`<option value="${e.id}">${e.num?'EP'+String(e.num).padStart(3,'0')+' — ':''}${esc(e.title||'Untitled')}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Views <span id="fetch-badge" style="font-size:9px;color:var(--gold);font-weight:700;"></span></label>
+        <input class="form-input" id="a-views" type="number" placeholder="0">
+      </div>
+      <div class="form-group" style="margin:0;"><label class="form-label">Likes</label><input class="form-input" id="a-likes" type="number" placeholder="0"></div>
+      <div class="form-group" style="margin:0;"><label class="form-label">Comments</label><input class="form-input" id="a-comments" type="number" placeholder="0"></div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Subscribers</label>
+        <input class="form-input" id="a-subs" type="number" placeholder="0">
+      </div>
+      <div class="form-group" style="margin:0;"><label class="form-label">Date</label><input class="form-input" id="a-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    </div>
+    <textarea class="form-textarea" id="a-notes" style="min-height:52px;margin-bottom:10px;" placeholder="Observations — retention rate, top comment, traffic source, viral moment..."></textarea>
+    <div style="display:flex;align-items:center;gap:9px;">
+      <button class="btn btn-primary btn-sm" onclick="saveAnalytic()">+ Log Entry</button>
+      ${apiKey ? `<button class="btn btn-outline btn-sm" onclick="fetchStatsNow()">⚡ Fetch Live Stats</button>
+      <span style="font-size:11px;color:var(--text-dim);" id="fetch-note">Select an episode — stats auto-load if API key is set.</span>` : ''}
+    </div>
+  </div>
+
+  <!-- Trend Cards -->
+  ${hasData ? buildTrendCards(sorted) : ''}
+
+  <!-- Chart -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="card-header">
+      <div class="card-title">Performance Trends</div>
+      ${hasData ? `<div style="display:flex;gap:6px;">
+        <select class="form-select" id="chart-metric" style="max-width:130px;font-size:12px;" onchange="refreshChart()">
+          <option value="views">Views</option>
+          <option value="likes">Likes</option>
+          <option value="comments">Comments</option>
+          <option value="subs">Subscribers</option>
+        </select>
+        <select class="form-select" id="chart-ep" style="max-width:170px;font-size:12px;" onchange="refreshChart()">
+          <option value="">All Episodes</option>
+          ${pubEps.map(e=>`<option value="${e.id}">${e.num?'EP'+String(e.num).padStart(3,'0')+' — ':''}${esc((e.title||'').slice(0,22))}${(e.title||'').length>22?'…':''}</option>`).join('')}
+        </select>
+      </div>` : ''}
+    </div>
+    ${hasData
+      ? `<div style="position:relative;height:220px;"><canvas id="ana-chart"></canvas></div>`
+      : `<div style="text-align:center;padding:40px 20px;"><div style="font-size:28px;opacity:.2;margin-bottom:8px;">📈</div><div style="font-size:13px;color:var(--text-muted);">Log at least 2 entries to see trend charts</div></div>`}
+  </div>
+
+  <!-- Table -->
+  <div class="card" style="padding:0;">
+    <div style="padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div class="section-title">Performance Log</div>
+      <span style="font-size:11px;color:var(--text-dim);">${logs.length} entries</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Episode</th><th>Views</th><th>Likes</th><th>Comments</th><th>Subscribers</th><th>Date</th><th>Notes</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${logs.length===0
+            ? `<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:28px;">No data yet — select a published episode and log your first entry.</td></tr>`
+            : logs.map(a => {
+                const ep = a.epId ? DB.d.episodes.find(e=>e.id===a.epId) : null;
+                return `<tr>
+                  <td style="max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(ep?.title||'—')}</td>
+                  <td style="color:var(--gold);font-weight:600;">${parseInt(a.views||0).toLocaleString()}</td>
+                  <td>${parseInt(a.likes||0).toLocaleString()}</td>
+                  <td>${parseInt(a.comments||0).toLocaleString()}</td>
+                  <td style="color:#7A9EC9;">${a.subs ? parseInt(a.subs).toLocaleString() : '—'}</td>
+                  <td style="font-size:11px;">${a.date||'—'}</td>
+                  <td style="font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.notes||'—')}</td>
+                  <td><button class="btn btn-danger btn-sm" onclick="delAnalytic('${a.id}')">✕</button></td>
+                </tr>`;
+              }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+
+  if(hasData) setTimeout(refreshChart, 80);
+}
+
+// ── Trend summary cards ──
+function buildTrendCards(sorted) {
+  const last = sorted[sorted.length-1];
+  const prev = sorted[sorted.length-2];
+  const tr = (curr, old) => {
+    curr = parseInt(curr||0); old = parseInt(old||0);
+    if(!old) return { arrow:'—', col:'var(--text-dim)', pct:'' };
+    const d = ((curr-old)/old*100);
+    if(curr > old) return { arrow:'↑', col:'#7AC97A', pct:'+'+d.toFixed(1)+'%' };
+    if(curr < old) return { arrow:'↓', col:'#E57373', pct:d.toFixed(1)+'%' };
+    return { arrow:'→', col:'var(--text-muted)', pct:'0%' };
+  };
+  const M = [
+    { label:'Views',       v:parseInt(last.views||0),    t:tr(last.views,   prev.views),   col:'var(--gold)' },
+    { label:'Likes',       v:parseInt(last.likes||0),    t:tr(last.likes,   prev.likes),   col:'#7AC97A' },
+    { label:'Comments',    v:parseInt(last.comments||0), t:tr(last.comments,prev.comments), col:'#7A9EC9' },
+    { label:'Subscribers', v:parseInt(last.subs||0),     t:tr(last.subs,    prev.subs),    col:'#C97AC9' },
+  ];
+  return `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:12px;">
+    ${M.map(m=>`<div class="stat-card">
+      <div class="stat-label">${m.label}</div>
+      <div class="stat-value" style="color:${m.col};font-size:22px;">${m.v.toLocaleString()}</div>
+      <div style="display:flex;align-items:center;gap:4px;margin-top:5px;">
+        <span style="font-size:16px;color:${m.t.col};font-weight:700;">${m.t.arrow}</span>
+        <span style="font-size:12px;color:${m.t.col};font-weight:600;">${m.t.pct}</span>
+        <span style="font-size:10px;color:var(--text-dim);">vs prev</span>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ── Chart ──
+function refreshChart() {
+  const canvas = document.getElementById('ana-chart');
+  if(!canvas || !window.Chart) return;
+
+  const metric   = document.getElementById('chart-metric')?.value || 'views';
+  const epFilter = document.getElementById('chart-ep')?.value || '';
+  const COLORS   = { views:'#C9A84C', likes:'#7AC97A', comments:'#7A9EC9', subs:'#C97AC9' };
+  const col = COLORS[metric];
+
+  let data = [...DB.d.analytics].sort((a,b) => new Date(a.date)-new Date(b.date));
+  if(epFilter) data = data.filter(a => a.epId === epFilter);
+
+  const labels = data.map(a => {
+    if(!a.date) return '?';
+    try { return new Date(a.date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
+    catch(e){ return a.date; }
+  });
+  const values = data.map(a => parseInt(a[metric]||0));
+
+  if(_chart) { _chart.destroy(); _chart = null; }
+
+  _chart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: metric.charAt(0).toUpperCase()+metric.slice(1),
+        data: values,
+        borderColor: col,
+        backgroundColor: col+'18',
+        borderWidth: 2.5,
+        pointBackgroundColor: col,
+        pointBorderColor: '#111',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        tension: 0.35,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 400 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#161616',
+          borderColor: '#2e2e2e',
+          borderWidth: 1,
+          titleColor: '#e2ddd6',
+          bodyColor: col,
+          padding: 10,
+          callbacks: {
+            label: ctx => '  ' + ctx.parsed.y.toLocaleString() + ' ' + metric
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: '#1a1a1a' },
+          ticks: { color: '#555', font: { size: 10, family: 'Inter' } }
+        },
+        y: {
+          grid: { color: '#1a1a1a' },
+          ticks: {
+            color: '#555', font: { size: 10, family: 'Inter' },
+            callback: v => v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(1)+'K' : v
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── YouTube Data API auto-fetch ──
+async function onEpSelected() {
+  const apiKey = localStorage.getItem('tzh_yt_api_key');
+  if(!apiKey) return;
+  const epId = document.getElementById('a-ep').value;
+  if(!epId) return;
+  await fetchStatsNow();
+}
+
+async function fetchStatsNow() {
+  const apiKey = localStorage.getItem('tzh_yt_api_key');
+  if(!apiKey) { alert('Add your YouTube API key first.'); return; }
+  const epId = document.getElementById('a-ep').value;
+  if(!epId) { alert('Select an episode first.'); return; }
+
+  const ep = DB.d.episodes.find(e => e.id === epId);
+  if(!ep?.url) {
+    const badge = document.getElementById('fetch-badge');
+    if(badge) { badge.textContent='No URL on episode'; badge.style.color='#E57373'; }
+    return;
+  }
+
+  const ytMatch = ep.url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if(!ytMatch) {
+    const badge = document.getElementById('fetch-badge');
+    if(badge) { badge.textContent='Invalid URL'; badge.style.color='#E57373'; }
+    return;
+  }
+
+  const videoId = ytMatch[1];
+  const badge = document.getElementById('fetch-badge');
+  if(badge) { badge.textContent='⏳'; badge.style.color='var(--text-muted)'; }
+
+  try {
+    // Fetch video stats + channel stats in parallel
+    const [vidRes, chanRes] = await Promise.all([
+      fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=statistics,snippet&key=${apiKey}`),
+      fetch(`https://www.googleapis.com/youtube/v3/channels?forHandle=TheZHistorian&part=statistics&key=${apiKey}`)
+    ]);
+
+    const vidData  = await vidRes.json();
+    const chanData = await chanRes.json();
+
+    if(vidData.error)  throw new Error(vidData.error.message);
+
+    const vs       = vidData.items?.[0]?.statistics || {};
+    const snippet  = vidData.items?.[0]?.snippet    || {};
+    const cs       = chanData.items?.[0]?.statistics || {};
+
+    if(vs.viewCount)       document.getElementById('a-views').value    = vs.viewCount;
+    if(vs.likeCount)       document.getElementById('a-likes').value    = vs.likeCount;
+    if(vs.commentCount)    document.getElementById('a-comments').value = vs.commentCount;
+    if(cs.subscriberCount) document.getElementById('a-subs').value     = cs.subscriberCount;
+
+    // Use actual publish date, not today's date
+    if(snippet.publishedAt) {
+      document.getElementById('a-date').value = snippet.publishedAt.slice(0, 10);
+    }
+
+    if(badge) { badge.textContent='✅ live'; badge.style.color='#7AC97A'; }
+    setTimeout(() => { const b=document.getElementById('fetch-badge'); if(b) b.textContent=''; }, 4000);
+
+  } catch(err) {
+    if(badge) { badge.textContent='✕ API error'; badge.style.color='#E57373'; }
+    console.error('YT API:', err.message);
+  }
+}
+
+function saveYTApiKey() {
+  const k = document.getElementById('yt-api-key-input').value.trim();
+  if(k) localStorage.setItem('tzh_yt_api_key', k);
+  else localStorage.removeItem('tzh_yt_api_key');
+  renderAnalytics(document.getElementById('content'));
+}
+
+function saveAnalytic() {
+  DB.d.analytics.unshift({
+    id:uid(),
+    epId:     document.getElementById('a-ep').value,
+    views:    document.getElementById('a-views').value,
+    likes:    document.getElementById('a-likes').value,
+    comments: document.getElementById('a-comments').value,
+    subs:     document.getElementById('a-subs').value,
+    date:     document.getElementById('a-date').value,
+    notes:    document.getElementById('a-notes').value.trim()
+  });
+  DB.save();
+  renderAnalytics(document.getElementById('content'));
+}
+
+function delAnalytic(id) {
+  if(!confirm('Remove this entry?')) return;
+  DB.d.analytics = DB.d.analytics.filter(a => a.id !== id);
+  DB.save();
+  renderAnalytics(document.getElementById('content'));
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+DB.init();
+DB.updateSidebar();
+navigate('dashboard');
+
+document.getElementById('ep-modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+</script>
+</body>
+</html>

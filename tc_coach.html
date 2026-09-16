@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Take Command HQ",
+  "schemaVersion": 1,
+  "description": "Take Command HQ — AI-powered content platform for Victor Simz. Sidebar layout. Supabase persistence (vault, calendar, analytics sync across browsers). AI Quote Card Generator, Social Posts, Podcast Scripts, Content Calendar, Content Vault, Analytics. Claude API key in sidebar."
+}
+</script>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Take Command HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --dark:       #0b1117;
+  --gold:       #e8971a;
+  --gold-light: #fff8ee;
+  --surface:    #f0f2f5;
+  --card:       #ffffff;
+  --border:     rgba(0,0,0,0.09);
+  --text:       #1a1a2e;
+  --text-muted: #5f6b82;
+  --text-light: #9aa3b0;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--surface); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+.app     { display: flex; min-height: 100vh; }
+.sidebar { width: 232px; background: var(--dark); flex-shrink: 0; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.main    { flex: 1; overflow-y: auto; }
+
+.sidebar-logo  { padding: 20px 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.logo-row      { display: flex; align-items: center; gap: 11px; }
+.logo-badge    { width: 38px; height: 38px; background: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; color: white; border: 2px solid var(--gold); flex-shrink: 0; }
+.logo-text     { color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 0.1em; line-height: 1.2; }
+.logo-sub      { color: var(--gold); font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; margin-top: 2px; }
+.sidebar-section { padding: 14px 10px 6px; }
+.sidebar-label { color: rgba(255,255,255,0.28); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; padding: 0 8px 7px; }
+.nav-item  { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 7px; cursor: pointer; color: rgba(255,255,255,0.52); font-size: 13px; transition: all 0.15s; margin-bottom: 2px; user-select: none; }
+.nav-item:hover  { background: rgba(255,255,255,0.07); color: #fff; }
+.nav-item.active { background: rgba(232,151,26,0.16); color: var(--gold); }
+.nav-icon { font-size: 14px; width: 18px; text-align: center; }
+.sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+.profile-pill { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--dark); flex-shrink: 0; }
+.profile-name { color: #fff; font-size: 12px; font-weight: 600; }
+.profile-role { color: rgba(255,255,255,0.38); font-size: 11px; }
+
+.panel        { display: none; padding: 28px 32px; }
+.panel.active { display: block; }
+.panel-header { margin-bottom: 24px; }
+.panel-title  { font-size: 20px; font-weight: 700; color: var(--dark); }
+.panel-sub    { color: var(--text-muted); font-size: 13px; margin-top: 3px; }
+
+.card    { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.card-sm { background: var(--card); border: 1px solid var(--border); border-radius: 8px;  padding: 14px 16px; }
+.grid-2  { display: grid; grid-template-columns: 1fr 1fr;       gap: 16px; }
+.grid-4  { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+
+.stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--dark); }
+.stat-delta { font-size: 12px; margin-top: 4px; color: var(--text-light); }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; font-family: var(--font); }
+.btn:hover { transform: translateY(-1px); }
+.btn-primary { background: var(--dark); color: #fff; } .btn-primary:hover { background: #1e2a3a; }
+.btn-gold    { background: var(--gold); color: #fff; } .btn-gold:hover { background: #c97e10; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); } .btn-outline:hover { background: var(--surface); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+select, input[type="text"], input[type="date"], input[type="password"], textarea {
+  font-family: var(--font); font-size: 13px; color: var(--text); background: var(--card);
+  border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; width: 100%; transition: border .15s;
+}
+select:focus, input:focus, textarea:focus { outline: none; border-color: var(--gold); }
+textarea { resize: vertical; line-height: 1.6; }
+label { font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .6px; }
+.form-row { margin-bottom: 14px; }
+
+.badge      { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-dark { background: rgba(11,17,23,0.09); color: var(--dark); }
+
+.platform-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.platform-tab  { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--card); color: var(--text-muted); transition: all .15s; user-select: none; }
+.platform-tab:hover { border-color: var(--dark); color: var(--dark); }
+.platform-tab.active    { background: var(--dark);   color: #fff; border-color: var(--dark); }
+.platform-tab.li.active { background: #0077b5; border-color: #0077b5; }
+.platform-tab.tw.active { background: #000;    border-color: #000; }
+.platform-tab.ig.active { background: #e1306c; border-color: #e1306c; }
+.platform-tab.fb.active { background: #1877f2; border-color: #1877f2; }
+
+.output-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 13px; line-height: 1.8; color: var(--text); white-space: pre-wrap; min-height: 120px; }
+.output-box.placeholder { color: var(--text-light); font-style: italic; }
+.output-actions { display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+.char-count { font-size: 12px; color: var(--text-light); margin-left: auto; }
+
+.spinner { width: 16px; height: 16px; border: 2.5px solid var(--gold); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.canvas-wrap { background: var(--dark); border-radius: 10px; padding: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+canvas { width: 100%; border-radius: 6px; display: block; }
+
+.share-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.btn-share { padding: 6px 13px; border: none; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; color: white; display: inline-flex; align-items: center; gap: 5px; }
+.btn-share:hover { opacity: .82; transform: translateY(-1px); }
+
+.cal-grid    { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.cal-header  { background: var(--dark); color: rgba(255,255,255,.65); font-size: 11px; text-align: center; padding: 8px 4px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; }
+.cal-day     { background: var(--card); min-height: 80px; padding: 6px; cursor: pointer; transition: background .1s; }
+.cal-day:hover       { background: var(--gold-light); }
+.cal-day.other-month { background: var(--surface); }
+.cal-date            { font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 3px; }
+.cal-date.today-num  { width: 22px; height: 22px; background: var(--gold); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.cal-event { font-size: 10px; padding: 2px 5px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev-li { background: rgba(0,119,181,.13); color: #0055a0; }
+.ev-tw { background: rgba(0,0,0,.08);     color: #333; }
+.ev-ig { background: rgba(225,48,108,.13);color: #b01f5a; }
+.ev-fb { background: rgba(24,119,242,.13);color: #1044a0; }
+.ev-pod{ background: var(--gold-light);   color: #7a5000; }
+
+.vault-item  { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); transition: background .1s; }
+.vault-item:hover { background: var(--surface); }
+.vault-item:last-child { border-bottom: none; }
+.vault-icon  { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.vault-meta  { flex: 1; min-width: 0; }
+.vault-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vault-detail{ font-size: 12px; color: var(--text-muted); }
+
+.bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 100px; margin: 8px 0; }
+.bar-col   { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bar       { width: 100%; border-radius: 4px 4px 0 0; }
+.bar-val   { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+.bar-label { font-size: 9px;  color: var(--text-light); text-align: center; }
+
+.divider       { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+.section       { margin-bottom: 24px; }
+.section-title { font-size: 12px; font-weight: 700; color: var(--dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+
+/* Sync status dot */
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.sync-ok   { background: #6ee7b7; }
+.sync-err  { background: #f87171; }
+.sync-busy { background: var(--gold); animation: pulse .8s ease-in-out infinite alternate; }
+@keyframes pulse { to { opacity: .4; } }
+
+/* Loading overlay */
+#loading-overlay { position: fixed; inset: 0; background: var(--dark); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 200; transition: opacity .4s; }
+#loading-overlay.hidden { opacity: 0; pointer-events: none; }
+.load-logo { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: .12em; }
+.load-sub  { color: rgba(255,255,255,.4); font-size: 13px; }
+
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--dark); color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 13px; z-index: 999; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: 320px; }
+.toast.show { opacity: 1; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 100; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal         { background: var(--card); border-radius: 12px; padding: 24px; width: 420px; max-width: 90vw; }
+.modal-title   { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 16px; }
+.modal-row     { margin-bottom: 14px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+@media (max-width: 900px) { .grid-4{grid-template-columns:repeat(2,1fr);} .grid-2{grid-template-columns:1fr;} .panel{padding:20px 16px;} }
+@media (max-width: 640px) { .app{flex-direction:column;} .sidebar{width:100%;height:auto;position:static;} }
+</style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="loading-overlay">
+  <div class="load-logo">TAKE COMMAND HQ</div>
+  <div class="spinner" style="width:24px;height:24px;border-width:3px;"></div>
+  <div class="load-sub" id="load-msg">Connecting to database…</div>
+</div>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-row">
+      <div class="logo-badge">VS</div>
+      <div><div class="logo-text">TAKE COMMAND</div><div class="logo-sub">Content HQ</div></div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Overview</div>
+    <div class="nav-item active" onclick="switchPanel('dashboard',this)"><span class="nav-icon">◻</span> Dashboard</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Create</div>
+    <div class="nav-item" onclick="switchPanel('quotes',this)"><span class="nav-icon">🖼</span> Quote Cards</div>
+    <div class="nav-item" onclick="switchPanel('posts',this)"><span class="nav-icon">✦</span> Social Posts</div>
+    <div class="nav-item" onclick="switchPanel('podcast',this)"><span class="nav-icon">🎙</span> Podcast Scripts</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Manage</div>
+    <div class="nav-item" onclick="switchPanel('calendar',this)"><span class="nav-icon">⬡</span> Content Calendar</div>
+    <div class="nav-item" onclick="switchPanel('vault',this)"><span class="nav-icon">⬢</span> Content Vault</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Measure</div>
+    <div class="nav-item" onclick="switchPanel('analytics',this)"><span class="nav-icon">↗</span> Analytics</div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="profile-pill">
+      <div class="avatar">VS</div>
+      <div><div class="profile-name">Victor Simz</div><div class="profile-role">Author · Strategist</div></div>
+    </div>
+
+    <!-- Supabase sync status -->
+    <div style="margin-bottom:12px;font-size:11px;color:rgba(255,255,255,.4);display:flex;align-items:center;">
+      <span class="sync-dot sync-busy" id="sync-dot"></span>
+      <span id="sync-label">Connecting…</span>
+    </div>
+
+    <!-- Claude API Key -->
+    <div>
+      <div style="font-size:10px;color:rgba(255,255,255,.28);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">Claude API Key</div>
+      <div style="display:flex;gap:5px;">
+        <input type="password" id="api-key-input" placeholder="sk-ant-…"
+          style="font-size:11px;padding:5px 8px;border-radius:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;flex:1;width:0;"
+          oninput="saveApiKey()" />
+        <button onclick="toggleApiKeyVis()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.55);padding:4px 8px;border-radius:5px;cursor:pointer;font-size:11px;">👁</button>
+      </div>
+      <div id="api-key-status" style="font-size:10px;margin-top:4px;color:rgba(255,255,255,.28);">Enter key to enable AI generation</div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- DASHBOARD -->
+<div class="panel active" id="panel-dashboard">
+  <div class="panel-header">
+    <div class="panel-title">Command Dashboard</div>
+    <div class="panel-sub" id="dash-subtitle">Loading…</div>
+  </div>
+  <div class="grid-4 section">
+    <div class="card-sm"><div class="stat-label">Posts This Month</div><div class="stat-value" id="dash-posts">—</div><div class="stat-delta">From content vault</div></div>
+    <div class="card-sm"><div class="stat-label">Quote Cards</div><div class="stat-value" id="dash-cards">—</div><div class="stat-delta">This session</div></div>
+    <div class="card-sm"><div class="stat-label">Scheduled</div><div class="stat-value" id="dash-sched">—</div><div class="stat-delta">On calendar</div></div>
+    <div class="card-sm"><div class="stat-label">Vault Items</div><div class="stat-value" id="dash-vault">—</div><div class="stat-delta">Saved pieces</div></div>
+  </div>
+  <div class="grid-2 section">
+    <div class="card">
+      <div class="section-title">This Week's Schedule</div>
+      <div id="dash-week" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="section-title" style="margin-bottom:0;">Content Pillars</div>
+      </div>
+      <div id="dash-pillar-bars" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <hr class="divider">
+      <div class="section-title">Platform Mix</div>
+      <div id="dash-platform-mix" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Quick Actions</div>
+    <div class="grid-4">
+      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('quotes',null)"><div style="font-size:22px;margin-bottom:6px;">🖼</div><div style="font-size:13px;font-weight:600;">Quote Card</div><div style="font-size:11px;color:var(--text-muted);">AI-sourced from book</div></div>
+      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('posts',null)"><div style="font-size:22px;margin-bottom:6px;">✦</div><div style="font-size:13px;font-weight:600;">Social Post</div><div style="font-size:11px;color:var(--text-muted);">Any platform</div></div>
+      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('podcast',null)"><div style="font-size:22px;margin-bottom:6px;">🎙</div><div style="font-size:13px;font-weight:600;">Podcast Script</div><div style="font-size:11px;color:var(--text-muted);">Full episode</div></div>
+      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('calendar',null)"><div style="font-size:22px;margin-bottom:6px;">⬡</div><div style="font-size:13px;font-weight:600;">Schedule Post</div><div style="font-size:11px;color:var(--text-muted);">Plan your content</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE CARDS -->
+<div class="panel" id="panel-quotes">
+  <div class="panel-header">
+    <div class="panel-title">Quote Card Generator</div>
+    <div class="panel-sub">AI surfaces a quote from <em>Take Command</em> by Victor Simz — generates a branded 1080×1080 PNG card ready to post</div>
+  </div>
+  <div class="grid-2" style="gap:24px;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px;">Quote Source</div>
+        <div class="form-row">
+          <label>Content Pillar</label>
+          <select id="quote-pillar">
+            <option>Self-Command</option><option>Strategy</option><option>Planning</option>
+            <option>Identity</option><option>Vision</option><option>Execution</option>
+            <option>Leadership</option><option>Legacy</option><option>Mindset</option><option>Discipline</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Or Paste Your Own Quote</label>
+          <textarea id="custom-quote" rows="3" placeholder="Type any passage from Take Command, or leave blank to let AI source one…"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-gold" onclick="generateQuote()" style="flex:1;">⚡ Generate Quote + Card</button>
+          <button class="btn btn-primary" onclick="downloadCard()">⬇ PNG</button>
+        </div>
+        <div style="margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="regenerateQuote()">↺ Try Another</button></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:10px;">Brand Images</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label>VS Logo</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+              <div id="logo-preview" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-light);overflow:hidden;flex-shrink:0;">VS</div>
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('logo-upload').click()" style="flex:1;">Upload</button>
+              <input type="file" id="logo-upload" accept="image/*" style="display:none;" onchange="loadBrandImage('logo',this)">
+            </div>
+          </div>
+          <div>
+            <label>Book Cover</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+              <div id="cover-preview" style="width:28px;height:36px;border-radius:3px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text-light);overflow:hidden;flex-shrink:0;line-height:1.2;text-align:center;">Book</div>
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('cover-upload').click()" style="flex:1;">Upload</button>
+              <input type="file" id="cover-upload" accept="image/*" style="display:none;" onchange="loadBrandImage('cover',this)">
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:8px;">Images are saved in this browser. Re-upload on a new device.</div>
+      </div>
+      <div class="card" id="ai-quote-card" style="display:none;">
+        <div class="section-title">AI-Sourced Quote</div>
+        <div class="output-box" id="ai-quote-text" style="min-height:80px;font-size:13px;font-style:italic;"></div>
+        <div class="output-actions">
+          <button class="btn btn-sm btn-outline" onclick="copyOutput('ai-quote-text')">Copy</button>
+          <button class="btn btn-sm btn-gold"    onclick="saveToVault('quote')">Save to Vault</button>
+        </div>
+      </div>
+      <div class="card" id="share-card" style="display:none;">
+        <div class="section-title">Share Card Image</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">On mobile: native share sheet opens. On desktop: image downloads, then the platform opens — attach from Downloads.</div>
+        <div class="share-row">
+          <button class="btn-share" style="background:#25D366" onclick="shareCard('whatsapp')">📱 WhatsApp</button>
+          <button class="btn-share" style="background:#000"    onclick="shareCard('twitter')">✕ Twitter/X</button>
+          <button class="btn-share" style="background:#1877F2" onclick="shareCard('facebook')">f Facebook</button>
+          <button class="btn-share" style="background:#0A66C2" onclick="shareCard('linkedin')">in LinkedIn</button>
+          <button class="btn-share" style="background:#e8971a;color:#000;" onclick="shareCard('native')">↑ Share Image</button>
+          <button class="btn-share" style="background:#555"    onclick="shareCard('copy')">⎘ Copy Image</button>
+        </div>
+      </div>
+    </div>
+    <div><div class="canvas-wrap"><canvas id="quote-canvas" width="1080" height="1080"></canvas></div></div>
+  </div>
+</div>
+
+<!-- SOCIAL POSTS -->
+<div class="panel" id="panel-posts">
+  <div class="panel-header">
+    <div class="panel-title">Social Post Generator</div>
+    <div class="panel-sub">Platform-optimised posts in Victor Simz's voice — powered by Claude AI</div>
+  </div>
+  <div class="grid-2" style="gap:24px;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px;">Platform</div>
+        <div class="platform-tabs">
+          <div class="platform-tab li active" onclick="setActivePlatform(this,'li')">LinkedIn</div>
+          <div class="platform-tab tw"        onclick="setActivePlatform(this,'tw')">Twitter / X</div>
+          <div class="platform-tab ig"        onclick="setActivePlatform(this,'ig')">Instagram</div>
+          <div class="platform-tab fb"        onclick="setActivePlatform(this,'fb')">Facebook</div>
+        </div>
+        <div class="form-row"><label>Content Pillar</label>
+          <select id="post-pillar">
+            <option>Self-Command</option><option>Strategy</option><option>Planning</option>
+            <option>Identity</option><option>Vision</option><option>Execution</option>
+            <option>Leadership</option><option>Legacy</option><option>Mindset</option><option>Discipline</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Topic / Angle</label><input type="text" id="post-topic" placeholder="e.g. Why self-command is the foundation of all leadership" /></div>
+        <div class="form-row"><label>Tone</label>
+          <select id="post-tone">
+            <option value="thought">Thought leadership — authoritative, commanding</option>
+            <option value="challenge">Provocative — challenge the reader's assumption</option>
+            <option value="narrative">Narrative — story-driven, leads to insight</option>
+            <option value="insight">Tactical insight — specific and actionable</option>
+            <option value="cta">Call to action — movement-building</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Key Message (optional)</label><textarea id="post-msg" rows="2" placeholder="Core idea or quote to anchor the post…"></textarea></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-gold" onclick="generatePost()" style="flex:1;">⚡ Generate Post</button>
+          <button class="btn btn-outline" onclick="clearPost()">Clear</button>
+        </div>
+      </div>
+      <div class="card" id="hashtag-block" style="display:none;">
+        <div class="section-title">Suggested Hashtags</div>
+        <div id="hashtag-output" style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="section-title" style="margin-bottom:0;">Generated Post</div>
+          <span id="platform-badge" class="badge badge-dark">LinkedIn</span>
+        </div>
+        <div class="output-box placeholder" id="post-output">Your generated post will appear here. Select your platform, pillar, and topic — then hit Generate.</div>
+        <div class="output-actions">
+          <button class="btn btn-sm btn-outline" onclick="copyOutput('post-output')">Copy</button>
+          <button class="btn btn-sm btn-outline" onclick="saveToVault('post')">Save to Vault</button>
+          <button class="btn btn-sm btn-gold"    onclick="openScheduleModal('post')">Schedule</button>
+          <span class="char-count" id="post-charcount"></span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">Platform Best Practices</div>
+        <div id="platform-tips" style="font-size:12px;color:var(--text-muted);line-height:1.9;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PODCAST SCRIPTS -->
+<div class="panel" id="panel-podcast">
+  <div class="panel-header">
+    <div class="panel-title">Podcast Script Writer</div>
+    <div class="panel-sub">Full episode scripts for the Take Command Podcast — in Victor Simz's voice</div>
+  </div>
+  <div class="grid-2" style="gap:24px;align-items:start;">
+    <div>
+      <div class="card">
+        <div class="section-title">Episode Brief</div>
+        <div class="form-row"><label>Content Pillar</label>
+          <select id="pod-pillar">
+            <option>Self-Command</option><option>Strategy</option><option>Planning</option>
+            <option>Identity</option><option>Vision</option><option>Execution</option>
+            <option>Leadership</option><option>Legacy</option><option>Mindset</option><option>Discipline</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Episode Topic / Title</label><input type="text" id="pod-topic" placeholder="e.g. Why You Can't Lead Others Until You Command Yourself" /></div>
+        <div class="form-row"><label>Central Thesis</label><textarea id="pod-thesis" rows="3" placeholder="What is the core claim? What should listeners walk away knowing or doing?"></textarea></div>
+        <div class="form-row"><label>Episode Length</label>
+          <select id="pod-length">
+            <option value="short">Short Segment (5–8 min)</option>
+            <option value="medium" selected>Full Episode (15–20 min)</option>
+            <option value="long">Deep Dive (30+ min)</option>
+          </select>
+        </div>
+        <button class="btn btn-gold" onclick="generateScript()" style="width:100%;">⚡ Generate Episode Script</button>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="section-title" style="margin-bottom:0;">Episode Script</div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span id="pod-wordcount" style="font-size:12px;color:var(--text-light);"></span>
+            <button class="btn btn-sm btn-outline" onclick="copyOutput('pod-output')">Copy</button>
+            <button class="btn btn-sm btn-gold"    onclick="saveToVault('podcast')">Save</button>
+          </div>
+        </div>
+        <div class="output-box placeholder" id="pod-output" style="min-height:420px;font-size:13px;line-height:1.9;">Your episode script will appear here. Fill in the brief and hit Generate.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="panel" id="panel-calendar">
+  <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div class="panel-title" id="cal-month-label">June 2026</div>
+      <div class="panel-sub">Content posting schedule — click any day to view or add</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn btn-outline btn-sm" onclick="changeMonth(-1)">← Prev</button>
+      <button class="btn btn-outline btn-sm" onclick="changeMonth(1)">Next →</button>
+      <button class="btn btn-gold btn-sm"    onclick="openScheduleModal(null)">+ Schedule Post</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px;">
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:12px;">
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#0077b5;opacity:.6;"></div>LinkedIn</div>
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#000;opacity:.45;"></div>Twitter/X</div>
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#e1306c;opacity:.6;"></div>Instagram</div>
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#1877f2;opacity:.6;"></div>Facebook</div>
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:var(--gold);opacity:.7;"></div>Podcast</div>
+      <div style="margin-left:auto;color:var(--text-muted);" id="cal-post-count"></div>
+    </div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="card" style="margin-top:16px;">
+    <div class="section-title" id="day-detail-title">Select a day to see scheduled posts</div>
+    <div id="day-detail-content" style="font-size:13px;color:var(--text-muted);">Click any day on the calendar above.</div>
+  </div>
+</div>
+
+<!-- VAULT -->
+<div class="panel" id="panel-vault">
+  <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;">
+    <div><div class="panel-title">Content Vault</div><div class="panel-sub">Saved posts, podcast scripts, and quote cards — synced across browsers</div></div>
+    <div style="display:flex;gap:8px;">
+      <select id="vault-filter" onchange="renderVault()" style="width:auto;font-size:12px;padding:5px 10px;">
+        <option value="all">All types</option><option value="post">Posts</option>
+        <option value="podcast">Podcast Scripts</option><option value="quote">Quote Cards</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="clearVault()">Clear All</button>
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;"><div id="vault-list"></div></div>
+</div>
+
+<!-- ANALYTICS -->
+<div class="panel" id="panel-analytics">
+  <div class="panel-header"><div class="panel-title">Analytics</div><div class="panel-sub">Content output breakdown — persisted across sessions</div></div>
+  <div class="grid-4 section">
+    <div class="card-sm"><div class="stat-label">Total Generated</div><div class="stat-value" id="an-total">—</div><div class="stat-delta">All-time pieces</div></div>
+    <div class="card-sm"><div class="stat-label">Posts</div><div class="stat-value" id="an-posts">—</div><div class="stat-delta">Social content</div></div>
+    <div class="card-sm"><div class="stat-label">Podcast Scripts</div><div class="stat-value" id="an-scripts">—</div><div class="stat-delta">Episode scripts</div></div>
+    <div class="card-sm"><div class="stat-label">Quote Cards</div><div class="stat-value" id="an-cards">—</div><div class="stat-delta">PNG cards generated</div></div>
+  </div>
+  <div class="grid-2 section">
+    <div class="card"><div class="section-title">Output by Pillar</div><div id="an-pillar-chart" class="bar-chart"></div></div>
+    <div class="card"><div class="section-title">Output by Platform</div><div id="an-platform-chart" class="bar-chart"></div></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="schedule-modal">
+  <div class="modal">
+    <div class="modal-title">Schedule Post</div>
+    <div class="modal-row"><label>Date</label><input type="date" id="sched-date" /></div>
+    <div class="modal-row"><label>Platform</label>
+      <select id="sched-platform">
+        <option value="li">LinkedIn</option><option value="tw">Twitter / X</option>
+        <option value="ig">Instagram</option><option value="fb">Facebook</option><option value="pod">Podcast</option>
+      </select>
+    </div>
+    <div class="modal-row"><label>Title / Note</label><input type="text" id="sched-title" placeholder="Brief description…" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeScheduleModal()">Cancel</button>
+      <button class="btn btn-gold"    onclick="confirmSchedule()">Save to Calendar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  SUPABASE CONFIG
+// ══════════════════════════════════════════════════════════════════
+const SB_URL = 'https://vdlhcxbldiszghofghgi.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDY2NjUsImV4cCI6MjA5NzU4MjY2NX0.28RjGPZdbzJ2gYAfLo6Fn26cQmKp9KFbPnIaBgg0YC8';
+const SB_HDR = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' };
+
+// ── In-memory state (loaded from Supabase on boot) ─────────────────
+const STATE = { vault: [], calendar: [], log: [] };
+
+async function dbGet(key) {
+  const r = await fetch(`${SB_URL}/rest/v1/tc_store?key=eq.${encodeURIComponent(key)}&select=value`, { headers: SB_HDR });
+  if (!r.ok) throw new Error(await r.text());
+  const rows = await r.json();
+  return rows.length ? rows[0].value : null;
+}
+
+async function dbSet(key, value) {
+  const r = await fetch(`${SB_URL}/rest/v1/tc_store`, {
+    method: 'POST', headers: SB_HDR,
+    body: JSON.stringify({ key, value, updated_at: new Date().toISOString() })
+  });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+function syncKey(key) {
+  setSyncStatus('busy');
+  dbSet(key, STATE[key])
+    .then(() => setSyncStatus('ok'))
+    .catch(e => { console.error('Sync error', e); setSyncStatus('err'); });
+}
+
+function setSyncStatus(s) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = `sync-dot sync-${s}`;
+  lbl.textContent = s === 'ok' ? 'Synced' : s === 'busy' ? 'Syncing…' : 'Sync error';
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  STATE HELPERS
+// ══════════════════════════════════════════════════════════════════
+function getState(key, def) { return STATE[key] !== undefined ? STATE[key] : def; }
+function setState(key, value) { STATE[key] = value; syncKey(key); }
+
+// ══════════════════════════════════════════════════════════════════
+//  STATE MANAGEMENT (app-level)
+// ══════════════════════════════════════════════════════════════════
+let currentPlatform = 'li';
+let currentPanel    = 'dashboard';
+let calYear         = new Date().getFullYear();
+let calMonth        = new Date().getMonth();
+let schedContext    = null;
+let sessionCards    = 0;
+let currentQuote    = '';
+
+// ══════════════════════════════════════════════════════════════════
+//  CLAUDE API KEY  (localStorage only — device-specific)
+// ══════════════════════════════════════════════════════════════════
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  localStorage.setItem('tc_apiKey', key);
+  const el = document.getElementById('api-key-status');
+  if (key.startsWith('sk-')) { el.textContent='✓ Key saved — AI enabled'; el.style.color='#6ee7b7'; }
+  else if (key.length>0)    { el.textContent='⚠ Key should start with sk-…'; el.style.color='#fcd34d'; }
+  else                       { el.textContent='Enter key to enable AI generation'; el.style.color='rgba(255,255,255,.28)'; }
+}
+function toggleApiKeyVis() { const i=document.getElementById('api-key-input'); i.type=i.type==='password'?'text':'password'; }
+function getApiKey() { return localStorage.getItem('tc_apiKey')||document.getElementById('api-key-input').value.trim(); }
+
+// ══════════════════════════════════════════════════════════════════
+//  CLAUDE API
+// ══════════════════════════════════════════════════════════════════
+async function callClaude(system, user, maxTokens=1400) {
+  const key = getApiKey();
+  if (!key) { showToast('Add your Claude API key in the sidebar'); throw new Error('No API key'); }
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{ 'x-api-key':key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true', 'content-type':'application/json' },
+    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:maxTokens, system, messages:[{role:'user',content:user}] })
+  });
+  if (!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error?.message||`API error ${r.status}`); }
+  return (await r.json()).content[0].text;
+}
+
+const VICTOR_VOICE = `You are writing as Victor Simz — author of "Take Command: How to Plan Your Life Like a Military General," historian, strategist, and leadership coach.
+
+Core thesis: The greatest generals in history didn't just win battles — they planned for them. Victor applies military strategic doctrine to personal life planning. You are the commander of your own life; without a command strategy, you will be commanded by your circumstances.
+
+Voice: declarative, high-conviction, no hedging or filler. Military metaphors woven naturally. Treats personal development as strategic operations. Short punchy sentences for emphasis, longer sentences for argument. Never says "It's time to…", "I believe…", or empty motivational clichés. The reader is a commander, not a victim.
+
+Content pillars: Self-Command, Strategy, Planning, Identity, Vision, Execution, Leadership, Legacy, Mindset, Discipline.`;
+
+// ══════════════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════════════
+function switchPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else {
+    const m={dashboard:'Dashboard',quotes:'Quote',posts:'Social',podcast:'Podcast',calendar:'Calendar',vault:'Vault',analytics:'Analytics'};
+    document.querySelectorAll('.nav-item').forEach(n=>{ if(n.textContent.trim().includes(m[id]||'')) n.classList.add('active'); });
+  }
+  currentPanel=id;
+  if (id==='dashboard')  renderDashboard();
+  if (id==='calendar')   renderCalendar();
+  if (id==='vault')      renderVault();
+  if (id==='analytics')  renderAnalytics();
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  TOAST / COPY
+// ══════════════════════════════════════════════════════════════════
+let _tt;
+function showToast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),3400);
+}
+function copyOutput(id) { navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copied to clipboard')); }
+
+// ══════════════════════════════════════════════════════════════════
+//  VAULT
+// ══════════════════════════════════════════════════════════════════
+function saveToVault(type) {
+  let content='', title='';
+  if (type==='post')    { content=document.getElementById('post-output').textContent; title=`[${currentPlatform.toUpperCase()}] ${document.getElementById('post-pillar').value}`; }
+  if (type==='podcast') { content=document.getElementById('pod-output').textContent;  title=document.getElementById('pod-topic').value||'Podcast Script'; }
+  if (type==='quote')   { content=document.getElementById('ai-quote-text').textContent; title='Quote — '+document.getElementById('quote-pillar').value; }
+  if (!content||content.includes('will appear here')) { showToast('Generate content first'); return; }
+  const vault=getState('vault',[]);
+  vault.unshift({id:Date.now(),type,title,content,date:new Date().toISOString()});
+  setState('vault',vault);
+  showToast('Saved to Vault — syncing…');
+  updateDashStats();
+}
+
+function renderVault() {
+  const filter=document.getElementById('vault-filter').value;
+  const vault=getState('vault',[]).filter(v=>filter==='all'||v.type===filter);
+  const list=document.getElementById('vault-list');
+  const icons={post:'✦',podcast:'🎙',quote:'🖼'};
+  const bgs={post:'rgba(232,151,26,.12)',podcast:'rgba(11,17,23,.08)',quote:'rgba(232,151,26,.2)'};
+  if (!vault.length) { list.innerHTML='<div style="padding:36px;text-align:center;color:var(--text-light);font-size:13px;">No saved content yet.</div>'; return; }
+  list.innerHTML=vault.map((v,i)=>`
+    <div class="vault-item">
+      <div class="vault-icon" style="background:${bgs[v.type]||'#eee'}">${icons[v.type]||'◻'}</div>
+      <div class="vault-meta">
+        <div class="vault-title">${v.title}</div>
+        <div class="vault-detail">${new Date(v.date).toLocaleDateString()} · ${v.content.length.toLocaleString()} chars</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn btn-sm btn-outline" onclick="expandVaultItem(${i})">View</button>
+        <button class="btn btn-sm btn-outline" onclick="editVaultItem(${i})">Edit</button>
+        <button class="btn btn-sm btn-gold"    onclick="openScheduleModal(null);document.getElementById('sched-title').value=${JSON.stringify(v.title.substring(0,60))}">Schedule</button>
+        <button class="btn btn-sm btn-outline" onclick="deleteVaultItem(${v.id})" style="color:#c00;">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+// Store reference to currently open vault item index
+let _vaultOpenIdx = null;
+
+function expandVaultItem(idx) {
+  _vaultOpenIdx = idx;
+  const vault = getState('vault', []);
+  if (!vault[idx]) return;
+  const v = vault[idx];
+  const old = document.getElementById('vault-expanded'); if (old) old.remove();
+  const d = document.createElement('div');
+  d.id = 'vault-expanded'; d.className = 'card'; d.style.marginTop = '16px';
+  d.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <strong style="font-size:14px;">${v.title}</strong>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-sm btn-outline" onclick="copyVaultItem(${idx})">Copy</button>
+        <button class="btn btn-sm btn-gold"    onclick="editVaultItem(${idx})">Edit</button>
+        <button class="btn btn-sm btn-outline" onclick="document.getElementById('vault-expanded').remove()">Close</button>
+      </div>
+    </div>
+    <div class="output-box" id="vault-view-content" style="white-space:pre-wrap;min-height:100px;">${escHtml(v.content)}</div>`;
+  document.getElementById('panel-vault').appendChild(d);
+}
+
+function editVaultItem(idx) {
+  _vaultOpenIdx = idx;
+  const vault = getState('vault', []);
+  if (!vault[idx]) return;
+  const v = vault[idx];
+  const old = document.getElementById('vault-expanded'); if (old) old.remove();
+  const d = document.createElement('div');
+  d.id = 'vault-expanded'; d.className = 'card'; d.style.marginTop = '16px';
+  d.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <input id="vault-edit-title" type="text" value="${escAttr(v.title)}" style="font-size:14px;font-weight:600;flex:1;margin-right:10px;" />
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn btn-sm btn-gold"    onclick="saveVaultEdit(${idx})">Save</button>
+        <button class="btn btn-sm btn-outline" onclick="expandVaultItem(${idx})">Cancel</button>
+      </div>
+    </div>
+    <textarea id="vault-edit-content" style="width:100%;min-height:240px;font-size:13px;line-height:1.7;resize:vertical;">${escHtml(v.content)}</textarea>`;
+  document.getElementById('panel-vault').appendChild(d);
+  document.getElementById('vault-edit-content').focus();
+}
+
+function saveVaultEdit(idx) {
+  const vault = getState('vault', []);
+  if (!vault[idx]) return;
+  const newTitle   = document.getElementById('vault-edit-title').value.trim() || vault[idx].title;
+  const newContent = document.getElementById('vault-edit-content').value;
+  vault[idx] = { ...vault[idx], title: newTitle, content: newContent };
+  setState('vault', vault);
+  showToast('Saved — syncing…');
+  renderVault();
+  expandVaultItem(idx);
+}
+
+function copyVaultItem(idx) {
+  const vault = getState('vault', []);
+  if (!vault[idx]) return;
+  navigator.clipboard.writeText(vault[idx].content).then(() => showToast('Copied to clipboard'));
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+function deleteVaultItem(id) {
+  const vault=getState('vault',[]).filter(v=>v.id!==id);
+  setState('vault',vault); renderVault(); updateDashStats();
+}
+function clearVault() {
+  if(!confirm('Clear all saved content?'))return;
+  setState('vault',[]); renderVault(); updateDashStats();
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  QUOTE CARD GENERATOR
+// ══════════════════════════════════════════════════════════════════
+async function generateQuote() {
+  const pillar=document.getElementById('quote-pillar').value;
+  const custom=document.getElementById('custom-quote').value.trim();
+  const aiCard=document.getElementById('ai-quote-card');
+  const aiText=document.getElementById('ai-quote-text');
+  const shareC=document.getElementById('share-card');
+
+  aiCard.style.display='block'; shareC.style.display='none';
+  aiText.innerHTML='<span class="spinner"></span> Sourcing quote from <em>Take Command</em>…';
+
+  let quote=custom;
+  if (!custom) {
+    try {
+      quote = await callClaude(VICTOR_VOICE,
+        `Surface a powerful, memorable quote or passage from "Take Command: How to Plan Your Life Like a Military General" by Victor Simz, on the theme of "${pillar}".
+Concise (1–3 sentences), high-impact, representative of Victor's strategic, commanding voice.
+Return ONLY the raw quote text — no quotation marks, no attribution, no explanation.`, 300);
+    } catch(e) { aiText.textContent='Error: '+e.message; return; }
+  }
+
+  currentQuote = quote.trim().replace(/^["""']|["""']$/g,'');
+  aiText.textContent = '"' + currentQuote + '"';
+  drawCard(currentQuote, pillar);
+  shareC.style.display='block';
+  sessionCards++; trackEvent('quote',pillar,''); updateDashStats();
+}
+
+async function regenerateQuote() { document.getElementById('custom-quote').value=''; await generateQuote(); }
+
+// Brand image cache — loaded from localStorage on init
+const BRAND = { logo: null, cover: null };
+
+function loadBrandImage(type, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    const raw = new Image();
+    raw.onload = () => {
+      // Resize to a canvas to compress before storing
+      const maxW = type === 'logo' ? 400 : 600;
+      const maxH = type === 'logo' ? 400 : 900;
+      const scale = Math.min(1, maxW / raw.width, maxH / raw.height);
+      const cw = Math.round(raw.width * scale);
+      const ch = Math.round(raw.height * scale);
+      const tmp = document.createElement('canvas');
+      tmp.width = cw; tmp.height = ch;
+      tmp.getContext('2d').drawImage(raw, 0, 0, cw, ch);
+      const dataUrl = tmp.toDataURL('image/jpeg', 0.88);
+      try {
+        localStorage.setItem('tc_brand_'+type, dataUrl);
+      } catch(err) {
+        showToast('Image too large for storage — try a smaller file'); return;
+      }
+      const img = new Image(); img.src = dataUrl;
+      img.onload = () => {
+        BRAND[type] = img;
+        const prev = document.getElementById(type+'-preview');
+        prev.innerHTML = ''; prev.style.background = 'none';
+        const thumb = document.createElement('img');
+        thumb.src = dataUrl; thumb.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        prev.appendChild(thumb);
+        if (currentQuote) drawCard(currentQuote, document.getElementById('quote-pillar').value);
+        showToast(type === 'logo' ? 'VS Logo saved' : 'Book cover saved');
+      };
+    };
+    raw.onerror = () => showToast('Could not read image file');
+    raw.src = src;
+  };
+  reader.readAsDataURL(file);
+}
+
+function initBrandImages() {
+  ['logo','cover'].forEach(type => {
+    const saved = localStorage.getItem('tc_brand_'+type);
+    if (!saved) return;
+    const img = new Image(); img.src = saved;
+    img.onload = () => {
+      BRAND[type] = img;
+      const prev = document.getElementById(type+'-preview');
+      prev.innerHTML = ''; prev.style.background = 'none';
+      const thumb = document.createElement('img');
+      thumb.src = saved; thumb.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      prev.appendChild(thumb);
+    };
+  });
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function drawCard(text, pillar) {
+  const cv = document.getElementById('quote-canvas'), ctx = cv.getContext('2d');
+  const W = 1080, H = 1080;
+  cv.width = W; cv.height = H;
+
+  // ── Split: left dark panel | right book cover ────────────────────
+  const splitX = BRAND.cover ? 448 : W;
+
+  // Dark left panel
+  ctx.fillStyle = '#0b1117';
+  ctx.fillRect(0, 0, splitX, H);
+
+  // Right panel: book cover filling full height, object-cover
+  if (BRAND.cover) {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(splitX, 0, W - splitX, H); ctx.clip();
+    const iw = BRAND.cover.width, ih = BRAND.cover.height;
+    const panelW = W - splitX, panelH = H;
+    const scale = Math.max(panelW / iw, panelH / ih);
+    const dw = iw * scale, dh = ih * scale;
+    const dx = splitX + (panelW - dw) / 2, dy = (panelH - dh) / 2;
+    ctx.drawImage(BRAND.cover, dx, dy, dw, dh);
+    // Subtle left-edge gradient to blend with dark panel
+    const grad = ctx.createLinearGradient(splitX, 0, splitX + 60, 0);
+    grad.addColorStop(0, 'rgba(11,17,23,0.7)');
+    grad.addColorStop(1, 'rgba(11,17,23,0)');
+    ctx.fillStyle = grad; ctx.fillRect(splitX, 0, 60, H);
+    ctx.restore();
+  }
+
+  const pad = 36;
+
+  // ── “TAKE COMMAND” label ─────────────────────────────────────────
+  ctx.fillStyle = '#e8971a'; ctx.font = '18px “Bebas Neue”,sans-serif';
+  ctx.letterSpacing = '5px'; ctx.fillText('TAKE COMMAND', pad, 68); ctx.letterSpacing = '0px';
+
+  // ── “QUOTES” large heading — faux bold via fill + stroke ─────────
+  ctx.font = '78px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '4px';
+  ctx.fillStyle = '#ffffff'; ctx.fillText('QUOTES', pad - 2, 172);
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+  ctx.strokeText('QUOTES', pad - 2, 172);
+  ctx.lineWidth = 1; ctx.letterSpacing = '0px';
+
+  // Gold underline
+  ctx.fillStyle = '#e8971a'; ctx.fillRect(pad, 186, 280, 5);
+
+  // Pillar badge
+  ctx.font = '14px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '2px';
+  const pillW = ctx.measureText(pillar.toUpperCase()).width + 22;
+  ctx.fillStyle = 'rgba(232,151,26,0.18)'; ctx.fillRect(pad, 204, pillW, 26);
+  ctx.fillStyle = '#e8971a'; ctx.fillText(pillar.toUpperCase(), pad + 11, 222);
+  ctx.letterSpacing = '0px';
+
+  // ── Gold quote box ───────────────────────────────────────────────
+  const boxX = pad, boxY = 248, boxW = splitX - pad * 2, boxH = 430;
+  ctx.fillStyle = '#e8971a';
+  roundRect(ctx, boxX, boxY, boxW, boxH, 16); ctx.fill();
+
+  // Opening quote mark (decorative, inside box top-left)
+  ctx.fillStyle = 'rgba(0,0,0,0.12)';
+  ctx.font = '140px “Bebas Neue”,sans-serif';
+  ctx.fillText('”', boxX + 10, boxY + 106);
+
+  // Quote text — italic Bebas Neue (synthesised oblique), dark, centred inside box
+  const maxTW = boxW - 56;
+  const fs = text.length < 80 ? 40 : text.length < 140 ? 35 : text.length < 210 ? 30 : 26;
+  ctx.fillStyle = '#160a00'; ctx.font = `italic ${fs}px “Bebas Neue”,sans-serif`;
+  ctx.letterSpacing = '1px';
+  const words = text.split(' '); const lines = []; let line = '';
+  for (const w of words) {
+    const t = line ? line+' '+w : w;
+    if (ctx.measureText(t).width > maxTW && line) { lines.push(line); line = w; }
+    else line = t;
+  }
+  if (line) lines.push(line);
+  const lh = Math.round(fs * 1.38);
+  const blockH = lines.length * lh;
+  const textStartY = Math.round(boxY + (boxH - blockH) / 2) + fs;
+  lines.forEach((l, i) => {
+    const tw = ctx.measureText(l).width;
+    ctx.fillText(l, boxX + (boxW - tw) / 2, textStartY + i * lh);
+  });
+  ctx.letterSpacing = '0px';
+
+  // ── VS Logo circle + name block ──────────────────────────────────
+  const logoR = 34, logoX = pad + logoR, logoY = H - 165;
+  if (BRAND.logo) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI*2); ctx.clip();
+    // object-cover: scale so the shorter dimension fills the circle diameter
+    const iw = BRAND.logo.width, ih = BRAND.logo.height;
+    const scale = Math.max((logoR*2)/iw, (logoR*2)/ih);
+    const dw = iw*scale, dh = ih*scale;
+    ctx.drawImage(BRAND.logo, logoX - dw/2, logoY - dh/2, dw, dh);
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI*2);
+    ctx.fillStyle = '#000'; ctx.fill();
+    ctx.strokeStyle = '#e8971a'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = '24px “Bebas Neue”,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('VS', logoX, logoY + 8); ctx.textAlign = 'left'; ctx.restore();
+  }
+  const nameX = logoX + logoR + 16;
+  ctx.fillStyle = '#e8971a'; ctx.font = '24px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '2px';
+  ctx.fillText('VICTOR SIMZ', nameX, logoY - 4);
+  ctx.letterSpacing = '0px';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '16px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '1px';
+  ctx.fillText('HISTORIAN  /  STRATEGIST  /  LEADER', nameX, logoY + 18);
+  ctx.letterSpacing = '0px';
+
+  // ── Social icons — clean custom canvas drawing ────────────────────
+  const iconY = H - 90, iconSz = 40, iconGap = 12;
+  let ix = pad;
+  const icx = (i) => i + iconSz/2, icy = iconY + iconSz/2;
+
+  // ── Facebook: blue circle + white 'f' ──
+  ctx.fillStyle = '#1877F2';
+  ctx.beginPath(); ctx.arc(icx(ix), icy, iconSz/2, 0, Math.PI*2); ctx.fill();
+  // Draw 'f' as path: vertical stem + crossbar
+  const fS = iconSz * 0.18, fX = icx(ix) - fS*0.25, fTop = icy - iconSz*0.32;
+  ctx.fillStyle = '#fff'; ctx.lineWidth = fS; ctx.strokeStyle = '#fff'; ctx.lineCap = 'round';
+  // Stem
+  ctx.beginPath(); ctx.moveTo(fX, fTop + fS*0.6); ctx.lineTo(fX, icy + iconSz*0.28); ctx.stroke();
+  // Top curve (arc toward right)
+  ctx.beginPath(); ctx.arc(fX + fS*0.5, fTop + fS*0.6, fS*0.5, Math.PI, 0); ctx.stroke();
+  // Crossbar
+  ctx.beginPath(); ctx.moveTo(fX - fS*0.5, icy - iconSz*0.04); ctx.lineTo(fX + fS*0.9, icy - iconSz*0.04); ctx.stroke();
+  ix += iconSz + iconGap;
+
+  // ── Instagram: gradient rounded square + camera outline ──
+  const igGrad = ctx.createLinearGradient(ix, iconY+iconSz, ix+iconSz, iconY);
+  igGrad.addColorStop(0,'#f09433'); igGrad.addColorStop(0.4,'#e6683c');
+  igGrad.addColorStop(0.65,'#dc2743'); igGrad.addColorStop(0.9,'#cc2366'); igGrad.addColorStop(1,'#bc1888');
+  ctx.fillStyle = igGrad;
+  roundRect(ctx, ix, iconY, iconSz, iconSz, iconSz*0.22); ctx.fill();
+  // Camera body
+  const cb = iconSz*0.28, ccx = icx(ix), ccY = iconY + iconSz/2 + iconSz*0.03;
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = iconSz*0.075; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  roundRect(ctx, ccx-cb, ccY-cb*0.75, cb*2, cb*1.55, cb*0.28); ctx.stroke();
+  // Lens
+  ctx.beginPath(); ctx.arc(ccx, ccY+cb*0.05, cb*0.42, 0, Math.PI*2); ctx.stroke();
+  // Top bump
+  ctx.beginPath(); ctx.moveTo(ccx-cb*0.28,ccY-cb*0.75); ctx.lineTo(ccx-cb*0.1,ccY-cb*1.05); ctx.lineTo(ccx+cb*0.1,ccY-cb*1.05); ctx.lineTo(ccx+cb*0.28,ccY-cb*0.75); ctx.stroke();
+  // Dot
+  ctx.beginPath(); ctx.arc(ccx+cb*0.64, ccY-cb*0.52, cb*0.12, 0, Math.PI*2);
+  ctx.fillStyle='#fff'; ctx.fill();
+  ix += iconSz + iconGap;
+
+  // ── X (Twitter): black circle + official X letterform ──
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(icx(ix), icy, iconSz/2, 0, Math.PI*2); ctx.fill();
+  ctx.save();
+  ctx.translate(icx(ix), icy);
+  ctx.scale(iconSz / 24, iconSz / 24);
+  ctx.translate(-12, -12); // centre the 24×24 viewBox
+  ctx.fillStyle = '#fff';
+  ctx.fill(new Path2D('M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z'));
+  ctx.restore();
+  ix += iconSz + iconGap;
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '17px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '1px';
+  ctx.fillText('@VSIMZ1', ix + 4, iconY + iconSz/2 + 6);
+  ctx.lineWidth = 1; ctx.letterSpacing = '0px';
+}
+
+function downloadCard() {
+  if (!currentQuote) { showToast('Generate a quote card first'); return; }
+  const a = document.createElement('a');
+  a.download = 'take-command-quote.png';
+  a.href = document.getElementById('quote-canvas').toDataURL('image/png');
+  a.click(); showToast('Card downloaded');
+}
+
+async function getCardBlob() {
+  return new Promise(resolve => document.getElementById('quote-canvas').toBlob(resolve, 'image/png'));
+}
+
+async function shareCard(platform) {
+  if (!currentQuote) { showToast('Generate a card first'); return; }
+
+  // "Share Image" button — use native Web Share API (works great on mobile)
+  if (platform === 'native') {
+    if (navigator.share) {
+      try {
+        const blob = await getCardBlob();
+        const file = new File([blob], 'take-command-quote.png', { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Take Command Quote', text: '— Victor Simz' });
+          return;
+        }
+      } catch(e) { if (e.name !== 'AbortError') showToast('Share failed — downloading instead'); else return; }
+    }
+    downloadCard(); return;
+  }
+
+  // Copy image to clipboard
+  if (platform === 'copy') {
+    const blob = await getCardBlob();
+    navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+      .then(() => showToast('Image copied to clipboard'))
+      .catch(() => { downloadCard(); showToast('Clipboard blocked — downloaded instead'); });
+    return;
+  }
+
+  // Platform buttons: download card, then open platform
+  const urls = {
+    whatsapp: 'https://web.whatsapp.com/',
+    twitter:  'https://twitter.com/intent/tweet',
+    facebook: 'https://www.facebook.com/',
+    linkedin: 'https://www.linkedin.com/feed/',
+  };
+  downloadCard();
+  setTimeout(() => {
+    window.open(urls[platform], '_blank');
+    showToast('Image downloaded — attach it to your new post');
+  }, 600);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  SOCIAL POSTS
+// ══════════════════════════════════════════════════════════════════
+const PLATFORM_TIPS={
+  li:'LinkedIn: 150–300 words ideal. Start with a bold hook. End with a question or CTA. 3–5 hashtags. Avoid emojis in first line.',
+  tw:'Twitter/X: Under 280 chars. Threads (up to 7) work well. 1–2 hashtags. Punchy first line is everything.',
+  ig:'Instagram: First line must hook before the "more" cut. 5–10 hashtags. Emotional or visual storytelling wins.',
+  fb:'Facebook: 40–80 words for max engagement. Personal, conversational tone. Questions drive comments.'
+};
+const PLATFORM_LABELS={li:'LinkedIn',tw:'Twitter / X',ig:'Instagram',fb:'Facebook'};
+const CHAR_LIMITS={li:'200–300 words',tw:'under 260 characters',ig:'100–200 words',fb:'50–90 words'};
+const TONE_MAP={
+  thought:"thought leadership — authoritative, commanding, no hedging",
+  challenge:"provocative — disrupt the reader's assumption",
+  narrative:"narrative — personal story that resolves into a strategic insight",
+  insight:"tactical insight — specific, practical, immediately actionable",
+  cta:"call to action — galvanising, movement-building"
+};
+
+function setActivePlatform(el, p) {
+  document.querySelectorAll('.platform-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); currentPlatform=p;
+  document.getElementById('platform-badge').textContent=PLATFORM_LABELS[p];
+  document.getElementById('platform-tips').textContent=PLATFORM_TIPS[p]||'';
+}
+
+async function generatePost() {
+  const pillar=document.getElementById('post-pillar').value;
+  const topic=document.getElementById('post-topic').value.trim();
+  const tone=document.getElementById('post-tone').value;
+  const msg=document.getElementById('post-msg').value.trim();
+  const out=document.getElementById('post-output'), cnt=document.getElementById('post-charcount');
+
+  out.classList.remove('placeholder');
+  out.innerHTML='<span class="spinner"></span> Generating post…';
+  cnt.textContent=''; document.getElementById('hashtag-block').style.display='none';
+
+  try {
+    const result=await callClaude(VICTOR_VOICE,
+      `Write a ${PLATFORM_LABELS[currentPlatform]} post for Victor Simz.
+Content pillar: "${pillar}"
+${topic?`Topic / angle: ${topic}`:''}
+${msg?`Core message: "${msg}"`:''}
+Tone: ${TONE_MAP[tone]||tone}
+Length: ${CHAR_LIMITS[currentPlatform]}
+Write in Victor Simz's voice. No preamble — output the post directly.
+After the post, write "HASHTAGS:" followed by 3–5 relevant hashtags.`, 900);
+
+    const [postPart,hashPart]=result.split(/HASHTAGS:/i);
+    out.textContent=postPart.trim(); cnt.textContent=out.textContent.length+' chars';
+    if(hashPart){
+      const tags=hashPart.trim().split(/[\s,]+/).filter(t=>t.startsWith('#'));
+      document.getElementById('hashtag-output').innerHTML=tags.map(t=>`<span style="cursor:pointer;padding:3px 8px;background:rgba(0,119,181,.09);border-radius:4px;color:#0055a0;" onclick="navigator.clipboard.writeText(this.textContent).then(()=>showToast('Copied'))">${t}</span>`).join('');
+      document.getElementById('hashtag-block').style.display='block';
+    }
+    trackEvent('post',pillar,currentPlatform); updateDashStats();
+  } catch(e){out.textContent='Error: '+e.message; out.classList.add('placeholder');}
+}
+
+function clearPost() {
+  const out=document.getElementById('post-output');
+  out.textContent='Your generated post will appear here. Select your platform, pillar, and topic — then hit Generate.';
+  out.classList.add('placeholder');
+  document.getElementById('post-charcount').textContent='';
+  document.getElementById('hashtag-block').style.display='none';
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  PODCAST SCRIPTS
+// ══════════════════════════════════════════════════════════════════
+async function generateScript() {
+  const pillar=document.getElementById('pod-pillar').value;
+  const topic=document.getElementById('pod-topic').value.trim()||pillar;
+  const thesis=document.getElementById('pod-thesis').value.trim();
+  const len=document.getElementById('pod-length').value;
+  const out=document.getElementById('pod-output'), wc=document.getElementById('pod-wordcount');
+  const lenMap={short:'600–900 words (~5–8 min)',medium:'1800–2400 words (~15–20 min)',long:'3500+ words (~30+ min)'};
+  const maxToks={short:1200,medium:3200,long:5500};
+
+  out.classList.remove('placeholder'); out.innerHTML='<span class="spinner"></span> Writing episode script…'; wc.textContent='';
+
+  try {
+    const result=await callClaude(VICTOR_VOICE,
+      `Write a complete Take Command Podcast script for Victor Simz.
+Episode: ${topic}
+Pillar: ${pillar}
+${thesis?`Central thesis: ${thesis}`:''}
+Target length: ${lenMap[len]}
+Structure: INTRO (hook, stakes, promise) → CORE (3–4 points each with sub-argument, military/historical example, listener application) → TACTICAL TAKEAWAY (1–3 actions) → OUTRO (closing provocation).
+Write in Victor's full podcast voice — commanding, strategic, direct. Output the script only.`, maxToks[len]);
+
+    out.textContent=result;
+    wc.textContent=result.trim().split(/\s+/).length.toLocaleString()+' words';
+    trackEvent('podcast',pillar,''); updateDashStats();
+  } catch(e){out.textContent='Error: '+e.message; out.classList.add('placeholder');}
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  TRACKING
+// ══════════════════════════════════════════════════════════════════
+function trackEvent(type, pillar, platform) {
+  const log=getState('log',[]);
+  log.push({type,pillar,platform,ts:Date.now()});
+  setState('log',log);
+}
+
+function updateDashStats() {
+  const vault=getState('vault',[]), cal=getState('calendar',[]);
+  const now=new Date(), mStart=new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  document.getElementById('dash-posts').textContent=vault.filter(v=>v.type==='post'&&new Date(v.date).getTime()>=mStart).length;
+  document.getElementById('dash-cards').textContent=sessionCards;
+  document.getElementById('dash-sched').textContent=cal.filter(e=>new Date(e.date+'T12:00')>=now).length;
+  document.getElementById('dash-vault').textContent=vault.length;
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════════════════
+function renderDashboard() {
+  const now=new Date();
+  document.getElementById('dash-subtitle').textContent=
+    `Week of ${now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} — Take Command. Plan Your Life Like a Military General.`;
+  updateDashStats(); renderDashWeek(); renderDashPillars();
+}
+
+function renderDashWeek() {
+  const cal=getState('calendar',[]),now=new Date();
+  const dow=now.getDay(),mon=new Date(now); mon.setDate(now.getDate()-(dow===0?6:dow-1));
+  const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+  const week=cal.filter(e=>{const d=new Date(e.date+'T12:00');return d>=mon&&d<=sun;});
+  const el=document.getElementById('dash-week');
+  const pClr={li:'#0077b5',tw:'#000',ig:'#e1306c',fb:'#1877f2',pod:'#e8971a'};
+  if(!week.length){el.innerHTML=`<div style="color:var(--text-light);font-size:13px;">No posts scheduled this week. <span style="color:var(--gold);cursor:pointer;" onclick="switchPanel('calendar',null)">Add to calendar →</span></div>`;return;}
+  el.innerHTML=week.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>`
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:${pClr[e.platform]||'#999'};flex-shrink:0;"></div>
+      <div style="font-size:12px;color:var(--text-muted);width:70px;">${new Date(e.date+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
+      <div style="font-size:13px;">${e.title}</div>
+    </div>`).join('');
+}
+
+function renderDashPillars() {
+  const log=getState('log',[]),pillars={},platforms={};
+  log.forEach(e=>{if(e.pillar)pillars[e.pillar]=(pillars[e.pillar]||0)+1;if(e.platform)platforms[e.platform]=(platforms[e.platform]||0)+1;});
+  const pS=Object.entries(pillars).sort((a,b)=>b[1]-a[1]).slice(0,5),pMax=pS[0]?.[1]||1;
+  document.getElementById('dash-pillar-bars').innerHTML=pS.length?pS.map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${k}</span><span style="color:var(--text-muted);">${v}</span></div><div style="background:#eee;border-radius:4px;height:6px;"><div style="background:var(--gold);height:6px;border-radius:4px;width:${(v/pMax*100).toFixed(0)}%;"></div></div></div>`).join(''):'<div style="color:var(--text-light);font-size:12px;">No content generated yet.</div>';
+  const platLbls={li:'LinkedIn',tw:'Twitter/X',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
+  const plS=Object.entries(platforms).sort((a,b)=>b[1]-a[1]),plMax=plS[0]?.[1]||1;
+  document.getElementById('dash-platform-mix').innerHTML=plS.length?plS.map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${platLbls[k]||k}</span><span style="color:var(--text-muted);">${v}</span></div><div style="background:#eee;border-radius:4px;height:6px;"><div style="background:var(--dark);height:6px;border-radius:4px;width:${(v/plMax*100).toFixed(0)}%;"></div></div></div>`).join(''):'<div style="color:var(--text-light);font-size:12px;">No posts generated yet.</div>';
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  CALENDAR
+// ══════════════════════════════════════════════════════════════════
+function renderCalendar() {
+  const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const cal=getState('calendar',[]),today=new Date();
+  document.getElementById('cal-month-label').textContent=new Date(calYear,calMonth).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
+  let sdow=first.getDay(); sdow=sdow===0?6:sdow-1;
+  let html=DAYS.map(d=>`<div class="cal-header">${d}</div>`).join('');
+  const prevLast=new Date(calYear,calMonth,0).getDate();
+  for(let i=sdow-1;i>=0;i--) html+=`<div class="cal-day other-month"><div class="cal-date">${prevLast-i}</div></div>`;
+  const pCls={li:'ev-li',tw:'ev-tw',ig:'ev-ig',fb:'ev-fb',pod:'ev-pod'};
+  const pLb={li:'LinkedIn',tw:'Twitter',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
+  for(let d=1;d<=last.getDate();d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
+    const evs=cal.filter(e=>e.date===ds);
+    html+=`<div class="cal-day${isT?' today':''}" onclick="calDayClick('${ds}')"><div class="cal-date${isT?' today-num':''}">${d}</div>${evs.map(e=>`<div class="cal-event ${pCls[e.platform]||''}">${pLb[e.platform]||''}: ${e.title}</div>`).join('')}</div>`;
+  }
+  const rem=(sdow+last.getDate())%7; for(let i=1;i<=(rem===0?0:7-rem);i++) html+=`<div class="cal-day other-month"><div class="cal-date">${i}</div></div>`;
+  document.getElementById('cal-grid').innerHTML=html;
+  const cnt=cal.filter(e=>e.date.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)).length;
+  document.getElementById('cal-post-count').textContent=`${cnt} post${cnt!==1?'s':''} this month`;
+}
+
+function calDayClick(ds) {
+  const cal=getState('calendar',[]),evs=cal.filter(e=>e.date===ds);
+  const d=new Date(ds+'T12:00'),pLb={li:'LinkedIn',tw:'Twitter/X',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
+  document.getElementById('day-detail-title').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('day-detail-content').innerHTML=evs.length
+    ?evs.map(e=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><div><strong>${pLb[e.platform]||e.platform}</strong> — ${e.title}</div><button class="btn btn-sm btn-outline" onclick="deleteCalEvent(${e.id})" style="color:#c00;">Remove</button></div>`).join('')
+    :`No posts scheduled. <span style="color:var(--gold);cursor:pointer;" onclick="openScheduleModal(null,'${ds}')">+ Add post</span>`;
+}
+
+function changeMonth(dir) {
+  calMonth+=dir; if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;} renderCalendar();
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  SCHEDULE MODAL
+// ══════════════════════════════════════════════════════════════════
+function openScheduleModal(ctx, presetDate) {
+  schedContext=ctx;
+  document.getElementById('sched-date').value=presetDate||new Date().toISOString().split('T')[0];
+  document.getElementById('sched-title').value=ctx==='post'?document.getElementById('post-output').textContent.substring(0,60).trim():'';
+  document.getElementById('schedule-modal').classList.add('open');
+}
+function closeScheduleModal() { document.getElementById('schedule-modal').classList.remove('open'); }
+function confirmSchedule() {
+  const date=document.getElementById('sched-date').value;
+  const plat=document.getElementById('sched-platform').value;
+  const title=document.getElementById('sched-title').value.trim()||'Post';
+  const cal=getState('calendar',[]); cal.push({id:Date.now(),date,platform:plat,title});
+  setState('calendar',cal); closeScheduleModal();
+  showToast('Added to calendar — syncing…'); updateDashStats();
+  if(currentPanel==='calendar') renderCalendar();
+}
+function deleteCalEvent(id) {
+  setState('calendar',getState('calendar',[]).filter(e=>e.id!==id));
+  renderCalendar(); showToast('Event removed');
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  ANALYTICS
+// ══════════════════════════════════════════════════════════════════
+function renderAnalytics() {
+  const log=getState('log',[]);
+  document.getElementById('an-total').textContent=log.length;
+  document.getElementById('an-posts').textContent=log.filter(e=>e.type==='post').length;
+  document.getElementById('an-scripts').textContent=log.filter(e=>e.type==='podcast').length;
+  document.getElementById('an-cards').textContent=log.filter(e=>e.type==='quote').length;
+  const pillars={},platforms={};
+  log.forEach(e=>{if(e.pillar)pillars[e.pillar]=(pillars[e.pillar]||0)+1;if(e.platform)platforms[e.platform]=(platforms[e.platform]||0)+1;});
+  renderBarChart('an-pillar-chart',Object.entries(pillars).sort((a,b)=>b[1]-a[1]),'var(--gold)');
+  const pL={li:'LinkedIn',tw:'Twitter',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
+  renderBarChart('an-platform-chart',Object.entries(platforms).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[pL[k]||k,v]),'var(--dark)');
+}
+function renderBarChart(id,data,color) {
+  const el=document.getElementById(id),max=data[0]?.[1]||1;
+  el.innerHTML=data.length?data.slice(0,8).map(([k,v])=>`<div class="bar-col"><div class="bar-val">${v}</div><div class="bar" style="height:${Math.max(6,Math.round(v/max*80))}px;background:${color};"></div><div class="bar-label">${String(k).substring(0,9)}</div></div>`).join(''):'<div style="color:var(--text-light);font-size:12px;padding:20px 0;">No data yet — generate content to populate.</div>';
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  INIT — load from Supabase, then render
+// ══════════════════════════════════════════════════════════════════
+async function init() {
+  const overlay = document.getElementById('loading-overlay');
+  const msg     = document.getElementById('load-msg');
+
+  // Restore Claude API key and brand images from localStorage (device-specific)
+  const savedKey = localStorage.getItem('tc_apiKey')||'';
+  if (savedKey) { document.getElementById('api-key-input').value=savedKey; saveApiKey(); }
+  initBrandImages();
+  // Ensure custom fonts are loaded before any canvas draw
+  await document.fonts.ready;
+
+  // Set default platform tip
+  document.getElementById('platform-tips').textContent = PLATFORM_TIPS['li'];
+
+  // Draw placeholder canvas
+  const cv=document.getElementById('quote-canvas'),ctx=cv.getContext('2d');
+  cv.width=1080;cv.height=1080;ctx.fillStyle='#0b1117';ctx.fillRect(0,0,1080,1080);
+  ctx.fillStyle='#e8971a';ctx.fillRect(0,0,8,1080);ctx.fillRect(0,1072,1080,8);
+  ctx.textAlign='center';ctx.fillStyle='rgba(232,151,26,0.5)';ctx.font='bold 36px sans-serif';ctx.letterSpacing='8px';ctx.fillText('TAKE COMMAND',540,500);
+  ctx.fillStyle='rgba(255,255,255,0.22)';ctx.font='20px sans-serif';ctx.letterSpacing='0px';ctx.fillText('Select a pillar → Generate Quote + Card',540,556);ctx.textAlign='left';
+
+  // Load data from Supabase
+  try {
+    msg.textContent = 'Loading vault…';
+    const vault = await dbGet('vault'); if (vault) STATE.vault = vault;
+    msg.textContent = 'Loading calendar…';
+    const cal = await dbGet('calendar'); if (cal) STATE.calendar = cal;
+    msg.textContent = 'Loading analytics…';
+    const log = await dbGet('log'); if (log) STATE.log = log;
+    setSyncStatus('ok');
+  } catch(e) {
+    console.warn('Supabase load error:', e);
+    msg.textContent = 'Could not reach database — working offline';
+    setSyncStatus('err');
+    await new Promise(r=>setTimeout(r,1500));
+  }
+
+  // Hide overlay
+  overlay.classList.add('hidden');
+  setTimeout(()=>overlay.style.display='none', 400);
+
+  renderDashboard();
+}
+
+init();
+</script>
+</body>
+</html>
