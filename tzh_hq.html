@@ -228,6 +228,7 @@ tbody td:first-child{color:var(--text);font-weight:500;}
   <div class="topbar">
     <div class="page-title" id="page-title">Dashboard</div>
     <div class="topbar-right" id="topbar-right">
+      <span id="sb-status" style="font-size:11px;color:#888;margin-right:8px;">○ Local only</span>
       <span>Experience the Past</span>
     </div>
   </div>
@@ -322,6 +323,57 @@ tbody td:first-child{color:var(--text);font-weight:500;}
 'use strict';
 
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════════
+const SB_URL = 'https://vdlhcxbldiszghofghgi.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM0NzIyNDgsImV4cCI6MjAzOTA0ODI0OH0.pLB2pHrMpROtFCv5sAWpiuQCEEFsFONhJBzA_I0iCiE';
+const SB = {
+  h() { return { 'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal' }; },
+  async get(t,q){ const r=await fetch(`${SB_URL}/rest/v1/${t}${q||''}`,{headers:this.h()}); if(!r.ok)throw new Error(await r.text()); return r.json(); },
+  async upsert(t,d,q){ const r=await fetch(`${SB_URL}/rest/v1/${t}${q||''}`,{method:'POST',headers:{...this.h(),'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(d)}); if(!r.ok)throw new Error(await r.text()); }
+};
+let sbOnline = false;
+async function sbInit() {
+  try {
+    await SB.get('tzh_hq_data','?limit=0');
+    sbOnline = true;
+    await sbLoad();
+    showSbStatus('● Synced');
+  } catch(e) { showSbStatus('○ Local only'); }
+}
+async function sbLoad() {
+  try {
+    const rows = await SB.get('tzh_hq_data','?id=eq.main');
+    if (!rows.length) { await sbSave(); return; }
+    const remoteTs = new Date(rows[0].updated_at||0).getTime();
+    const localTs  = new Date(DB.d._updatedAt||0).getTime();
+    if (remoteTs > localTs) {
+      DB.d = rows[0].data;
+      ['episodes','research','thumbnails','analytics'].forEach(k=>{ if(!DB.d[k]) DB.d[k]=[]; });
+      localStorage.setItem(DB._key, JSON.stringify(DB.d));
+      DB.updateSidebar();
+      navigate(currentPage);
+    } else {
+      await sbSave();
+    }
+  } catch(e) { console.warn('sbLoad:',e.message); }
+}
+async function sbSave() {
+  if (!sbOnline) return;
+  const ts = new Date().toISOString();
+  DB.d._updatedAt = ts;
+  localStorage.setItem(DB._key, JSON.stringify(DB.d));
+  try {
+    await SB.upsert('tzh_hq_data', { id:'main', data:DB.d, updated_at:ts }, '?on_conflict=id');
+    showSbStatus('● Synced');
+  } catch(e) { showSbStatus('○ Sync error'); console.warn('sbSave:',e.message); }
+}
+function showSbStatus(msg) {
+  const el = document.getElementById('sb-status');
+  if (el) { el.textContent = msg; el.style.color = msg.startsWith('●') ? '#5C9E6E' : '#888'; }
+}
+
 // DATA STORE
 // ══════════════════════════════════════════════
 const DB = {
@@ -336,6 +388,7 @@ const DB = {
   save() {
     localStorage.setItem(this._key, JSON.stringify(this.d));
     this.updateSidebar();
+    sbSave();
   },
   updateSidebar() {
     const eps = this.d.episodes;
@@ -1922,6 +1975,7 @@ function delAnalytic(id) {
 DB.init();
 DB.updateSidebar();
 navigate('dashboard');
+sbInit();
 
 document.getElementById('ep-modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 </script>
