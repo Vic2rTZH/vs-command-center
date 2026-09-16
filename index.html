@@ -3087,6 +3087,20 @@ async function callClaudePropose(mode, apiKey) {
   const existingWeek  = (S.week  || []).map(t => `[${TAG_LBL[t.tag]||t.tag}] ${t.text}${t.done?' ✓':''}`).join('\n') || 'None';
   const okrSummary    = Object.entries(S.okrs||{}).filter(([,v])=>v&&v.title).map(([k,v])=>`${k}: ${v.title}`).join('\n') || 'No OKRs set yet';
 
+  // 90-Day milestone context
+  const ms90 = S.milestones90 || [];
+  const dow2 = now.getDay();
+  const mon90 = new Date(now); mon90.setDate(now.getDate()-(dow2===0?6:dow2-1)); mon90.setHours(0,0,0,0);
+  const sun90 = new Date(mon90); sun90.setDate(mon90.getDate()+6); sun90.setHours(23,59,59,999);
+  const thisWeekMs = ms90.filter(m=>{ const d=new Date(m.target); return d>=mon90&&d<=sun90; });
+  const overdueMs  = ms90.filter(m=>{ const d=new Date(m.target); return !m.done&&d<mon90; });
+  const upcomingMs = ms90.filter(m=>{ const d=new Date(m.target); return !m.done&&d>sun90; }).slice(0,3);
+  const ms90Summary = [
+    thisWeekMs.length ? `DUE THIS WEEK:\n${thisWeekMs.map(m=>`  ${m.done?'✓':'○'} ${m.text} (${m.priority})`).join('\n')}` : '',
+    overdueMs.length  ? `OVERDUE (not done):\n${overdueMs.map(m=>`  ✗ ${m.text} — was due ${m.target}`).join('\n')}` : '',
+    upcomingMs.length ? `COMING NEXT:\n${upcomingMs.map(m=>`  ○ ${m.text} (due ${m.target})`).join('\n')}` : ''
+  ].filter(Boolean).join('\n\n') || 'No milestones due this week';
+
   const prompt = `You are the strategic AI for Victor Simz / Bantuwa Innovate — a multi-pillar African knowledge, culture, and technology enterprise.
 
 CURRENT CONTEXT:
@@ -3106,6 +3120,9 @@ ${existingWeek}
 
 Active OKRs:
 ${okrSummary}
+
+90-DAY PLAN MILESTONES (Sep–Dec 2026):
+${ms90Summary}
 
 Monthly KPI Targets:
 ${Object.entries(ROADMAP.weeklyKPIs).map(([k,v])=>`${k}: ${v}`).join('\n')}
@@ -3140,6 +3157,7 @@ TASK: Propose ${mode === 'today' ? '3 Top priorities for TODAY specifically' : '
 Rules:
 - Be SPECIFIC and ACTIONABLE — not vague ("work on AILA") but concrete ("write AILA Problem-Solving Cycle one-pager with all 6 stages defined")
 - AILA is a PRIORITY SPRINT — if there are pending AILA week tasks, at least one proposal should address AILA
+- 90-DAY PLAN — if milestones are due this week or overdue, at least one proposal must move toward completing them
 - Align with today's theme (${weekTheme?.anchor || 'current phase'}) and current month focus
 - Do NOT duplicate tasks already listed above
 - Each item must have: text (the task), tag (pillar key), reason (≤12 words: why this is the priority right now)
