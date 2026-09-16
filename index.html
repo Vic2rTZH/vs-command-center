@@ -1600,6 +1600,32 @@ async function sbSaveTask(task, listKey) {
     });
   } catch(e) { console.warn('sbSaveTask:',e.message); }
 }
+// Settings-based task sync — works without cc_tasks table
+let _sbSyncTimer = null;
+function sbSyncTasks() {
+  if (!sbOnline) return;
+  clearTimeout(_sbSyncTimer);
+  _sbSyncTimer = setTimeout(async () => {
+    try {
+      await Promise.all([
+        SB.upsert('cc_settings', { key:'today_tasks', value:JSON.stringify(S.today||[]), updated_at:new Date().toISOString() }, '?on_conflict=key'),
+        SB.upsert('cc_settings', { key:'week_tasks',  value:JSON.stringify(S.week||[]),  updated_at:new Date().toISOString() }, '?on_conflict=key')
+      ]);
+    } catch(e) { console.warn('sbSyncTasks:',e.message); }
+  }, 800);
+}
+async function sbLoadTasksFromSettings() {
+  if (sbTasks) return; // cc_tasks table exists — already loaded via sbLoadTasks
+  try {
+    const rows = await SB.get('cc_settings','?key=in.(today_tasks,week_tasks)');
+    const tr = rows.find(r=>r.key==='today_tasks');
+    const wr = rows.find(r=>r.key==='week_tasks');
+    let changed = false;
+    if (tr && tr.value) { try { const t=JSON.parse(tr.value); if(Array.isArray(t)&&t.length>0){S.today=t;changed=true;} } catch(e){} }
+    if (wr && wr.value) { try { const w=JSON.parse(wr.value); if(Array.isArray(w)&&w.length>0){S.week=w;changed=true;} } catch(e){} }
+    if (changed) { saveLS(); renderToday(); renderWeek(); toast('Tasks synced from Supabase ✓'); }
+  } catch(e) { console.warn('sbLoadTasksFromSettings:',e.message); }
+}
 async function sbDeleteTask(id) {
   if (!sbTasks) return;
   try { await SB.del('cc_tasks',`?id=eq.${id}`); } catch(e) {}
@@ -1997,17 +2023,19 @@ function addTop3() {
   const task={id:uid(),text,tag,done:false};
   S.today.push(task);
   inp.value=''; saveLS(); renderToday();
-  sbSaveTask(task,'today');
+  sbSaveTask(task,'today'); sbSyncTasks();
 }
 function toggleTop3(idx) {
   const t=S.today[idx]; if(!t) return;
   t.done=!t.done; saveLS(); renderToday();
   if(sbTasks&&t.id) SB.patch('cc_tasks',`?id=eq.${t.id}`,{done:t.done,updated_at:new Date().toISOString()}).catch(()=>{});
+  sbSyncTasks();
 }
 function deleteTop3(idx) {
   const removed=S.today.splice(idx,1)[0];
   saveLS(); renderToday();
   if(removed&&removed.id) sbDeleteTask(removed.id);
+  sbSyncTasks();
 }
 function pinToTop3(text,domain) {
   if((S.today||[]).some(t=>t.text===text)){toast('Already in Top 3');return;}
@@ -2018,7 +2046,7 @@ function pinToTop3(text,domain) {
   const task={id:uid(),text,tag:'va',done:false,tcDomain:domain};
   S.today.push(task);
   saveLS(); renderToday(); renderTcTasks(tcCache);
-  sbSaveTask(task,'today');
+  sbSaveTask(task,'today'); sbSyncTasks();
   toast('Pinned to Top 3');
 }
 function renderToday() {
@@ -2054,22 +2082,24 @@ function addWeekTask() {
   const text=inp.value.trim(); if(!text) return;
   const task={id:uid(),text,tag,done:false};
   S.week.push(task); inp.value=''; saveLS(); renderWeek();
-  sbSaveTask(task,'week');
+  sbSaveTask(task,'week'); sbSyncTasks();
 }
 function toggleWeekTask(id) {
   const t=S.week.find(x=>x.id===id); if(!t) return;
   t.done=!t.done; saveLS(); renderWeek();
   if(sbTasks) SB.patch('cc_tasks',`?id=eq.${id}`,{done:t.done,updated_at:new Date().toISOString()}).catch(()=>{});
+  sbSyncTasks();
 }
 function deleteWeekTask(id) {
   S.week=S.week.filter(x=>x.id!==id);
-  saveLS(); renderWeek(); sbDeleteTask(id);
+  saveLS(); renderWeek(); sbDeleteTask(id); sbSyncTasks();
 }
 function clearDoneWeek() {
   const removed=S.week.filter(t=>t.done);
   S.week=S.week.filter(t=>!t.done);
   saveLS(); renderWeek();
   removed.forEach(t=>sbDeleteTask(t.id));
+  sbSyncTasks();
   toast(`Cleared ${removed.length} completed task${removed.length!==1?'s':''}`);
 }
 function resetWeek() {
@@ -4156,6 +4186,7 @@ async function retrySbConnect() {
     if (sbSchedule)   ops.push(sbLoadSchedule());
     if (sbMilestones) ops.push(sbLoadMilestones());
     ops.push(sbLoadApiKey());
+    ops.push(sbLoadTasksFromSettings());
     await Promise.all(ops);
     renderAll();
     toast('Supabase connected ✓');
@@ -4190,6 +4221,7 @@ async function init() {
     if(sbMilestones) ops.push(sbLoadMilestones());
     if(sbSelfDev)    ops.push(sbLoadSelfDev());
     ops.push(sbLoadApiKey());
+    ops.push(sbLoadTasksFromSettings());
     await Promise.all(ops);
     renderAll();
   } else {
