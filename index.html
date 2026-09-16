@@ -820,9 +820,12 @@ body {
 
   <!-- ═══════════════ OKRs ═══════════════ -->
   <div class="panel" id="panel-okrs">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap;">
       <div style="font-size:13px;color:var(--text3);">Quarterly objectives + up to 3 key results per area. Synced to Supabase.</div>
-      <span id="okrSbBadge" style="font-size:11px;color:var(--text3);"></span>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="okrSbBadge" style="font-size:11px;color:var(--text3);"></span>
+        <button class="btn btn-ghost btn-sm" onclick="resetOKRsToDefaults()" title="Reset all OKRs to 90-day plan defaults">↺ Reset to 90-day plan</button>
+      </div>
     </div>
     <div id="okrList"></div>
   </div>
@@ -1374,14 +1377,15 @@ const SB = {
 
 /* ── OKR AREAS ── */
 const OKR_AREAS = [
-  { key:'army',    label:'Engine I — VANGUARD',        color:'#1d4ed8' },
-  { key:'zhist',   label:'Engine II — The Z Historian', color:'#15803d' },
+  { key:'army',    label:'Engine I — VANGUARD',           color:'#1d4ed8' },
+  { key:'zhist',   label:'Engine II — The Z Historian',   color:'#15803d' },
   { key:'y4pz',    label:'Engine III — Youth4Peace Zambia', color:'#b45309' },
-  { key:'bantuwa', label:'Engine IV — Bantuwa Innovate', color:'#7c3aed' },
-  { key:'va',      label:'Personal — Research & 7BD',  color:'#6b7280' }
+  { key:'bantuwa', label:'Engine IV — Bantuwa Innovate',  color:'#7c3aed' },
+  { key:'va',      label:'Personal — Research & 7BD',     color:'#6b7280' },
+  { key:'selfdev', label:'Self-Dev — Personal Excellence', color:'#7ac97a' },
 ];
-const TAG_CLS = { army:'tag-army', bantuwa:'tag-bantuwa', zhist:'tag-zhist', va:'tag-va', y4pz:'tag-y4pz', aila:'tag-aila' };
-const TAG_LBL = { army:'VANGUARD', bantuwa:'Bantuwa', zhist:'Z Hist', va:'Personal', y4pz:'Y4PZ', aila:'AILA' };
+const TAG_CLS = { army:'tag-army', bantuwa:'tag-bantuwa', zhist:'tag-zhist', va:'tag-va', y4pz:'tag-y4pz', aila:'tag-aila', selfdev:'tag-va' };
+const TAG_LBL = { army:'VANGUARD', bantuwa:'Bantuwa', zhist:'Z Hist', va:'Personal', y4pz:'Y4PZ', aila:'AILA', selfdev:'Self-Dev' };
 
 const OKR_SEEDS = {
   army:    { title:'Establish VANGUARD pilot pathway — Ukraine-validated',
@@ -1393,7 +1397,9 @@ const OKR_SEEDS = {
   bantuwa: { title:'Complete Bantuwa reset — 2027 strategy ready',
              krs:['Portfolio Register — all initiatives classified (Sep)','Bantuwa 2027 Strategy finalized (Nov)'] },
   va:      { title:'Ukraine mission → institutional intelligence',
-             krs:['Ukraine Strategic Mission Report (Oct)','Policy Brief — Lessons from Ukraine (Oct)','PhD proposal refined with Ukraine field research (Dec)'] }
+             krs:['Ukraine Strategic Mission Report (Oct)','Policy Brief — Lessons from Ukraine (Oct)','PhD proposal refined with Ukraine field research (Dec)'] },
+  selfdev: { title:'Build the personal excellence system — 12-month programme (Sep 2026)',
+             krs:['Month 1 — Discipline: ≥80% habit score across all 10 habits','Monthly challenge completed on time each month (12/12)','Evening AAR average ≥7/10 across all 6 domains by Dec'] },
 };
 
 /* ── DEFAULT STATE ── */
@@ -2164,6 +2170,17 @@ function editObjTitle(areaKey) {
   const o=S.okrs[areaKey]; if(!o) return;
   const t=prompt('Edit objective:',o.title);
   if(t&&t.trim()){o.title=t.trim();saveLS();renderOKRs();sbSaveOKR(areaKey);}
+}
+function resetOKRsToDefaults() {
+  if(!confirm('Reset all OKRs to 90-day plan defaults? Progress percentages will be lost.')) return;
+  if(!S.okrs) S.okrs={};
+  Object.entries(OKR_SEEDS).forEach(([key,seed])=>{
+    S.okrs[key]={title:seed.title,krs:seed.krs.map(t=>({text:t,progress:0}))};
+  });
+  saveLS();
+  Object.keys(OKR_SEEDS).forEach(k=>sbSaveOKR(k));
+  renderOKRs();
+  toast('OKRs reset to 90-day plan defaults ✓');
 }
 function renderOKRs() {
   const el=document.getElementById('okrList'); if(!el) return;
