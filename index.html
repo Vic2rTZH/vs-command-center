@@ -2384,13 +2384,14 @@ function renderScorecard() {
 
 /* ── WEEKLY DELIVERABLES ── */
 const DELIVERABLE_ITEMS = [
-  { key:'institutional', label:'1 Institutional Action — something that moves VANGUARD or R&D forward' },
-  { key:'public',        label:'1 Public Output — Z Historian: record, write or publish (non-negotiable)' },
-  { key:'strategic',     label:'1 Strategic Development — Bantuwa reset / research / PhD / Y4PZ' },
-  { key:'relationship',  label:'1 Relationship Action — one deliberate move in the five circles' },
-  { key:'reflection',    label:'1 Reflection Period — what moved, what stalled, what to stop' },
-  { key:'knowledge',     label:'5× Knowledge Touchpoint — 20 min/day on a knowledge domain' },
-  { key:'finish',        label:'Finish Before Start — no task carried open from the day before' },
+  { key:'institutional', label:'Engine I — VANGUARD / Ukraine: 1 institutional action in the protected 05:30 deep-work block (ARIS paper · Ukraine mission · pilot prep)' },
+  { key:'public',        label:'Engine II — Z Historian: 1 public output produced (record · write · publish) — non-negotiable, Friday anchor' },
+  { key:'y4pz',          label:'Engine III — Y4PZ: 1 action toward the live 90-day milestone (YPS SENTINEL · national strategy · Ministry outreach)' },
+  { key:'bantuwa',       label:'Engine IV — Bantuwa: 1 concrete step on the 2027 reset (portfolio register · strategy · institutional outreach)' },
+  { key:'research',      label:'Personal — Ukraine / PhD: 1 academic output (field notes · brief draft · proposal work · knowledge domain deepened)' },
+  { key:'selfdev',       label:'Self-Dev Month 1 — Discipline: ≥8 of 10 habits hit on ≥5 days this week' },
+  { key:'relationship',  label:'Social Capital: 1 deliberate move with one of the 10-for-the-year relationships (logged)' },
+  { key:'finish',        label:'System Discipline: 5× Knowledge Touchpoint done · Finish Before Start · shutdown ritual every day' },
 ];
 function deliverablesFor(wk) {
   if(!S.weeklyDeliverables) S.weeklyDeliverables={};
@@ -2417,7 +2418,7 @@ function renderDeliverables() {
       <span style="${rec[it.key]?'color:var(--text);':''}">${esc(it.label)}</span>
     </label>`).join('');
   const badge=document.getElementById('deliverablesBadge');
-  if(badge) badge.textContent=`${deliverableScore(rec)}/7 this week`;
+  if(badge) badge.textContent=`${deliverableScore(rec)}/${DELIVERABLE_ITEMS.length} this week`;
 
   const hist=document.getElementById('deliverablesHistory');
   // Merge all weeks that have deliverables OR a review
@@ -2429,7 +2430,7 @@ function renderDeliverables() {
   if(hist) hist.innerHTML = weeks.length ? weeks.map(w=>{
     const rec=S.weeklyDeliverables?.[w]||{};
     const s=deliverableScore(rec);
-    const color=s>=6?'var(--green)':s>=4?'var(--gold2)':'var(--text3)';
+    const color=s>=7?'var(--green)':s>=5?'var(--gold2)':'var(--text3)';
     const rev=S.reviews?.[w];
     const itemsHtml=DELIVERABLE_ITEMS.map(it=>`
       <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${rec[it.key]?'var(--text1)':'var(--text3)'};padding:1px 0;">
