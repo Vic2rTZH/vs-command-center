@@ -3323,7 +3323,18 @@ function acceptAllAI(mode) {
   toast(`Added ${items.length} items ✓`);
 }
 
-function aiSetKey() {
+async function aiSetKey() {
+  // Try Supabase first before prompting
+  if (sbOnline) {
+    try {
+      const rows = await SB.get('cc_settings','?key=eq.claude_api_key');
+      if (rows.length && rows[0].value && rows[0].value.startsWith('sk-')) {
+        localStorage.setItem('tc_apiKey', rows[0].value);
+        toast('API key loaded from Supabase ✓');
+        return;
+      }
+    } catch(e) {}
+  }
   const key = prompt('Paste your Claude API key (sk-ant-…):');
   if (key && key.startsWith('sk-')) { setAIKey(key); toast('API key saved'); }
   else if (key) toast('Invalid key — must start with sk-ant-', true);
