@@ -161,6 +161,30 @@ tbody td:first-child{color:var(--text);font-weight:500;}
 .section-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;letter-spacing:.03em;}
 .gold-text{color:var(--gold);}
 .tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:3px;background:var(--surface2);border:1px solid var(--border2);color:var(--text-muted);margin:2px;}
+
+@media (max-width: 640px) {
+  body { flex-direction: column; overflow: auto; }
+  .sidebar { width: 100%; height: auto; flex-direction: column; border-right: none; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { padding: 12px 14px 10px; display: flex; align-items: center; gap: 10px; }
+  .logo-sub { display: none; }
+  .nav { padding: 0 8px 8px; display: flex; flex-direction: row; overflow-x: auto; gap: 2px; -webkit-overflow-scrolling: touch; }
+  .nav-section-label { display: none; }
+  .nav-item { white-space: nowrap; flex-shrink: 0; padding: 6px 10px; font-size: 12px; margin-bottom: 0; }
+  .nav-badge { display: none; }
+  .sidebar-footer { display: none; }
+  .main { height: auto; overflow: visible; }
+  .topbar { padding: 0 14px; height: 44px; }
+  .page-title { font-size: 16px; }
+  .topbar-right { font-size: 10px; gap: 6px; }
+  #sb-status { display: none; }
+  .content { padding: 14px; }
+  .grid-2 { grid-template-columns: 1fr !important; }
+  .grid-3 { grid-template-columns: 1fr !important; }
+  .grid-4 { grid-template-columns: repeat(2,1fr) !important; }
+  .card { padding: 14px !important; }
+  .section-header { flex-wrap: wrap; gap: 6px; }
+  .btn { font-size: 12px; padding: 6px 11px; }
+}
 </style>
 </head>
 <body>

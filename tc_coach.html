@@ -165,7 +165,22 @@ canvas { width: 100%; border-radius: 6px; display: block; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
 
 @media (max-width: 900px) { .grid-4{grid-template-columns:repeat(2,1fr);} .grid-2{grid-template-columns:1fr;} .panel{padding:20px 16px;} }
-@media (max-width: 640px) { .app{flex-direction:column;} .sidebar{width:100%;height:auto;position:static;} }
+@media (max-width: 640px) {
+  body { overflow-x: hidden; }
+  .app { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: static; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .sidebar nav { display: flex; flex-direction: row; padding: 6px 8px; gap: 2px; flex-wrap: nowrap; overflow-x: auto; }
+  .sidebar-header { padding: 10px 14px 6px; }
+  .sidebar-section-label { display: none; }
+  .nav-item { white-space: nowrap; flex-shrink: 0; padding: 6px 10px; font-size: 12px; border-radius: 6px; }
+  .panel { padding: 14px 12px; }
+  .grid-4 { grid-template-columns: repeat(2,1fr) !important; }
+  .grid-3 { grid-template-columns: 1fr !important; }
+  .grid-2 { grid-template-columns: 1fr !important; }
+  .card { padding: 14px !important; }
+  .btn { font-size: 12px; padding: 6px 10px; }
+  .modal { margin: 10px; padding: 16px; }
+}
 </style>
 </head>
 <body>

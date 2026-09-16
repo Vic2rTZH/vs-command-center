@@ -173,6 +173,30 @@
   @media (max-width: 900px) {
     .grid-4 { grid-template-columns: repeat(2, 1fr); }
   }
+  @media (max-width: 640px) {
+    body { overflow-x: hidden; }
+    .app { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; }
+    .sidebar-logo { padding: 10px 14px 8px; }
+    .sidebar-logo .logo-sub { display: none; }
+    .sidebar-section { display: none; }
+    .sidebar-section:first-of-type { display: block; padding: 0 8px 8px; }
+    .sidebar-section:first-of-type .sidebar-label { display: none; }
+    .sidebar-section:first-of-type { display: flex; flex-direction: row; overflow-x: auto; gap: 2px; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+    .nav-item { white-space: nowrap; flex-shrink: 0; padding: 6px 10px; font-size: 12px; margin-bottom: 0; }
+    #sb-status { font-size: 9px; }
+    .main { overflow: visible; }
+    .panel { padding: 16px 14px; }
+    .grid-4 { grid-template-columns: repeat(2,1fr) !important; }
+    .grid-3 { grid-template-columns: 1fr !important; }
+    .grid-2 { grid-template-columns: 1fr !important; }
+    .card { padding: 14px !important; }
+    .card-title { font-size: 13px !important; flex-wrap: wrap; gap: 6px; }
+    .btn { font-size: 12px; padding: 6px 10px; }
+    .add-row { flex-wrap: wrap; gap: 6px; }
+    .add-row input, .add-row select { width: 100%; min-width: 0; }
+    table { font-size: 12px; }
+  }
 </style>
 </head>
 <body>
