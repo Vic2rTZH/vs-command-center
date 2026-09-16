@@ -647,9 +647,12 @@ body {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
           <div>
             <div class="sd-group-label"><span data-ic="sun"></span> Morning Routine</div>
-            <label class="sd-habit"><input type="checkbox" id="sd-read" onchange="sdSaveHabit('read',this.checked)"> Read 10 min (strategy · history · tech · leadership)</label>
-            <label class="sd-habit"><input type="checkbox" id="sd-question" onchange="sdSaveHabit('question',this.checked)"> Strategic Question written</label>
-            <label class="sd-habit"><input type="checkbox" id="sd-intention" onchange="sdSaveHabit('intention',this.checked)"> Intention written ("Today I will be better at…")</label>
+            <label class="sd-habit"><input type="checkbox" id="sd-stretch" onchange="sdSaveHabit('stretch',this.checked)"> Stretch 10–15 min</label>
+            <label class="sd-habit"><input type="checkbox" id="sd-cold" onchange="sdSaveHabit('cold',this.checked)"> Shower / Cold plunge <span style="color:var(--text3);font-size:11px;">(Mon–Wed cold)</span></label>
+            <label class="sd-habit"><input type="checkbox" id="sd-prayer" onchange="sdSaveHabit('prayer',this.checked)"> Prayer + Bible verse / Stoic writing</label>
+            <label class="sd-habit"><input type="checkbox" id="sd-journal" onchange="sdSaveHabit('journal',this.checked)"> Journal + gratitude (3 things)</label>
+            <label class="sd-habit"><input type="checkbox" id="sd-question" onchange="sdSaveHabit('question',this.checked)"> Strategic question engaged <span id="sqDoneTag" style="color:var(--gold2);font-size:11px;"></span></label>
+            <label class="sd-habit"><input type="checkbox" id="sd-supp-am" onchange="sdSaveHabit('supp_am',this.checked)"> Supplements AM <span style="color:var(--text3);font-size:11px;">(Creatine · Vit-C)</span></label>
             <div class="sd-group-label" style="margin-top:10px;"><span data-ic="pen-line"></span> Daily Writing</div>
             <label class="sd-habit"><input type="checkbox" id="sd-write" onchange="sdSaveHabit('write',this.checked)"> 300–500 words (<span id="sdWriteTopic" style="color:var(--gold2);"></span>)</label>
             <div class="sd-group-label" style="margin-top:10px;"><span data-ic="mic"></span> Speaking</div>
@@ -665,10 +668,25 @@ body {
             <label class="sd-habit"><input type="checkbox" id="sd-family" onchange="sdSaveHabit('family',this.checked)"> Family / relationship investment</label>
             <div class="sd-group-label" style="margin-top:10px;"><span data-ic="send"></span> Output</div>
             <label class="sd-habit"><input type="checkbox" id="sd-output" onchange="sdSaveHabit('output',this.checked)"> Weekly output produced (article / prototype / brief…)</label>
+            <div class="sd-group-label" style="margin-top:10px;color:var(--text3);"><span data-ic="moon"></span> Evening Wind-Down</div>
+            <label class="sd-habit"><input type="checkbox" id="sd-bath" onchange="sdSaveHabit('bath',this.checked)"> Warm bath / wind-down started</label>
+            <label class="sd-habit"><input type="checkbox" id="sd-beats" onchange="sdSaveHabit('beats',this.checked)"> Soothing / binaural beats on</label>
+            <label class="sd-habit"><input type="checkbox" id="sd-supp-pm" onchange="sdSaveHabit('supp_pm',this.checked)"> Supplements PM <span style="color:var(--text3);font-size:11px;">(Magnesium · L-Glutamine)</span></label>
           </div>
         </div>
+        <!-- STRATEGIC QUESTION JOURNAL -->
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
-          <div class="sd-group-label"><span data-ic="moon"></span> Evening AAR — Domain Scores /10</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div class="sd-group-label" style="margin:0;"><span data-ic="sparkles"></span> Strategic Question Journal</div>
+            <span id="sqDayTagHeader" style="font-size:11px;color:var(--text3);"></span>
+          </div>
+          <div id="sqCardContent" style="font-size:12px;color:var(--text3);">Loading…</div>
+        </div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div class="sd-group-label" style="margin:0;"><span data-ic="moon"></span> Evening AAR — Domain Scores /10</div>
+            <button class="btn btn-ghost btn-sm" onclick="sdSuggestAAR()" title="Pre-fill from today's habit completions"><span data-ic="sparkles"></span> Warm suggest</button>
+          </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;" id="sdAARGrid"></div>
           <div style="margin-top:10px;">
             <input id="sdAARNote" placeholder="Quick note (optional)…" style="width:100%;box-sizing:border-box;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:12px;" oninput="sdSaveAARNote(this.value)">
@@ -894,6 +912,14 @@ body {
         <button class="btn btn-ghost btn-sm" onclick="sdClearWeeklyReview()">Clear</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;" id="sdWeeklyQGrid"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div class="sd-group-label" style="margin:0;flex:1;"><span data-ic="sparkles"></span> Strategic Thinking Report</div>
+          <button id="sqWeekReportBtn" class="btn btn-ai btn-sm" onclick="generateWeeklyThinkingReport()"><span data-ic="sparkles"></span> Generate Report</button>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Analyses your 7-day strategic journal: dominant themes, blind spots, strongest insight, pattern alerts.</div>
+        <div id="sqWeekReport"></div>
+      </div>
     </div>
 
     <!-- Friday Review + Notes -->
@@ -3756,7 +3782,7 @@ function sdUpdateHabitCount() {
   const h = sdData.habits[sdHabitKey()] || {};
   const done = Object.values(h).filter(Boolean).length;
   const el = document.getElementById('sdHabitCount');
-  if (el) el.textContent = `${done}/10 done`;
+  if (el) el.textContent = `${done}/16 done`;
   // weekly habit pct
   const pcts = sdWeekHabitPct();
   const pctEl = document.getElementById('sdHabitPct');
@@ -3767,7 +3793,7 @@ function sdWeekHabitPct() {
   let total=0, done=0;
   days.forEach(d => {
     const h = sdData.habits[d] || {};
-    total += 10;
+    total += 16;
     done += Object.values(h).filter(Boolean).length;
   });
   return total ? Math.round(done/total*100) : 0;
@@ -3851,9 +3877,16 @@ function renderSelfDev() {
   if (topicEl) topicEl.textContent = SD_WRITE_TOPICS[now.getDay()===0?4:now.getDay()-1] || 'Free';
   // Restore habit checkboxes
   const h = sdData.habits[sdHabitKey()] || {};
-  ['read','question','intention','write','speak','build','exercise','courage','family','output'].forEach(k => {
-    const el = document.getElementById('sd-'+k); if (el) el.checked = !!h[k];
+  const SD_HABIT_KEYS = ['stretch','cold','prayer','journal','question','supp_am','write','speak','build','exercise','courage','family','output','bath','beats','supp_pm'];
+  SD_HABIT_KEYS.forEach(k => {
+    const el = document.getElementById('sd-'+k.replace('_','-')); if (el) el.checked = !!h[k];
   });
+  // update SQ done tag
+  const sqDoneTag = document.getElementById('sqDoneTag');
+  if (sqDoneTag) {
+    const sq = sqLoad(); const today = todayKey();
+    sqDoneTag.textContent = (sq[today] && sq[today].response) ? '✓ done' : '';
+  }
   sdUpdateHabitCount();
   // AAR grid
   const aarGrid = document.getElementById('sdAARGrid');
@@ -3903,6 +3936,8 @@ function renderSelfDev() {
     </div>`).join('');
   // Q milestones
   sdRenderQMilestones();
+  // Strategic Question card
+  renderSQCard();
 }
 function sdToggleChallenge(v) {
   const mKey = sdCurrentMonth();
@@ -3952,6 +3987,172 @@ function sdClearWeeklyReview() {
   if (!sdData.weeklyReviews) sdData.weeklyReviews = {};
   sdData.weeklyReviews[wk] = {};
   sdSave(); renderSdWeeklyQs(); toast('Cleared');
+}
+
+/* ── STRATEGIC QUESTION JOURNAL ── */
+const SQ_STORE = 'vs_sq_journal';
+function sqLoad() { try { return JSON.parse(localStorage.getItem(SQ_STORE)||'{}'); } catch(e) { return {}; } }
+function sqSave(data) { localStorage.setItem(SQ_STORE, JSON.stringify(data)); }
+
+async function generateSQ() {
+  const key = getAIKey();
+  if (!key) { toast('Add your Claude API key in Setup first'); return; }
+  const btn = document.getElementById('sqGenBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+  const today = todayKey();
+  const journal = sqLoad();
+  const milestones = (S.milestones90||[]).filter(function(m){return !m.done;}).slice(0,3).map(function(m){return '- '+m.text+' (due '+m.target+')';}).join('\n');
+  const weekTargets = (S.week||[]).filter(function(t){return !t.done;}).slice(0,3).map(function(t){return '- '+t.text;}).join('\n');
+  const okrTitles = Object.entries(S.okrs||{}).map(function(e){return e[0]+': '+(e[1]&&e[1].title||'not set');}).join('\n');
+  const recentQs = Object.entries(journal).sort(function(a,b){return b[0].localeCompare(a[0]);}).slice(0,5).map(function(e){return e[0]+': '+e[1].question;}).join('\n');
+  const prompt = 'You are a strategic thinking coach for a high-performer running 4 major initiatives simultaneously.\n\nCONTEXT:\nToday: '+today+' ('+['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()]+')\n\nCurrent 90-day milestones (incomplete):\n'+(milestones||'None set')+'\n\nThis week\'s active targets:\n'+(weekTargets||'None set')+'\n\nOKR focus areas:\n'+okrTitles+'\n\nRecent strategic questions asked (avoid repetition):\n'+(recentQs||'None yet')+'\n\nGenerate ONE sharp strategic question for this person\'s morning reflection. The question should:\n- Be specific to their actual current context and milestones\n- Force genuine strategic thinking, not just task planning\n- Be uncomfortable enough to require real thought (10–15 min to answer well)\n- Focus on a different area than recent questions\n- Be 1–2 sentences maximum\n\nRespond with ONLY the question, no preamble.';
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:200,messages:[{role:'user',content:prompt}]})
+    });
+    if (!resp.ok) throw new Error('API '+resp.status);
+    const data = await resp.json();
+    const question = data.content[0].text.trim();
+    if (!journal[today]) journal[today] = {};
+    journal[today].question = question;
+    if (!journal[today].response) journal[today].response = '';
+    sqSave(journal);
+    renderSQCard();
+    toast('Strategic question generated');
+  } catch(e) { toast('Failed: '+e.message); }
+  if (btn) { btn.disabled = false; btn.innerHTML = I('rotate-cw')+' Regenerate'; applyIcons(btn.parentElement); }
+}
+
+async function saveSQResponse() {
+  const today = todayKey();
+  const journal = sqLoad();
+  const resp = document.getElementById('sqResponse');
+  if (!resp || !resp.value.trim()) { toast('Write your response first'); return; }
+  if (!journal[today]) journal[today] = {};
+  journal[today].response = resp.value.trim();
+  sqSave(journal);
+  sdSaveHabit('question', true);
+  const cb = document.getElementById('sd-question'); if (cb) cb.checked = true;
+  const tag = document.getElementById('sqDoneTag'); if (tag) tag.textContent = '✓ done';
+  sdUpdateHabitCount();
+  await generateDepthProbe(journal[today]);
+}
+
+async function generateDepthProbe(entry) {
+  const key = getAIKey(); if (!key) return;
+  const probeEl = document.getElementById('sqDepthProbe');
+  if (probeEl) probeEl.innerHTML = '<div style="color:var(--text3);font-style:italic;font-size:12px;">Analysing your thinking…</div>';
+  const milestones = (S.milestones90||[]).filter(function(m){return !m.done;}).slice(0,3).map(function(m){return '- '+m.text+' (due '+m.target+')';}).join('\n');
+  const prompt = 'A strategic thinker answered this morning question:\n\nQUESTION: '+entry.question+'\n\nRESPONSE: '+entry.response+'\n\nTHEIR CURRENT MILESTONES:\n'+(milestones||'None set')+'\n\nYour task: Give them ONE sharp follow-up that either:\n1. Challenges an assumption in their response\n2. Points to a blind spot they missed\n3. Connects their thinking directly to a specific milestone\n\nBe direct, specific, and under 3 sentences. No preamble. Start with the probe itself.';
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:300,messages:[{role:'user',content:prompt}]})
+    });
+    if (!resp.ok) throw new Error('API '+resp.status);
+    const data = await resp.json();
+    const probe = data.content[0].text.trim();
+    const journal = sqLoad(); const today = todayKey();
+    if (journal[today]) { journal[today].depthProbe = probe; sqSave(journal); }
+    renderSQCard(); toast('Depth probe ready');
+  } catch(e) {
+    if (probeEl) probeEl.innerHTML = '<div style="color:var(--red);font-size:12px;">Depth probe failed: '+esc(e.message)+'</div>';
+  }
+}
+
+async function saveSQDepthResponse() {
+  const today = todayKey(); const journal = sqLoad();
+  const resp = document.getElementById('sqDepthResponse');
+  if (!resp || !resp.value.trim()) return;
+  if (!journal[today]) journal[today] = {};
+  journal[today].depthResponse = resp.value.trim();
+  sqSave(journal);
+  renderSQCard(); toast('Deeper thinking saved');
+}
+
+function renderSQCard() {
+  const el = document.getElementById('sqCardContent'); if (!el) return;
+  const today = todayKey(); const journal = sqLoad(); const entry = journal[today] || {};
+  if (!entry.question) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Generate a tailored strategic question based on your live milestones and current week priorities.</div><button id="sqGenBtn" class="btn btn-ai btn-sm" onclick="generateSQ()">'+I('sparkles')+' Generate Question</button>';
+    applyIcons(el); return;
+  }
+  var depthSection = '';
+  if (entry.depthProbe) {
+    var depthResp = entry.depthResponse
+      ? '<div style="font-size:12px;color:var(--text2);background:rgba(14,165,233,.06);padding:8px 12px;border-radius:8px;line-height:1.6;margin-top:6px;">'+esc(entry.depthResponse)+'</div>'
+      : '<textarea id="sqDepthResponse" placeholder="Go deeper…" style="width:100%;box-sizing:border-box;height:70px;padding:10px;background:var(--bg3);border:1px solid var(--aila);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;margin-top:6px;" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'"></textarea><button class="btn btn-sm" style="margin-top:6px;background:rgba(14,165,233,.15);color:var(--aila);border:1px solid rgba(14,165,233,.3);" onclick="saveSQDepthResponse()">'+I('check')+' Save deeper thinking</button>';
+    depthSection = '<div style="background:rgba(14,165,233,.08);border-left:3px solid var(--aila);padding:12px 14px;border-radius:0 8px 8px 0;margin-bottom:12px;"><div style="font-size:11px;color:var(--aila);font-weight:700;letter-spacing:.07em;margin-bottom:6px;">'+I('sparkles')+'  DEPTH PROBE</div><div style="font-size:13px;color:var(--text);line-height:1.6;">'+esc(entry.depthProbe)+'</div>'+depthResp+'</div>';
+  } else {
+    depthSection = '<div id="sqDepthProbe" style="font-size:12px;color:var(--text3);font-style:italic;">Depth probe will appear after you save your response.</div>';
+  }
+  var responseSection = entry.response
+    ? '<div style="margin-bottom:12px;"><div style="font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.07em;margin-bottom:6px;">YOUR RESPONSE</div><div style="font-size:13px;color:var(--text2);line-height:1.6;background:var(--bg3);padding:10px;border-radius:8px;">'+esc(entry.response)+'</div></div>'+depthSection
+    : '<textarea id="sqResponse" placeholder="Your response (aim for 2–3 sentences minimum for meaningful analysis)…" style="width:100%;box-sizing:border-box;height:100px;padding:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;line-height:1.6;" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'"></textarea><div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;"><button class="btn btn-gold btn-sm" onclick="saveSQResponse()">'+I('check')+' Save &amp; Analyse</button><button id="sqGenBtn" class="btn btn-ghost btn-sm" onclick="generateSQ()">'+I('rotate-cw')+' Regenerate</button><span style="font-size:11px;color:var(--text3);">Feeds depth probe + weekly report</span></div>';
+  el.innerHTML = '<div style="background:var(--bg4);border-left:3px solid var(--gold);padding:12px 14px;border-radius:0 8px 8px 0;margin-bottom:12px;"><div style="font-size:11px;color:var(--gold2);font-weight:700;letter-spacing:.07em;margin-bottom:6px;">TODAY\'S STRATEGIC QUESTION</div><div style="font-size:14px;color:var(--text);line-height:1.6;font-weight:500;">'+esc(entry.question)+'</div></div>'+responseSection+'<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">'+(entry.response?'<button id="sqGenBtn" class="btn btn-ghost btn-sm" onclick="generateSQ()">'+I('rotate-cw')+' New Question</button>':'')+'<button class="btn btn-ghost btn-sm" onclick="showSQHistory()">'+I('file-text')+' Past entries</button></div>';
+  applyIcons(el);
+}
+
+function showSQHistory() {
+  const journal = sqLoad();
+  const entries = Object.entries(journal).sort(function(a,b){return b[0].localeCompare(a[0]);}).slice(0,7);
+  const el = document.getElementById('sqCardContent'); if (!el) return;
+  if (!entries.length) { toast('No past entries yet'); return; }
+  el.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.07em;margin-bottom:10px;">PAST 7 ENTRIES</div>'+entries.map(function(pair){var d=pair[0],e=pair[1]; return '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);"><div style="font-size:11px;color:var(--text3);margin-bottom:4px;">'+d+'</div><div style="font-size:12px;color:var(--gold2);margin-bottom:4px;font-style:italic;">'+esc(e.question||'')+'</div>'+(e.response?'<div style="font-size:12px;color:var(--text2);line-height:1.5;">'+esc(e.response.slice(0,200))+(e.response.length>200?'…':'')+'</div>':'')+(e.depthProbe?'<div style="font-size:11px;color:var(--aila);margin-top:4px;font-style:italic;">Probe: '+esc(e.depthProbe.slice(0,120))+'…</div>':'')+'</div>'; }).join('')+'<button class="btn btn-ghost btn-sm" onclick="renderSQCard()">Back to today</button>';
+}
+
+async function generateWeeklyThinkingReport() {
+  const key = getAIKey();
+  if (!key) { toast('Add your Claude API key in Setup first'); return; }
+  const journal = sqLoad();
+  const weekDays = sdCurrentWeekDays();
+  const weekEntries = weekDays.map(function(d){return journal[d];}).filter(function(e){return e && e.question && e.response;});
+  if (weekEntries.length < 2) { toast('Need at least 2 daily responses this week to generate a report'); return; }
+  const btn = document.getElementById('sqWeekReportBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Analysing…'; }
+  const entriesText = weekEntries.map(function(e,i){ return 'Day '+(i+1)+':\nQ: '+e.question+'\nA: '+e.response+(e.depthResponse?'\nDeeper thinking: '+e.depthResponse:''); }).join('\n---\n');
+  const prompt = 'Analyse this week\'s strategic journal entries for a high-performer running 4 major initiatives.\n\nJOURNAL ENTRIES ('+weekEntries.length+' days):\n'+entriesText+'\n\nProvide a brief Strategic Thinking Report with exactly these 4 sections:\n1. DOMINANT THEMES: What topics/concerns dominated this week\'s thinking (2-3 bullet points)\n2. BLIND SPOTS: What important areas appear absent from the thinking (1-2 bullet points)\n3. STRONGEST INSIGHT: The single best piece of strategic thinking this week (1 sentence + why)\n4. PATTERN ALERT: Any concerning patterns (repetition, avoidance, vagueness) — or "None detected"\n\nBe direct and specific. Under 250 words total.';
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:prompt}]})
+    });
+    if (!resp.ok) throw new Error('API '+resp.status);
+    const data = await resp.json();
+    const report = data.content[0].text.trim();
+    const reportEl = document.getElementById('sqWeekReport');
+    if (reportEl) {
+      reportEl.innerHTML = '<div style="background:rgba(122,201,122,.06);border:1px solid rgba(122,201,122,.2);border-radius:8px;padding:14px;margin-top:4px;"><div style="font-size:11px;color:#7ac97a;font-weight:700;letter-spacing:.07em;margin-bottom:8px;">STRATEGIC THINKING REPORT — WEEK '+weekKey()+'</div><div style="font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;">'+esc(report)+'</div></div>';
+    }
+    if (!sdData.weeklyReviews) sdData.weeklyReviews = {};
+    const wk = weekKey();
+    if (!sdData.weeklyReviews[wk]) sdData.weeklyReviews[wk] = {};
+    sdData.weeklyReviews[wk].thinkingReport = report;
+    sdSave(); toast('Weekly thinking report ready');
+  } catch(e) { toast('Report failed: '+e.message); }
+  if (btn) { btn.disabled = false; btn.innerHTML = I('rotate-cw')+' Regenerate Report'; applyIcons(btn.parentElement); }
+}
+
+function sdSuggestAAR() {
+  const today = todayKey();
+  const h = sdData.habits[today] || {};
+  const scores = sdData.aar[today] || {};
+  const suggestions = {
+    MIND: (h.journal && h.prayer && h.question) ? 8 : (h.journal && h.prayer) ? 6 : (h.journal || h.prayer) ? 5 : 0,
+    VOICE: h.speak ? 7 : 0,
+    BUILDER: h.build ? 7 : 0,
+    LEADER: (h.courage && h.family) ? 7 : (h.courage || h.family) ? 5 : 0,
+    BODY: (h.exercise && h.stretch && h.cold) ? 8 : (h.exercise && h.stretch) ? 7 : h.exercise ? 6 : (h.stretch || h.cold) ? 4 : 0,
+    CHARACTER: (h.prayer && h.courage) ? 7 : (h.prayer || h.courage) ? 5 : 0
+  };
+  var changed = false;
+  Object.entries(suggestions).forEach(function(pair){ var domain=pair[0], score=pair[1]; if (score > 0 && !scores[domain]) { if (!sdData.aar[today]) sdData.aar[today] = {}; sdData.aar[today][domain] = score; changed = true; } });
+  if (changed) { sdSave(); renderSelfDev(); toast('AAR pre-filled from today\'s habits — adjust as needed'); }
+  else { toast('All domains already scored, or no habits completed yet'); }
 }
 
 /* ── INIT ── */
