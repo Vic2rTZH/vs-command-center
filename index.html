@@ -2329,8 +2329,8 @@ function renderSchedule() {
       <span>▸ ${esc(item)}</span>
       ${ed?`<button class="btn-icon" style="flex-shrink:0;" onclick="removeSchedItem('quarterly',${i})">×</button>`:''}
     </li>`).join('');
-  document.getElementById('monthlyAddRow').style.display=ed?'flex':'none';
-  document.getElementById('quarterlyAddRow').style.display=ed?'flex':'none';
+  const mar=document.getElementById('monthlyAddRow'); if(mar) mar.style.display=ed?'flex':'none';
+  const qar=document.getElementById('quarterlyAddRow'); if(qar) qar.style.display=ed?'flex':'none';
   renderDailySchedule();
 }
 
