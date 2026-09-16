@@ -327,7 +327,7 @@ tbody td:first-child{color:var(--text);font-weight:500;}
 // SUPABASE
 // ══════════════════════════════════════════════
 const SB_URL = 'https://vdlhcxbldiszghofghgi.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM0NzIyNDgsImV4cCI6MjAzOTA0ODI0OH0.pLB2pHrMpROtFCv5sAWpiuQCEEFsFONhJBzA_I0iCiE';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDY2NjUsImV4cCI6MjA5NzU4MjY2NX0.28RjGPZdbzJ2gYAfLo6Fn26cQmKp9KFbPnIaBgg0YC8';
 const SB = {
   h() { return { 'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal' }; },
   async get(t,q){ const r=await fetch(`${SB_URL}/rest/v1/${t}${q||''}`,{headers:this.h()}); if(!r.ok)throw new Error(await r.text()); return r.json(); },
