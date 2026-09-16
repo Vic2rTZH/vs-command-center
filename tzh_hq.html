@@ -346,10 +346,15 @@ async function sbLoad() {
   try {
     const rows = await SB.get('tzh_hq_data','?id=eq.main');
     if (!rows.length) { await sbSave(); return; }
-    const remoteTs = new Date(rows[0].updated_at||0).getTime();
-    const localTs  = new Date(DB.d._updatedAt||0).getTime();
-    if (remoteTs > localTs) {
-      DB.d = rows[0].data;
+    const remote    = rows[0].data;
+    const remoteEps = (remote.episodes||[]).length;
+    const localEps  = (DB.d.episodes||[]).length;
+    const remoteTs  = new Date(rows[0].updated_at||0).getTime();
+    const localTs   = new Date(DB.d._updatedAt||0).getTime();
+    // prefer whichever has more episodes; use timestamp as tiebreaker
+    const useRemote = remoteEps > localEps || (remoteEps === localEps && remoteTs > localTs);
+    if (useRemote) {
+      DB.d = remote;
       ['episodes','research','thumbnails','analytics'].forEach(k=>{ if(!DB.d[k]) DB.d[k]=[]; });
       localStorage.setItem(DB._key, JSON.stringify(DB.d));
       DB.updateSidebar();
