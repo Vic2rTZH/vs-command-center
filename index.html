@@ -2384,15 +2384,28 @@ function renderScorecard() {
 
 /* ── WEEKLY DELIVERABLES ── */
 const DELIVERABLE_ITEMS = [
-  { key:'institutional', label:'Engine I — VANGUARD / Ukraine: 1 institutional action in the protected 05:30 deep-work block (ARIS paper · Ukraine mission · pilot prep)' },
-  { key:'public',        label:'Engine II — Z Historian: 1 public output produced (record · write · publish) — non-negotiable, Friday anchor' },
-  { key:'y4pz',          label:'Engine III — Y4PZ: 1 action toward the live 90-day milestone (YPS SENTINEL · national strategy · Ministry outreach)' },
-  { key:'bantuwa',       label:'Engine IV — Bantuwa: 1 concrete step on the 2027 reset (portfolio register · strategy · institutional outreach)' },
-  { key:'research',      label:'Personal — Ukraine / PhD: 1 academic output (field notes · brief draft · proposal work · knowledge domain deepened)' },
-  { key:'selfdev',       label:'Self-Dev Month 1 — Discipline: ≥8 of 10 habits hit on ≥5 days this week' },
-  { key:'relationship',  label:'Social Capital: 1 deliberate move with one of the 10-for-the-year relationships (logged)' },
-  { key:'finish',        label:'System Discipline: 5× Knowledge Touchpoint done · Finish Before Start · shutdown ritual every day' },
+  { key:'institutional', tags:['VANGUARD','Ukraine'],    label:'Engine I — VANGUARD / Ukraine: 1 institutional action in the protected 05:30 deep-work block' },
+  { key:'public',        tags:['Z Historian'],           label:'Engine II — Z Historian: 1 public output produced (record · write · publish) — non-negotiable, Friday anchor' },
+  { key:'y4pz',          tags:['Y4PZ'],                  label:'Engine III — Y4PZ: 1 action toward the live 90-day milestone' },
+  { key:'bantuwa',       tags:['Bantuwa','Consolidation'],label:'Engine IV — Bantuwa: 1 concrete step on the 2027 reset' },
+  { key:'research',      tags:['Academic','Ukraine','PhD'],label:'Personal — Ukraine / PhD: 1 academic output (field notes · brief draft · proposal work)' },
+  { key:'selfdev',       tags:[],                        label:'Self-Dev — Discipline: ≥8 of 10 habits hit on ≥5 days this week' },
+  { key:'relationship',  tags:[],                        label:'Social Capital: 1 deliberate move with one of the 10-for-the-year relationships (logged)' },
+  { key:'finish',        tags:[],                        label:'System Discipline: 5× Knowledge Touchpoint · Finish Before Start · shutdown ritual every day' },
 ];
+function getNextMilestone(tags) {
+  if (!tags || !tags.length) return null;
+  const ms = (S.milestones90 || [])
+    .filter(m => !m.done && tags.some(t => (m.priority||'').includes(t)))
+    .sort((a,b) => a.target.localeCompare(b.target));
+  return ms[0] || null;
+}
+function deliverableLiveLabel(it) {
+  const m = getNextMilestone(it.tags);
+  if (!m) return esc(it.label);
+  const due = m.target ? ` <span style="color:var(--gold2);font-size:11px;font-weight:600;">→ ${esc(m.text.length>60?m.text.slice(0,57)+'…':m.text)} <span style="opacity:.7;">(${esc(m.target)})</span></span>` : '';
+  return `${esc(it.label)}${due}`;
+}
 function deliverablesFor(wk) {
   if(!S.weeklyDeliverables) S.weeklyDeliverables={};
   if(!S.weeklyDeliverables[wk]) S.weeklyDeliverables[wk]={};
@@ -2413,9 +2426,9 @@ function renderDeliverables() {
   const rec=deliverablesFor(wk);
   const cl=document.getElementById('deliverablesChecklist');
   if(cl) cl.innerHTML=DELIVERABLE_ITEMS.map(it=>`
-    <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);cursor:pointer;">
-      <input type="checkbox" ${rec[it.key]?'checked':''} onchange="toggleDeliverable('${wk}','${it.key}')">
-      <span style="${rec[it.key]?'color:var(--text);':''}">${esc(it.label)}</span>
+    <label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);cursor:pointer;">
+      <input type="checkbox" ${rec[it.key]?'checked':''} onchange="toggleDeliverable('${wk}','${it.key}')" style="margin-top:2px;flex-shrink:0;">
+      <span style="${rec[it.key]?'color:var(--text);':''}">${deliverableLiveLabel(it)}</span>
     </label>`).join('');
   const badge=document.getElementById('deliverablesBadge');
   if(badge) badge.textContent=`${deliverableScore(rec)}/${DELIVERABLE_ITEMS.length} this week`;
@@ -2447,7 +2460,7 @@ function renderDeliverables() {
         <span style="color:var(--text2);">${esc(w)}</span>
         <span style="display:flex;gap:10px;align-items:center;">
           ${rev?'<span style="font-size:10px;color:var(--gold2);">📝 review</span>':''}
-          <span style="color:${color};font-weight:700;">${s}/7</span>
+          <span style="color:${color};font-weight:700;">${s}/${DELIVERABLE_ITEMS.length}</span>
         </span>
       </summary>
       <div style="padding:8px 8px 4px;">${itemsHtml}${reviewHtml}</div>
