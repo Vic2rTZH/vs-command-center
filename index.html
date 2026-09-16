@@ -1292,7 +1292,7 @@ const DEFAULT = {
 };
 
 let S = loadLS();
-let sbOnline = false, sbTasks = false, sbOkrs = false;
+let sbOnline = false, sbTasks = false, sbOkrs = false, sbSchedule = false, sbMilestones = false;
 let tcCache = null, schedEditMode = false;
 
 /* ── PERSISTENCE ── */
@@ -1348,11 +1348,13 @@ async function sbPing() {
   try { await SB.get('cc_tasks','?limit=1'); return true; } catch(e) { return false; }
 }
 async function sbCheckTables() {
-  let tasks=false, okrs=false, reviews=false;
+  let tasks=false, okrs=false, reviews=false, schedule=false, milestones=false;
   try { await SB.get('cc_tasks','?limit=0'); tasks=true; } catch(e) {}
   try { await SB.get('cc_okrs','?limit=0'); okrs=true; } catch(e) {}
   try { await SB.get('cc_reviews','?limit=0'); reviews=true; } catch(e) {}
-  return { tasks, okrs, reviews };
+  try { await SB.get('cc_schedule','?limit=0'); schedule=true; } catch(e) {}
+  try { await SB.get('cc_milestones','?limit=0'); milestones=true; } catch(e) {}
+  return { tasks, okrs, reviews, schedule, milestones };
 }
 async function sbLoadTasks() {
   try {
@@ -1401,6 +1403,56 @@ async function sbSaveOKR(areaKey) {
 async function sbDeleteOKR(areaKey) {
   if (!sbOkrs) return;
   try { await SB.del('cc_okrs',`?area_key=eq.${areaKey}`); } catch(e) {}
+}
+async function sbLoadSchedule() {
+  if (!sbSchedule) return;
+  try {
+    const rows = await SB.get('cc_schedule','?id=eq.main');
+    if (!rows.length) return;
+    const remote = rows[0];
+    const remoteTs = new Date(remote.updated_at||0).getTime();
+    const localTs  = new Date(S.scheduleUpdatedAt||0).getTime();
+    if (remoteTs > localTs) {
+      S.schedule = remote.data;
+      S.scheduleUpdatedAt = remote.updated_at;
+      saveLS();
+    }
+  } catch(e) { console.warn('sbLoadSchedule:',e.message); }
+}
+async function sbSaveSchedule() {
+  if (!sbSchedule) return;
+  const ts = new Date().toISOString();
+  S.scheduleUpdatedAt = ts;
+  saveLS();
+  try {
+    await SB.upsert('cc_schedule', { id:'main', data:S.schedule, updated_at:ts }, '?on_conflict=id');
+  } catch(e) { console.warn('sbSaveSchedule:',e.message); }
+}
+async function sbLoadMilestones() {
+  if (!sbMilestones) return;
+  try {
+    const rows = await SB.get('cc_milestones','');
+    if (!rows.length) return;
+    if (!S.milestones90) S.milestones90 = JSON.parse(JSON.stringify(DEFAULT.milestones90));
+    rows.forEach(r => {
+      const local = S.milestones90.find(m=>m.id===r.id);
+      if (local) {
+        // Remote done=true always wins (cross-device completion)
+        if (r.done) local.done = true;
+      }
+    });
+    saveLS();
+  } catch(e) { console.warn('sbLoadMilestones:',e.message); }
+}
+async function sbSaveMilestone(id) {
+  if (!sbMilestones) return;
+  const m = (S.milestones90||[]).find(x=>x.id===id); if (!m) return;
+  try {
+    await SB.upsert('cc_milestones', {
+      id:m.id, text:m.text, target:m.target, week:m.week,
+      priority:m.priority, done:m.done, updated_at:new Date().toISOString()
+    }, '?on_conflict=id');
+  } catch(e) { console.warn('sbSaveMilestone:',e.message); }
 }
 async function sbSaveReview(wk, notes) {
   try {
@@ -1976,7 +2028,7 @@ function toggleSchedEdit() {
         S.schedule.weekly[i].anchor=cells[2].innerText.trim();
       }
     });
-    saveLS(); toast('Schedule saved');
+    saveLS(); sbSaveSchedule(); toast('Schedule saved');
   }
   renderSchedule();
 }
@@ -1993,7 +2045,7 @@ function toggleDailyEdit(e) {
         S.schedule.daily[i].block=cells[1].innerText.trim();
       }
     });
-    saveLS(); toast('Daily schedule saved');
+    saveLS(); sbSaveSchedule(); toast('Daily schedule saved');
   }
   renderDailySchedule();
 }
@@ -2009,15 +2061,15 @@ function renderDailySchedule() {
 function resetWeeklyToDefault() {
   if(!confirm('Reset weekly schedule to the VS Master Schedule default?')) return;
   S.schedule.weekly = JSON.parse(JSON.stringify(DEFAULT.schedule.weekly));
-  saveLS(); renderSchedule(); toast('Weekly schedule reset to default');
+  saveLS(); sbSaveSchedule(); renderSchedule(); toast('Weekly schedule reset to default');
 }
 function addSchedItem(type) {
   const inp=document.getElementById(type==='monthly'?'monthlyInput':'quarterlyInput');
   const text=inp.value.trim(); if(!text) return;
-  S.schedule[type].push(text); inp.value=''; saveLS(); renderSchedule();
+  S.schedule[type].push(text); inp.value=''; saveLS(); sbSaveSchedule(); renderSchedule();
 }
 function removeSchedItem(type,idx) {
-  S.schedule[type].splice(idx,1); saveLS(); renderSchedule();
+  S.schedule[type].splice(idx,1); saveLS(); sbSaveSchedule(); renderSchedule();
 }
 function renderSchedule() {
   const tbody=document.getElementById('schedBody'); if(!tbody) return;
@@ -2356,7 +2408,8 @@ function toggleMilestone90(id) {
   if (!S.milestones90) return;
   const m = S.milestones90.find(x=>x.id===id); if (!m) return;
   m.done = !m.done;
-  saveLS(); render90Day();
+  saveLS(); render90Day(); renderWeek90Banner();
+  sbSaveMilestone(id);
   if (m.done) toast('Milestone complete ✓');
 }
 
@@ -2498,13 +2551,13 @@ async function updateModalSbStatus() {
   }
   dot.style.background='var(--green)'; label.textContent='Connected — checking tables…';
   const t=await sbCheckTables();
-  sbTasks=t.tasks; sbOkrs=t.okrs;
+  sbTasks=t.tasks; sbOkrs=t.okrs; sbSchedule=t.schedule; sbMilestones=t.milestones;
   const row=(name,ok)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;">
     <span style="width:8px;height:8px;border-radius:50%;background:${ok?'var(--green)':'var(--red)'};display:inline-block;flex-shrink:0;"></span>
     <span style="color:var(--text2);">${name}</span>
     <span style="color:${ok?'var(--green)':'var(--red)'};font-size:11px;">${ok?'ready':'missing — run SQL setup'}</span>
   </div>`;
-  tables.innerHTML=row('episodes (TC Podcast)',true)+row('cc_tasks',t.tasks)+row('cc_okrs',t.okrs)+row('cc_reviews',t.reviews);
+  tables.innerHTML=row('episodes (TC Podcast)',true)+row('cc_tasks',t.tasks)+row('cc_okrs',t.okrs)+row('cc_reviews',t.reviews)+row('cc_schedule',t.schedule)+row('cc_milestones',t.milestones);
   label.textContent='Connected to Supabase';
 }
 function copySql() {
@@ -3260,10 +3313,12 @@ async function init() {
   if(sbOnline){
     setSbStatus('ok','Supabase ✓');
     const t=await sbCheckTables();
-    sbTasks=t.tasks; sbOkrs=t.okrs;
+    sbTasks=t.tasks; sbOkrs=t.okrs; sbSchedule=t.schedule; sbMilestones=t.milestones;
     const ops=[loadTCPodcast()];
-    if(sbTasks) ops.push(sbLoadTasks());
-    if(sbOkrs)  ops.push(sbLoadOKRs());
+    if(sbTasks)      ops.push(sbLoadTasks());
+    if(sbOkrs)       ops.push(sbLoadOKRs());
+    if(sbSchedule)   ops.push(sbLoadSchedule());
+    if(sbMilestones) ops.push(sbLoadMilestones());
     await Promise.all(ops);
     renderAll();
   } else {
