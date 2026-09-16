@@ -1121,48 +1121,6 @@ body {
       </div>
     </details>
 
-    <!-- Daily Scorecard -->
-    <details id="scorecardDetails" open>
-      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span class="sec-title" style="margin:0;">▾ Daily Scorecard</span>
-        <span id="scorecardTodayBadge" style="font-size:12px;font-weight:700;color:var(--gold2);"></span>
-      </summary>
-      <div class="card" style="margin-bottom:20px;">
-        <div id="scorecardChecklist" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
-        <div class="divider"></div>
-        <div class="sec-title" style="margin-top:14px;margin-bottom:8px;">Last 7 Days</div>
-        <div id="scorecardHistory"></div>
-        <div id="scorecardWeekCompare" style="font-size:12px;color:var(--text3);margin-top:10px;"></div>
-      </div>
-    </details>
-
-    <!-- Monthly Anchors -->
-    <details id="monthlyDetails" open>
-      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span class="sec-title" style="margin:0;">▾ Monthly Anchors</span>
-      </summary>
-      <div class="card" style="margin-bottom:20px;">
-        <ul id="monthlyList" style="list-style:none;padding:0;margin:0;font-size:13px;line-height:1.9;"></ul>
-        <div id="monthlyAddRow" style="display:none;" class="add-row">
-          <input type="text" id="monthlyInput" placeholder="e.g. Week 1 Mon — strategic review">
-          <button class="btn btn-gold" onclick="addSchedItem('monthly')">Add</button>
-        </div>
-      </div>
-    </details>
-
-    <!-- Quarterly Commitments -->
-    <details id="quarterlyDetails" open>
-      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span class="sec-title" style="margin:0;">▾ Quarterly Commitments</span>
-      </summary>
-      <div class="card">
-        <ul id="quarterlyList" style="list-style:none;padding:0;margin:0;font-size:13px;line-height:1.9;"></ul>
-        <div id="quarterlyAddRow" style="display:none;" class="add-row">
-          <input type="text" id="quarterlyInput" placeholder="Quarterly commitment">
-          <button class="btn btn-gold" onclick="addSchedItem('quarterly')">Add</button>
-        </div>
-      </div>
-    </details>
   </div>
 
 
