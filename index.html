@@ -2727,7 +2727,7 @@ function renderProtocol() {
       ${ed ? `<button class="btn-icon" onclick="removeProtocolRow(${i})" style="flex-shrink:0;">×</button>` : ''}
     </div>`).join('');
   const btn = document.getElementById('protocolEditBtn');
-  if (btn) btn.textContent = ed ? I('check')+' Save' : I('pencil')+' Edit';
+  if (btn) btn.innerHTML = ed ? I('check')+' Save' : I('pencil')+' Edit';
 }
 
 function toggleProtocolEdit() {
