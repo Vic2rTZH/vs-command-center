@@ -1203,11 +1203,11 @@ body {
 
     <div class="modal-section">
       <h3>Claude API Key</h3>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Used for AI Propose. Stored in Supabase and syncs across devices.</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Stored in Supabase — enter once on any device, syncs everywhere automatically.</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input type="password" id="apiKeyInput" placeholder="sk-ant-…" style="flex:1;min-width:200px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-… (leave blank to pull from Supabase)" style="flex:1;min-width:200px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
         <button class="btn btn-gold btn-sm" onclick="saveApiKeyFromSetup()">Save Key</button>
-        <button class="btn btn-ghost btn-sm" onclick="showCurrentKeyStatus()">Check Status</button>
+        <button class="btn btn-ghost btn-sm" onclick="syncApiKeyNow()">Sync now</button>
       </div>
       <div id="apiKeyStatus" style="font-size:12px;margin-top:8px;color:var(--text3);"></div>
     </div>
@@ -3305,12 +3305,17 @@ async function sbSaveApiKey(key) {
 async function sbLoadApiKey() {
   try {
     const rows = await SB.get('cc_settings','?key=eq.claude_api_key');
-    if (rows.length && rows[0].value) {
-      const local = getAIKey();
+    const local = getAIKey();
+    if (rows.length && rows[0].value && rows[0].value.startsWith('sk-')) {
+      // Supabase has key — pull if local is missing
       if (!local || !local.startsWith('sk-')) {
         localStorage.setItem('tc_apiKey', rows[0].value);
-        toast('API key loaded from Supabase ✓');
+        toast('API key synced from Supabase ✓');
+        showCurrentKeyStatus();
       }
+    } else if (local && local.startsWith('sk-')) {
+      // Local has key but Supabase doesn't — push it up
+      await SB.upsert('cc_settings', { key:'claude_api_key', value:local, updated_at:new Date().toISOString() }, '?on_conflict=key');
     }
   } catch(e) { console.warn('sbLoadApiKey:',e.message); }
 }
@@ -3555,13 +3560,29 @@ function saveApiKeyFromSetup() {
   toast('API key saved ✓');
 }
 function showCurrentKeyStatus() {
-  const el = document.getElementById('apiKeyStatus');
+  const el = document.getElementById('apiKeyStatus'); if (!el) return;
   const key = getAIKey();
+  const sbStatus = sbOnline ? ' · Supabase connected' : ' · Supabase offline';
   if (key && key.startsWith('sk-')) {
-    el.textContent = `✓ Key set (${key.slice(0,12)}…)`;
+    el.textContent = `✓ Key set (${key.slice(0,12)}…)${sbStatus}`;
     el.style.color = 'var(--green)';
   } else {
-    el.textContent = '✗ No key set';
+    el.textContent = `✗ No key set${sbStatus}`;
+    el.style.color = 'var(--red)';
+  }
+}
+async function syncApiKeyNow() {
+  const el = document.getElementById('apiKeyStatus'); if (!el) return;
+  if (!sbOnline) { el.textContent = '✗ Supabase offline — cannot sync'; el.style.color = 'var(--red)'; return; }
+  el.textContent = 'Syncing…'; el.style.color = 'var(--text3)';
+  await sbLoadApiKey();
+  showCurrentKeyStatus();
+  const key = getAIKey();
+  if (key && key.startsWith('sk-')) {
+    el.textContent = `✓ Key synced (${key.slice(0,12)}…) · Supabase connected`;
+    el.style.color = 'var(--green)';
+  } else {
+    el.textContent = '✗ No key found in Supabase — paste it above and click Save Key';
     el.style.color = 'var(--red)';
   }
 }
