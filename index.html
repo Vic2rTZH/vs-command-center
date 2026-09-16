@@ -3085,9 +3085,12 @@ async function sbSaveApiKey(key) {
 async function sbLoadApiKey() {
   try {
     const rows = await SB.get('cc_settings','?key=eq.claude_api_key');
-    if (rows.length && rows[0].value && !getAIKey()) {
-      localStorage.setItem('tc_apiKey', rows[0].value);
-      toast('API key loaded from Supabase ✓');
+    if (rows.length && rows[0].value) {
+      const local = getAIKey();
+      if (!local || !local.startsWith('sk-')) {
+        localStorage.setItem('tc_apiKey', rows[0].value);
+        toast('API key loaded from Supabase ✓');
+      }
     }
   } catch(e) { console.warn('sbLoadApiKey:',e.message); }
 }
