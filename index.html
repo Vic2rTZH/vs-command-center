@@ -1,0 +1,3286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e8b424">
+<link rel="manifest" href="manifest.json">
+<title>VS Command Center</title>
+<style>
+/* ═══════════════════════════════════════════
+   VS COMMAND CENTER v3
+   ═══════════════════════════════════════════ */
+:root {
+  color-scheme: dark;
+  --bg:      #070c14;
+  --bg2:     #0d1520;
+  --bg3:     #131d2c;
+  --bg4:     #1a2438;
+  --border:  #1e2d42;
+  --border2: #2a3f5c;
+  --gold:    #e8b424;
+  --gold2:   #f5c542;
+  --text:    #e8eaf0;
+  --text2:   #a8b0c0;
+  --text3:   #6a7590;
+  --green:   #34d47a;
+  --red:     #f06060;
+  --blue:    #4a9eff;
+  --teal:    #0ea472;
+  --army:    #6b7280;
+  --bantuwa: #1d4ed8;
+  --zhist:   #15803d;
+  --va:      #9b2335;
+  --y4pz:    #b45309;
+  --aila:    #0ea5e9;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+/* ── HEADER ── */
+.header {
+  background: rgba(13,21,32,0.95);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+}
+.logo { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+.logo span { color: var(--gold); }
+.header-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.header-date { font-size: 12px; color: var(--text3); }
+.sync-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 20px;
+  background: var(--bg3); border: 1px solid var(--border);
+  font-size: 11px; color: var(--text3); cursor: default;
+}
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
+.sync-dot.ok   { background: var(--green); box-shadow: 0 0 5px rgba(52,212,122,0.5); }
+.sync-dot.err  { background: var(--red); }
+.sync-dot.spin { background: var(--gold); animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+/* ── LAUNCH BAR ── */
+.launch-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 9px 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.launch-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-right: 4px; }
+.launch-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 13px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  text-decoration: none; cursor: pointer;
+  border: 1px solid var(--border2); color: var(--text2); background: var(--bg3);
+  transition: all .15s;
+}
+.launch-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(232,180,36,.07); }
+.app-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── TABS ── */
+.tabs-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 22px; overflow-x: auto;
+}
+.tab-btn {
+  padding: 11px 20px; border: none; background: transparent;
+  font-size: 13px; font-weight: 500; color: var(--text3);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  white-space: nowrap; transition: all .15s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--gold2); border-bottom-color: var(--gold); }
+
+/* ── LAYOUT ── */
+.main { max-width: 1300px; margin: 0 auto; padding: 22px 20px 48px; }
+.panel { display: none; }
+.panel.active { display: block; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 720px) { .grid-2,.grid-3 { grid-template-columns: 1fr; } }
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px;
+}
+.card-sm {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px;
+}
+.card-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--text3); margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.ct-badge {
+  font-size: 11px; font-weight: 600; text-transform: none; letter-spacing: 0;
+  background: var(--bg4); color: var(--text2);
+  padding: 2px 8px; border-radius: 10px;
+}
+
+/* ── TAGS ── */
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px;
+}
+.tag-army    { background:#374151; color:#d1d5db; }
+.tag-bantuwa { background:#1e3a8a; color:#93c5fd; }
+.tag-zhist   { background:#14532d; color:#86efac; }
+.tag-va      { background:#7f1d1d; color:#fca5a5; }
+.tag-y4pz    { background:#78350f; color:#fcd34d; }
+.tag-aila    { background:#0c4a6e; color:#7dd3fc; }
+.tag-tc      { background:var(--gold); color:#000; }
+
+/* ── BUTTONS ── */
+.btn {
+  padding: 8px 16px; border: none; border-radius: 7px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all .15s; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-gold { background: var(--gold); color: #000; }
+.btn-gold:hover { background: var(--gold2); }
+.btn-ghost { background: var(--bg4); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-xs { padding: 3px 8px; font-size: 11px; }
+.btn-icon { background: none; border: none; color: var(--text3); cursor: pointer; padding: 3px 5px; font-size: 15px; line-height: 1; transition: color .1s; }
+.btn-icon:hover { color: var(--red); }
+.btn-pin { background: var(--bg4); border: 1px solid var(--border2); color: var(--text3); padding: 3px 9px; border-radius: 4px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.btn-pin:hover { border-color: var(--gold); color: var(--gold); }
+.btn-pin.pinned { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+/* ── ADD ROW ── */
+.add-row { display: flex; gap: 8px; margin-top: 12px; }
+.add-row input, .add-row select {
+  flex: 1; padding: 8px 11px; border: 1px solid var(--border2);
+  border-radius: 7px; font-size: 13px; background: var(--bg3); color: var(--text);
+}
+.add-row input::placeholder { color: var(--text3); }
+.add-row select { flex: 0 0 auto; }
+.add-row select option { background: var(--bg3); }
+
+/* ── TODAY GRID ── */
+.today-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+  align-items: stretch;
+}
+@media (max-width: 900px) { .today-grid { grid-template-columns: 1fr; } }
+.today-col { display: flex; flex-direction: column; gap: 14px; }
+.today-col .card-flex { flex: 1; }
+.protocol-row { display: flex; align-items: flex-start; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.protocol-row:last-child { border-bottom: none; }
+.protocol-time { color: var(--gold2); font-weight: 600; white-space: nowrap; min-width: 100px; flex-shrink: 0; }
+.protocol-desc { color: var(--text2); flex: 1; }
+.protocol-desc[contenteditable=true] { outline: 1px solid var(--gold); border-radius: 3px; padding: 1px 4px; background: var(--bg4); color: var(--text); }
+.protocol-time[contenteditable=true] { outline: 1px solid var(--border2); border-radius: 3px; padding: 1px 4px; background: var(--bg4); color: var(--gold2); }
+
+/* ── TOP 3 ── */
+.top3-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.top3-item:last-child { border-bottom: none; }
+.top3-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--bg4); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--gold);
+  flex-shrink: 0; margin-top: 1px; transition: all .2s; cursor: pointer;
+}
+.top3-item.done .top3-num { background: var(--teal); border-color: var(--teal); color: #fff; }
+.top3-body { flex: 1; min-width: 0; }
+.top3-text { font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer; word-break: break-word; }
+.top3-item.done .top3-text { text-decoration: line-through; color: var(--text3); }
+.top3-meta { display: flex; gap: 6px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+.top3-actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+
+/* ── TC TASKS ── */
+.tc-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.tc-row:last-child { border-bottom: none; }
+.tc-body { flex: 1; min-width: 0; }
+.tc-title { color: var(--text); font-weight: 500; word-break: break-word; }
+.tc-meta { display: flex; gap: 6px; align-items: center; margin-top: 3px; flex-wrap: wrap; }
+.domain-pill {
+  font-size: 10px; padding: 2px 7px; border-radius: 8px;
+  background: var(--bg4); color: var(--text3); border: 1px solid var(--border2);
+  white-space: nowrap; text-transform: uppercase; letter-spacing: .3px;
+}
+.lbl-overdue { color: var(--red); font-weight: 700; font-size: 11px; }
+.lbl-today   { color: var(--gold2); font-weight: 700; font-size: 11px; }
+.lbl-soon    { color: var(--blue); font-size: 11px; }
+.pct-bar { width: 44px; height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.pct-fill { height: 100%; background: var(--gold); border-radius: 2px; }
+
+/* ── BRIEFING SIDEBAR ── */
+.briefing-block {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px; margin-bottom: 10px;
+}
+.briefing-block:last-child { margin-bottom: 0; }
+.brf-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.brf-name {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--text3);
+  display: flex; align-items: center; gap: 7px;
+}
+.brf-link { font-size: 11px; color: var(--text3); text-decoration: none; transition: color .1s; }
+.brf-link:hover { color: var(--gold); }
+.brf-stat {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; font-size: 12px; color: var(--text2);
+  border-top: 1px solid var(--border);
+}
+.brf-stat:first-of-type { border-top: none; padding-top: 0; }
+.brf-stat strong { color: var(--text); font-weight: 600; }
+.brf-empty { font-size: 12px; color: var(--text3); font-style: italic; }
+.connect-btn {
+  width: 100%; padding: 7px; background: var(--bg4);
+  border: 1px dashed var(--border2); border-radius: 6px;
+  color: var(--text3); font-size: 12px; cursor: pointer; text-align: center;
+  transition: all .15s;
+}
+.connect-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── TOMORROW BRIEF ── */
+.brief-select, .brief-input {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border2);
+  border-radius: 7px; font-size: 13px; background: var(--bg4); color: var(--text);
+  margin-bottom: 8px; display: block;
+}
+.brief-select option { background: var(--bg3); }
+
+/* ── PRINCIPLE ── */
+.principle {
+  border-left: 3px solid var(--gold);
+  border: 1px solid rgba(232,180,36,.2);
+  border-left: 3px solid var(--gold);
+  padding: 12px 16px; border-radius: 8px;
+  font-size: 13px; font-style: italic; color: var(--text2);
+  margin-bottom: 20px; line-height: 1.6;
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+}
+
+/* ── WEEK TASKS ── */
+.week-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+}
+.week-item:last-child { border-bottom: none; }
+.week-item input[type=checkbox] { margin-top: 3px; accent-color: var(--gold2); cursor: pointer; flex-shrink: 0; }
+.week-text { flex: 1; cursor: pointer; }
+.week-item.done .week-text { text-decoration: line-through; color: var(--text3); }
+
+/* ── OKRs ── */
+.okr-block {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; margin-bottom: 14px;
+}
+.okr-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.area-badge {
+  padding: 3px 11px; border-radius: 20px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px; color: #fff; flex-shrink: 0;
+}
+.okr-prog-bar { height: 5px; background: var(--bg4); border-radius: 3px; overflow: hidden; margin: 8px 0 12px; }
+.okr-prog-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2)); transition: width .4s; }
+.kr-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0; border-top: 1px solid var(--border); font-size: 13px;
+}
+.kr-text { flex: 1; color: var(--text2); }
+.kr-slider { width: 80px; accent-color: var(--gold2); cursor: pointer; }
+.kr-pct { font-size: 12px; color: var(--text3); width: 32px; text-align: right; }
+
+/* ── SCHEDULE ── */
+.sched-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sched-table th {
+  padding: 10px 12px; text-align: left;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px;
+  color: var(--text3); background: var(--bg3); border-bottom: 1px solid var(--border);
+}
+.sched-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text2); }
+.sched-table tr:last-child td { border-bottom: none; }
+.sched-table .day-cell { color: var(--gold2); font-weight: 600; font-size: 12px; white-space: nowrap; }
+.am-cell { background: rgba(232,180,36,.03); }
+
+/* ── REVIEW ── */
+.review-ta {
+  width: 100%; min-height: 220px; padding: 14px;
+  border: 1px solid var(--border2); border-radius: 8px;
+  font-family: inherit; font-size: 14px;
+  background: var(--bg3); color: var(--text); resize: vertical; line-height: 1.7;
+}
+.review-ta::placeholder { color: var(--text3); }
+
+/* ── SETUP MODAL ── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(7,12,20,.88);
+  backdrop-filter: blur(10px); display: flex;
+  align-items: center; justify-content: center; z-index: 100; padding: 20px;
+}
+.modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 28px; max-width: 560px; width: 100%;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal h2 { font-size: 17px; margin-bottom: 6px; }
+.modal p  { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.6; }
+.modal-section { margin-bottom: 20px; }
+.modal-section h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--text3); margin-bottom: 8px; }
+.sql-block {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px; font-family: "Consolas","Courier New", monospace; font-size: 11px;
+  color: #7dd3fc; overflow-x: auto; white-space: pre; line-height: 1.6; margin-bottom: 10px;
+}
+
+/* ── MISC ── */
+.sec-title { font-size: 12px; font-weight: 700; color: var(--gold2); text-transform: uppercase; letter-spacing: .7px; margin: 20px 0 12px; }
+.empty { font-size: 13px; color: var(--text3); font-style: italic; padding: 10px 0; text-align: center; }
+.divider { height: 1px; background: var(--border); margin: 18px 0; }
+.toast {
+  position: fixed; bottom: 22px; right: 22px;
+  background: var(--bg3); color: var(--text); border: 1px solid var(--gold);
+  padding: 11px 18px; border-radius: 8px; font-size: 13px;
+  opacity: 0; transform: translateY(8px); transition: all .25s;
+  z-index: 200; pointer-events: none; box-shadow: 0 8px 32px rgba(0,0,0,.5); max-width: 300px;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── AILA SPRINT TRACKER ── */
+.aila-banner {
+  background: linear-gradient(135deg, rgba(14,165,233,.12) 0%, rgba(14,165,233,.04) 100%);
+  border: 1px solid rgba(14,165,233,.3); border-radius: 12px;
+  padding: 20px 24px; display: flex; align-items: center;
+  justify-content: space-between; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.aila-banner-left { flex: 1; min-width: 200px; }
+.aila-sprint-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--aila); margin-bottom: 4px;
+}
+.aila-sprint-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.aila-sprint-sub   { font-size: 12px; color: var(--text3); }
+.aila-countdown-group { display: flex; gap: 16px; flex-shrink: 0; }
+.aila-cd-block { text-align: center; }
+.aila-cd-num {
+  font-size: 32px; font-weight: 800; color: var(--aila); line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.aila-cd-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .8px; margin-top: 2px; }
+.aila-week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+@media (max-width: 900px) { .aila-week-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 500px) { .aila-week-grid { grid-template-columns: 1fr; } }
+.aila-week-tile {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px; cursor: pointer; transition: all .15s;
+}
+.aila-week-tile:hover { border-color: var(--aila); }
+.aila-week-tile.current {
+  border-color: var(--aila); background: rgba(14,165,233,.08);
+  box-shadow: 0 0 0 1px rgba(14,165,233,.2);
+}
+.aila-week-tile.done { opacity: .6; }
+.aila-week-tile.future { opacity: .45; }
+.aila-wk-num {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px;
+  color: var(--text3); margin-bottom: 4px;
+}
+.aila-week-tile.current .aila-wk-num { color: var(--aila); }
+.aila-wk-label { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.aila-wk-dates { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+.aila-wk-progress { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+.aila-wk-fill { height: 100%; background: var(--aila); border-radius: 2px; transition: width .3s; }
+.aila-week-tile.done .aila-wk-fill { background: var(--green); }
+.aila-wk-pct { font-size: 10px; color: var(--text3); margin-top: 4px; }
+.aila-week-detail {
+  background: var(--bg2); border: 1px solid rgba(14,165,233,.3);
+  border-radius: 12px; padding: 20px; margin-bottom: 24px;
+}
+.aila-detail-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.aila-detail-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(14,165,233,.15); border: 1px solid rgba(14,165,233,.3);
+  color: var(--aila); font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .6px;
+}
+.aila-detail-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.aila-detail-goal { font-size: 12px; color: var(--text2); }
+.aila-detail-deliverable {
+  font-size: 11px; color: var(--gold2); font-weight: 600;
+  background: rgba(232,180,36,.08); border: 1px solid rgba(232,180,36,.2);
+  border-radius: 6px; padding: 4px 10px; display: inline-block; margin-bottom: 14px;
+}
+.aila-task-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.aila-task-row:last-child { border-bottom: none; }
+.aila-task-row input[type=checkbox] { margin-top: 3px; accent-color: var(--aila); cursor: pointer; flex-shrink: 0; }
+.aila-task-text { color: var(--text2); flex: 1; line-height: 1.4; }
+.aila-task-row.done .aila-task-text { text-decoration: line-through; color: var(--text3); }
+.aila-checklist-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 720px) { .aila-checklist-grid { grid-template-columns: 1fr; } }
+.aila-cat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.aila-cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.aila-cat-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); }
+.aila-cat-count { font-size: 11px; color: var(--aila); font-weight: 700; }
+.aila-cat-bar { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+.aila-cat-fill { height: 100%; background: var(--aila); border-radius: 2px; transition: width .4s; }
+.aila-mini-task {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--border);
+}
+.aila-mini-task:last-child { border-bottom: none; }
+.aila-mini-task input[type=checkbox] { margin-top: 2px; accent-color: var(--aila); cursor: pointer; flex-shrink: 0; }
+.aila-mini-task label { color: var(--text2); cursor: pointer; line-height: 1.3; }
+.aila-mini-task.done label { text-decoration: line-through; color: var(--text3); }
+
+/* ── AI PROPOSAL ── */
+.ai-proposal-wrap {
+  margin-top: 14px; border: 1px solid rgba(232,180,36,.35);
+  border-radius: 10px; background: rgba(232,180,36,.04); overflow: hidden;
+}
+.ai-proposal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-bottom: 1px solid rgba(232,180,36,.2);
+}
+.ai-proposal-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--gold2); display: flex; align-items: center; gap: 6px;
+}
+.ai-brief-text {
+  font-size: 12px; color: var(--text2); padding: 10px 14px 4px;
+  font-style: italic; border-bottom: 1px solid rgba(232,180,36,.1);
+}
+.ai-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.ai-item:last-child { border-bottom: none; }
+.ai-item-body { flex: 1; min-width: 0; }
+.ai-item-text { font-size: 13px; font-weight: 500; color: var(--text); }
+.ai-item-reason { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.ai-item-actions { display: flex; gap: 4px; flex-shrink: 0; margin-top: 1px; }
+.btn-ai-accept {
+  background: rgba(52,212,122,.15); border: 1px solid rgba(52,212,122,.4);
+  color: var(--green); border-radius: 5px; padding: 3px 9px;
+  font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s;
+}
+.btn-ai-accept:hover { background: rgba(52,212,122,.3); }
+.btn-ai-skip {
+  background: none; border: 1px solid var(--border2);
+  color: var(--text3); border-radius: 5px; padding: 3px 9px;
+  font-size: 11px; cursor: pointer; transition: all .15s;
+}
+.btn-ai-skip:hover { border-color: var(--red); color: var(--red); }
+.ai-loading {
+  padding: 20px 14px; text-align: center;
+  font-size: 12px; color: var(--text3);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.ai-spinner {
+  width: 14px; height: 14px; border: 2px solid var(--border2);
+  border-top-color: var(--gold); border-radius: 50%;
+  animation: spin .7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-ai { background: rgba(232,180,36,.12); border: 1px solid rgba(232,180,36,.3); color: var(--gold2); }
+.btn-ai:hover { background: rgba(232,180,36,.22); border-color: var(--gold); }
+.ai-key-missing { padding: 12px 14px; font-size: 12px; color: var(--text3); }
+.ai-key-missing a { color: var(--gold); cursor: pointer; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="logo">VS <span>Command Center</span></div>
+    <div class="header-date" id="headerDate"></div>
+  </div>
+  <div class="header-meta">
+    <div class="sync-pill">
+      <span class="sync-dot spin" id="sbDot"></span>
+      <span id="sbLabel">Connecting…</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="openSetup()">⚙ Setup</button>
+  </div>
+</header>
+
+<!-- ═══ LAUNCH BAR ═══ -->
+<div class="launch-bar">
+  <span class="launch-label">Launch</span>
+  <a href="https://vic2rtzh.github.io/Take-Command/index.html" target="_blank" class="launch-btn">
+    <span class="app-dot" style="background:var(--gold);"></span>Take Command
+  </a>
+  <a href="tzh_hq.html" target="_blank" class="launch-btn">
+    <span class="app-dot" style="background:var(--zhist);"></span>TZH HQ
+  </a>
+  <a href="bantuwa_content_hq.html" target="_blank" class="launch-btn">
+    <span class="app-dot" style="background:var(--bantuwa);"></span>Bantuwa HQ
+  </a>
+  <a href="tc_coach.html" target="_blank" class="launch-btn">
+    <span class="app-dot" style="background:var(--va);"></span>TC Coach
+  </a>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-panel="today">Today</button>
+    <button class="tab-btn" data-panel="week">This Week</button>
+    <button class="tab-btn" data-panel="okrs">OKRs</button>
+    <button class="tab-btn" data-panel="aila" style="color:var(--aila);">✦ AILA Sprint</button>
+    <button class="tab-btn" data-panel="schedule">Rhythm</button>
+    <button class="tab-btn" data-panel="plan90" style="color:var(--gold2);">◈ 90-Day Plan</button>
+    <button class="tab-btn" data-panel="review">Weekly Review</button>
+  </div>
+
+  <!-- ═══════════════ TODAY ═══════════════ -->
+  <div class="panel active" id="panel-today">
+
+    <div class="principle" style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+      <span id="dailyQuoteText" style="flex:1;cursor:pointer;" title="Click for next quote" onclick="nextQuote()"></span>
+      <span style="flex-shrink:0;display:flex;gap:6px;">
+        <button onclick="nextQuote()" title="Next quote" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text3)'">›</button>
+      </span>
+    </div>
+
+    <div class="today-grid">
+
+      <!-- LEFT: intentions -->
+      <div class="today-col">
+        <!-- Top 3 -->
+        <div class="card">
+          <div class="card-title">
+            Today's Top 3
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button class="btn btn-xs btn-ai" onclick="aiPropose('today')">✦ AI Propose</button>
+              <span class="ct-badge" id="top3Badge">0 / 3</span>
+            </div>
+          </div>
+          <div id="top3List"></div>
+          <div id="aiProposalToday"></div>
+          <div class="add-row" id="top3AddRow" style="margin-top:14px;">
+            <input type="text" id="top3Input" placeholder="What must ship today?"
+                   onkeydown="if(event.key==='Enter')addTop3()">
+            <select id="top3Tag">
+              <option value="bantuwa">Bantuwa</option>
+              <option value="zhist">Z Historian</option>
+              <option value="va">Take Command</option>
+              <option value="y4pz">Misc</option>
+              <option value="aila">AILA</option>
+              <option value="army">Army</option>
+            </select>
+            <button class="btn btn-gold" onclick="addTop3()">Add</button>
+          </div>
+        </div>
+
+        <!-- TC 7BD Tasks -->
+        <div class="card">
+          <div class="card-title">
+            TC 7BD — Due Today
+            <div style="display:flex;gap:6px;align-items:center;">
+              <span class="ct-badge" id="tcBadge">—</span>
+              <button class="btn btn-ghost btn-xs" onclick="setupTcSync()">📎 Connect</button>
+              <button class="btn btn-ghost btn-xs" onclick="loadTcTasks()">⟳</button>
+            </div>
+          </div>
+          <div id="tcList">
+            <div class="empty">Connect your TC tracker file to see today's 7BD tasks.</div>
+          </div>
+        </div>
+
+        <!-- Daily Protocol -->
+        <div class="card card-flex" style="border-left:2px solid var(--border2);">
+          <div class="card-title" style="margin-bottom:0;">
+            <span style="cursor:pointer;" onclick="toggleProtocol()">
+              Daily Protocol
+              <span style="color:var(--text3);font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;" id="protocolToggleLabel">▼</span>
+            </span>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-ghost btn-xs" id="protocolEditBtn" onclick="toggleProtocolEdit()">✎ Edit</button>
+              <button class="btn btn-ghost btn-xs" onclick="addProtocolRow()">+ Row</button>
+            </div>
+          </div>
+          <div id="protocolBody" style="margin-top:12px;">
+            <div id="protocolList"></div>
+          </div>
+        </div>
+
+        <!-- MISC Tasks -->
+        <div class="card card-flex" style="border-left:2px solid var(--border2);margin-top:12px;">
+          <div class="card-title" style="margin-bottom:0;">
+            <span>Misc Tasks</span>
+            <button class="btn btn-ghost btn-xs" onclick="addMiscTask()">+ Add</button>
+          </div>
+          <div id="miscList" style="margin-top:10px;"></div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <input id="miscInput" type="text" placeholder="Quick task not tied to a project…" style="flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text1);border-radius:6px;padding:6px 10px;font-size:13px;" onkeydown="if(event.key==='Enter')addMiscTask()">
+            <button class="btn btn-gold btn-xs" onclick="addMiscTask()">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: app briefings + tomorrow brief -->
+      <div class="today-col">
+
+        <!-- Take Command Podcast (Supabase live) -->
+        <div class="briefing-block">
+          <div class="brf-header">
+            <span class="brf-name">
+              <span class="app-dot" style="background:var(--gold);"></span>
+              Take Command Podcast
+            </span>
+            <a href="https://vic2rtzh.github.io/Take-Command/index.html" target="_blank" class="brf-link">↗ Open</a>
+          </div>
+          <div id="tcPodcastBriefing"><div class="brf-empty">Loading…</div></div>
+        </div>
+
+        <!-- TZH Briefing -->
+        <div class="briefing-block">
+          <div class="brf-header">
+            <span class="brf-name">
+              <span class="app-dot" style="background:var(--zhist);"></span>
+              The Z Historian
+            </span>
+            <a href="tzh_hq.html" target="_blank" class="brf-link">↗ Open</a>
+          </div>
+          <div id="tzhBriefing">
+            <button class="connect-btn" onclick="setupTzhSync()">📎 Connect TZH status file</button>
+          </div>
+        </div>
+
+        <!-- Bantuwa Briefing -->
+        <div class="briefing-block">
+          <div class="brf-header">
+            <span class="brf-name">
+              <span class="app-dot" style="background:var(--bantuwa);"></span>
+              Bantuwa Content HQ
+            </span>
+            <a href="bantuwa_content_hq.html" target="_blank" class="brf-link">↗ Open</a>
+          </div>
+          <div id="bantwaBriefing">
+            <button class="connect-btn" onclick="setupBantuwaSync()">📎 Connect Bantuwa status file</button>
+          </div>
+        </div>
+
+        <!-- Tomorrow's Brief -->
+        <div class="card card-flex" style="border-left:3px solid var(--gold);">
+          <div class="card-title">Tomorrow's Brief</div>
+          <select class="brief-select" id="brief7bd">
+            <option value="">— Select 7BD domain —</option>
+            <option>Spiritual</option><option>Physical</option><option>Mental</option>
+            <option>Financial</option><option>Relational</option><option>Creational</option>
+            <option>Professional</option><option>Generational</option>
+          </select>
+          <input class="brief-input" type="text" id="briefAction"
+                 placeholder="One concrete action for tomorrow…">
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button class="btn btn-gold" style="flex:1;" onclick="pushBrief()">Push to Brief</button>
+            <button class="btn btn-ghost btn-sm" onclick="setupBriefSync()" title="Set output file">📎</button>
+          </div>
+          <div id="briefStatus" style="font-size:11px;margin-top:8px;color:var(--text3);"></div>
+        </div>
+
+      </div><!-- /right -->
+    </div><!-- /today-grid -->
+  </div><!-- /panel-today -->
+
+  <!-- ═══════════════ THIS WEEK ═══════════════ -->
+  <div class="panel" id="panel-week">
+    <div id="week90Banner" style="margin-bottom:16px;"></div>
+    <div class="grid-2" style="align-items:start;margin-bottom:20px;">
+      <div class="card">
+        <div class="card-title">
+          This Week's Targets
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-xs btn-ai" onclick="aiPropose('week')">✦ AI Propose</button>
+            <button class="btn btn-ghost btn-xs" onclick="clearDoneWeek()">✓ Clear done</button>
+            <button class="btn btn-ghost btn-xs" onclick="resetWeek()">↺ Reset</button>
+          </div>
+        </div>
+        <div id="weekList"></div>
+        <div id="aiProposalWeek"></div>
+        <div class="add-row">
+          <input type="text" id="weekInput" placeholder="Weekly target…"
+                 onkeydown="if(event.key==='Enter')addWeekTask()">
+          <select id="weekTag">
+            <option value="bantuwa">Bantuwa</option>
+            <option value="zhist">Z Historian</option>
+            <option value="va">Take Command</option>
+            <option value="y4pz">Misc</option>
+            <option value="army">Army</option>
+          </select>
+          <button class="btn btn-gold" onclick="addWeekTask()">Add</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          Weekly Rhythm — Today
+          <button class="btn btn-ghost btn-xs" onclick="switchTab('schedule')">Full →</button>
+        </div>
+        <div id="weekRhythmQuick" style="font-size:13px;line-height:1.9;color:var(--text2);"></div>
+      </div>
+    </div>
+    <div class="sec-title">Quarter Progress</div>
+    <div class="grid-3" id="weekOkrWidgets"></div>
+  </div>
+
+  <!-- ═══════════════ OKRs ═══════════════ -->
+  <div class="panel" id="panel-okrs">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:13px;color:var(--text3);">Quarterly objectives + up to 3 key results per area. Synced to Supabase.</div>
+      <span id="okrSbBadge" style="font-size:11px;color:var(--text3);"></span>
+    </div>
+    <div id="okrList"></div>
+  </div>
+
+  <!-- ═══════════════ AILA SPRINT ═══════════════ -->
+  <div class="panel" id="panel-aila">
+
+    <!-- Banner / Countdown -->
+    <div class="aila-banner">
+      <div class="aila-banner-left">
+        <div class="aila-sprint-label">Priority Sprint · Phase 1</div>
+        <div class="aila-sprint-title">AI Leadership Academy (AILA)</div>
+        <div class="aila-sprint-sub">Foundation → Pilot-Ready MVP · Aug – Sep 2026</div>
+      </div>
+      <div class="aila-countdown-group">
+        <div class="aila-cd-block">
+          <div class="aila-cd-num" id="ailaDaysLeft">--</div>
+          <div class="aila-cd-lbl">Days Left</div>
+        </div>
+        <div class="aila-cd-block">
+          <div class="aila-cd-num" id="ailaWeekNum">--</div>
+          <div class="aila-cd-lbl">Current Week</div>
+        </div>
+        <div class="aila-cd-block">
+          <div class="aila-cd-num" id="ailaPctDone">0%</div>
+          <div class="aila-cd-lbl">Checklist</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8-week tile grid -->
+    <div class="sec-title" style="margin-bottom:12px;">8-Week Sprint Plan</div>
+    <div class="aila-week-grid" id="ailaWeekGrid"></div>
+
+    <!-- Current week detail -->
+    <div class="sec-title" style="margin-bottom:12px;">This Week's Tasks</div>
+    <div id="ailaWeekDetail"></div>
+
+    <!-- Master checklist -->
+    <div class="sec-title" style="margin-bottom:12px;">Master Checklist — 45 Items</div>
+    <div class="aila-checklist-grid" id="ailaMasterChecklist"></div>
+
+  </div>
+
+  <!-- ═══════════════ RHYTHM ═══════════════ -->
+  <div class="panel" id="panel-schedule">
+    <!-- Weekly Operating Rhythm -->
+    <details id="weeklyDetails" open>
+      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <span class="sec-title" style="margin:0;">▾ Weekly Operating Rhythm</span>
+        <span style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" id="schedEditBtn" onclick="event.stopPropagation();toggleSchedEdit()">✎ Edit</button>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();resetWeeklyToDefault()" style="opacity:0.7;font-size:11px;">↺ Reset</button>
+        </span>
+      </summary>
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px;">
+        <table class="sched-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>AM Block 08:00–12:00</th>
+              <th>PM Block 13:00–17:00</th>
+              <th>Anchor</th>
+            </tr>
+          </thead>
+          <tbody id="schedBody"></tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- Daily Non-Negotiables -->
+    <details id="dailyDetails" open>
+      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span class="sec-title" style="margin:0;">▾ Daily Non-Negotiables (Every Day)</span>
+        <button class="btn btn-ghost btn-sm" id="dailyEditBtn" onclick="toggleDailyEdit(event)">✎ Edit</button>
+      </summary>
+      <div class="card" style="margin-bottom:20px;padding:0;overflow:hidden;">
+        <table class="sched-table">
+          <thead><tr><th style="width:130px;">Time</th><th>Block</th></tr></thead>
+          <tbody id="dailyBody"></tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- Daily Scorecard -->
+    <details id="scorecardDetails" open>
+      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span class="sec-title" style="margin:0;">▾ Daily Scorecard</span>
+        <span id="scorecardTodayBadge" style="font-size:12px;font-weight:700;color:var(--gold2);"></span>
+      </summary>
+      <div class="card" style="margin-bottom:20px;">
+        <div id="scorecardChecklist" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+        <div class="divider"></div>
+        <div class="sec-title" style="margin-top:14px;margin-bottom:8px;">Last 7 Days</div>
+        <div id="scorecardHistory"></div>
+        <div id="scorecardWeekCompare" style="font-size:12px;color:var(--text3);margin-top:10px;"></div>
+      </div>
+    </details>
+
+    <!-- Monthly Anchors -->
+    <details id="monthlyDetails" open>
+      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span class="sec-title" style="margin:0;">▾ Monthly Anchors</span>
+      </summary>
+      <div class="card" style="margin-bottom:20px;">
+        <ul id="monthlyList" style="list-style:none;padding:0;margin:0;font-size:13px;line-height:1.9;"></ul>
+        <div id="monthlyAddRow" style="display:none;" class="add-row">
+          <input type="text" id="monthlyInput" placeholder="e.g. Week 1 Mon — strategic review">
+          <button class="btn btn-gold" onclick="addSchedItem('monthly')">Add</button>
+        </div>
+      </div>
+    </details>
+
+    <!-- Quarterly Commitments -->
+    <details id="quarterlyDetails" open>
+      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span class="sec-title" style="margin:0;">▾ Quarterly Commitments</span>
+      </summary>
+      <div class="card">
+        <ul id="quarterlyList" style="list-style:none;padding:0;margin:0;font-size:13px;line-height:1.9;"></ul>
+        <div id="quarterlyAddRow" style="display:none;" class="add-row">
+          <input type="text" id="quarterlyInput" placeholder="Quarterly commitment">
+          <button class="btn btn-gold" onclick="addSchedItem('quarterly')">Add</button>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- ═══════════════ REVIEW ═══════════════ -->
+  <div class="panel" id="panel-review">
+    <details id="deliverablesDetails" open>
+      <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span class="sec-title" style="margin:0;">▾ Weekly Deliverables</span>
+        <span id="deliverablesBadge" style="font-size:12px;font-weight:700;color:var(--gold2);"></span>
+      </summary>
+      <div class="card" style="margin-bottom:14px;">
+        <div id="deliverablesChecklist" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+        <div class="divider"></div>
+        <div class="sec-title" style="margin-top:14px;margin-bottom:8px;">Past Weeks</div>
+        <div id="deliverablesHistory"></div>
+      </div>
+    </details>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">Friday Review Protocol — 30 minutes</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.9;margin-bottom:16px;">
+        <strong style="color:var(--gold2);">Institutional Capital</strong> — Did VANGUARD move toward a defined pilot pathway? Any institutional move this week?<br>
+        <strong style="color:var(--gold2);">Intellectual Capital</strong> — Was research written, a document finished, or knowledge deepened?<br>
+        <strong style="color:var(--gold2);">Social Capital</strong> — Which of the 10-for-the-year deep relationships was advanced?<br>
+        <strong style="color:var(--gold2);">Public Capital</strong> — Did Z Historian output happen? What was published?<br>
+        <strong style="color:var(--gold2);">Economic Capital</strong> — Did Bantuwa's reset produce one actionable step toward 2027 strategy?<br>
+        <strong style="color:var(--text3);font-size:11px;">Stop list check: anything random started? anything unfinished carried forward? anything to drop?</strong>
+      </div>
+      <textarea class="review-ta" id="reviewText"
+        placeholder="Write this week's review here…&#10;&#10;Start with: Week of [date] — …"></textarea>
+      <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
+        <button class="btn btn-gold" onclick="saveReview()">Save Review</button>
+        <button class="btn btn-ghost" onclick="exportReview()">Export .txt</button>
+        <span id="reviewSavedAt" style="font-size:11px;color:var(--text3);margin-left:auto;"></span>
+      </div>
+    </div>
+    <div class="sec-title">Past Reviews</div>
+    <div id="pastReviews"></div>
+  </div>
+
+  <!-- ═══════════════ 90-DAY PLAN ═══════════════ -->
+  <div class="panel" id="panel-plan90">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <div>
+        <div class="sec-title" style="margin:0;">90-Day Execution Plan</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px;">September – December 2026 · Companion to Master Plan 2026–2030</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="plan90Progress" style="font-size:13px;font-weight:700;color:var(--gold2);"></span>
+      </div>
+    </div>
+
+    <!-- Quarter at a glance -->
+    <div class="card" style="margin-bottom:16px;padding:12px 16px;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center;">
+        <div><div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.05em;">SEP</div><div style="font-size:12px;color:var(--text2);margin-top:4px;">Consolidate & Ukraine</div></div>
+        <div><div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.05em;">OCT</div><div style="font-size:12px;color:var(--text2);margin-top:4px;">Ukraine → Intelligence</div></div>
+        <div><div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.05em;">NOV</div><div style="font-size:12px;color:var(--text2);margin-top:4px;">Intelligence → Capability</div></div>
+        <div><div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.05em;">DEC</div><div style="font-size:12px;color:var(--text2);margin-top:4px;">Institutionalize & Close</div></div>
+      </div>
+    </div>
+
+    <!-- Milestone tracker -->
+    <div id="plan90List"></div>
+
+    <!-- Guardrails -->
+    <details style="margin-top:16px;">
+      <summary style="cursor:pointer;list-style:none;font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.08em;padding:6px 0;">▾ GUARDRAILS — THE BANTUWA RULE & STOP LIST</summary>
+      <div class="card" style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.8;">
+        <div style="color:var(--gold2);font-weight:600;margin-bottom:6px;">Five Questions before ANY new build — if any answer is unclear, DO NOT BUILD:</div>
+        <div>1. What problem? &nbsp; 2. Who has it? &nbsp; 3. Who owns it? &nbsp; 4. Who will champion it? &nbsp; 5. How will adoption occur?</div>
+        <div style="color:var(--gold2);font-weight:600;margin:10px 0 6px;">Stop List:</div>
+        <div>① Random product development &nbsp; ② Chasing every opportunity &nbsp; ③ Confusing appreciation with traction</div>
+        <div>④ Measuring by user numbers &nbsp; ⑤ Working as the entire organization &nbsp; ⑥ Starting before finishing &nbsp; ⑦ Equal energy on everything</div>
+        <div style="margin-top:8px;color:var(--text3);">This quarter: LCCOC/Church App stays in Idea Vault. Any new concept → Idea Vault by default.</div>
+      </div>
+    </details>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ═══ SETUP MODAL ═══ -->
+<div class="overlay" id="setupOverlay" style="display:none;" onclick="if(event.target===this)closeSetup()">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2>⚙ Setup & Configuration</h2>
+      <button class="btn-icon" onclick="closeSetup()" style="font-size:20px;">×</button>
+    </div>
+
+    <div class="modal-section">
+      <h3>Supabase Connection</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;" id="modalSbDot"></span>
+        <span id="modalSbStatus" style="font-size:13px;color:var(--text2);">Checking…</span>
+      </div>
+      <div id="modalSbTables"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="modal-section">
+      <details>
+        <summary style="cursor:pointer;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);list-style:none;display:flex;align-items:center;gap:6px;">
+          <span id="sqlToggleIcon">▶</span> First-Time Table Setup
+          <span style="font-weight:400;font-size:11px;color:var(--text3);text-transform:none;letter-spacing:0;margin-left:4px;">(run once in Supabase, then collapse)</span>
+        </summary>
+        <div style="margin-top:10px;">
+          <p style="margin-bottom:8px;">Run this SQL once in your <a href="https://supabase.com/dashboard/project/vdlhcxbldiszghofghgi/sql" target="_blank" style="color:var(--blue);">Supabase SQL Editor</a> to enable full sync:</p>
+          <div class="sql-block" id="setupSql"></div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="copySql()">Copy SQL</button>
+        </div>
+      </details>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="modal-section">
+      <h3>File Sync Connections</h3>
+      <p>Connect each app's exported status file for live briefings. Requires Chrome or Edge.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;">TC 7BD Tracker</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;" id="tcSyncNameModal">Not connected</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-sm" onclick="setupTcSync()">📎 Pick file</button>
+            <button class="btn btn-ghost btn-sm" onclick="loadTcTasks()">⟳</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;">TZH Status</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;" id="tzhSyncNameModal">Not connected</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="setupTzhSync()">📎 Pick file</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;">Bantuwa Status</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;" id="bantwaSyncNameModal">Not connected</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="setupBantuwaSync()">📎 Pick file</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;">Morning Brief Output</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;" id="briefSyncNameModal">Not connected</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="setupBriefSync()">📎 Set file</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="modal-section">
+      <h3>Data Backup</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="exportAllData()">⬇ Export JSON</button>
+        <button class="btn btn-ghost btn-sm" onclick="importData()">⬆ Import JSON</button>
+        <button class="btn btn-sm" style="background:rgba(240,96,96,.12);color:var(--red);border:1px solid rgba(240,96,96,.2);" onclick="clearAllData()">⚠ Clear local data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   VS COMMAND CENTER v3 — Script
+   ═══════════════════════════════════════════════════ */
+
+const SB_URL = 'https://vdlhcxbldiszghofghgi.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDY2NjUsImV4cCI6MjA5NzU4MjY2NX0.28RjGPZdbzJ2gYAfLo6Fn26cQmKp9KFbPnIaBgg0YC8';
+const LS_KEY  = 'vs_cc_v3';
+const SCHEDULE_VER = 8; // bump when DEFAULT schedule changes to force auto-update
+
+const SETUP_SQL = `-- Run once in Supabase SQL Editor
+CREATE TABLE IF NOT EXISTS cc_tasks (
+  id         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  list_key   text NOT NULL,
+  text       text NOT NULL,
+  tag        text DEFAULT 'bantuwa',
+  done       boolean DEFAULT false,
+  tc_domain  text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE cc_tasks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all" ON cc_tasks
+  FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS cc_okrs (
+  id         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  area_key   text UNIQUE NOT NULL,
+  title      text NOT NULL,
+  krs        jsonb DEFAULT '[]',
+  updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE cc_okrs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all" ON cc_okrs
+  FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS cc_reviews (
+  id         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  week_key   text UNIQUE NOT NULL,
+  notes      text DEFAULT '',
+  updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE cc_reviews ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all" ON cc_reviews
+  FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS tc_status (
+  user_key        text PRIMARY KEY,
+  active_tasks    jsonb DEFAULT '[]',
+  domain_scores   jsonb DEFAULT '{}',
+  overdue_count   int DEFAULT 0,
+  due_today_count int DEFAULT 0,
+  updated_at      timestamptz DEFAULT now()
+);
+ALTER TABLE tc_status ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all" ON tc_status
+  FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS tzh_status (
+  user_key       text PRIMARY KEY,
+  episodes       jsonb DEFAULT '[]',
+  in_production  int DEFAULT 0,
+  published      int DEFAULT 0,
+  updated_at     timestamptz DEFAULT now()
+);
+ALTER TABLE tzh_status ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all" ON tzh_status
+  FOR ALL TO anon USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS bantuwa_status (
+  user_key        text PRIMARY KEY,
+  active_projects jsonb DEFAULT '[]',
+  pending_tasks   jsonb DEFAULT '[]',
+  quarter_focus   text DEFAULT '',
+  updated_at      timestamptz DEFAULT now()
+);
+ALTER TABLE bantuwa_status ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_all" ON bantuwa_status
+  FOR ALL TO anon USING (true) WITH CHECK (true);`;
+
+/* ── SUPABASE CLIENT ── */
+const SB = {
+  h() {
+    return {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    };
+  },
+  async get(table, q='') {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}${q}`, { headers: this.h() });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async upsert(table, rows, q='') {
+    const h = { ...this.h(), 'Prefer': 'resolution=merge-duplicates,return=representation' };
+    const r = await fetch(`${SB_URL}/rest/v1/${table}${q}`, {
+      method:'POST', headers:h,
+      body: JSON.stringify(Array.isArray(rows)?rows:[rows])
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async patch(table, q, data) {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}${q}`, {
+      method:'PATCH', headers:this.h(), body:JSON.stringify(data)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async del(table, q) {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}${q}`, {
+      method:'DELETE', headers:this.h()
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.status===204 ? null : r.json();
+  }
+};
+
+/* ── OKR AREAS ── */
+const OKR_AREAS = [
+  { key:'army',    label:'Engine I — VANGUARD',        color:'#1d4ed8' },
+  { key:'zhist',   label:'Engine II — The Z Historian', color:'#15803d' },
+  { key:'y4pz',    label:'Engine III — Youth4Peace Zambia', color:'#b45309' },
+  { key:'bantuwa', label:'Engine IV — Bantuwa Innovate', color:'#7c3aed' },
+  { key:'va',      label:'Personal — Research & 7BD',  color:'#6b7280' }
+];
+const TAG_CLS = { army:'tag-army', bantuwa:'tag-bantuwa', zhist:'tag-zhist', va:'tag-va', y4pz:'tag-y4pz', aila:'tag-aila' };
+const TAG_LBL = { army:'VANGUARD', bantuwa:'Bantuwa', zhist:'Z Hist', va:'Personal', y4pz:'Y4PZ', aila:'AILA' };
+
+const OKR_SEEDS = {
+  army:    { title:'Establish VANGUARD pilot pathway — Ukraine-validated',
+             krs:['VANGUARD-ARIS concept paper (Sep)','Zambia Army Military Innovation Model (Nov)','Project Vanguard Framework presented to leadership (Dec)'] },
+  zhist:   { title:'Build consistent Z Historian publishing cadence',
+             krs:['12-Month Content Strategy drafted (Oct)','Weekly publishing maintained every Friday Q4'] },
+  y4pz:    { title:'Establish Y4PZ national strategic position',
+             krs:['YPS SENTINEL concept paper submitted to Ministry (Sep)','Y4PZ National Positioning Strategy (Oct)'] },
+  bantuwa: { title:'Complete Bantuwa reset — 2027 strategy ready',
+             krs:['Portfolio Register — all initiatives classified (Sep)','Bantuwa 2027 Strategy finalized (Nov)'] },
+  va:      { title:'Ukraine mission → institutional intelligence',
+             krs:['Ukraine Strategic Mission Report (Oct)','Policy Brief — Lessons from Ukraine (Oct)','PhD proposal refined with Ukraine field research (Dec)'] }
+};
+
+/* ── DEFAULT STATE ── */
+const DEFAULT = {
+  today: [], week: [], misc: [], okrs: {}, scheduleVersion: SCHEDULE_VER,
+  milestones90: [
+    { id:1,  text:'Portfolio Register — all initiatives classified (Active / Developing / Paused / Archived)', target:'2026-09-20', week:'W1', priority:'Priority 1 — Consolidation', done:false },
+    { id:2,  text:'Ukraine Mission Plan finalized — objectives, question framework, contact strategy, Vanguard-validation framework', target:'2026-09-20', week:'W1', priority:'Priority 2 — Ukraine', done:false },
+    { id:3,  text:'VANGUARD-ARIS concept paper — complete draft', target:'2026-09-27', week:'W2', priority:'Priority 3 — VANGUARD', done:false },
+    { id:4,  text:'YPS SENTINEL concept paper submitted to Ministry of Youth, Sport and Arts', target:'2026-09-27', week:'W2', priority:'Priority 6 — Y4PZ', done:false },
+    { id:5,  text:'Ukraine Strategic Dialogue executed — daily field notes collected against 5 intelligence themes', target:'2026-09-27', week:'W2', priority:'Priority 2 — Ukraine', done:false },
+    { id:6,  text:'Z Historian 12-Month Content Strategy drafted', target:'2026-10-04', week:'W3', priority:'Priority 5 — Z Historian', done:false },
+    { id:7,  text:'Ukraine Strategic Mission Report complete and circulated', target:'2026-10-11', week:'W4 · Day 14', priority:'Priority 2 — Ukraine', done:false },
+    { id:8,  text:'Policy Brief — Lessons from Ukraine for the Next-Generation Zambia Army — complete', target:'2026-10-27', week:'W6 · Day 30', priority:'Priority 2 — Ukraine', done:false },
+    { id:9,  text:'Y4PZ National Positioning Strategy — clarify national strategic position', target:'2026-10-31', week:'W6', priority:'Priority 6 — Y4PZ', done:false },
+    { id:10, text:'Bantuwa 2027 Strategy — what Bantuwa does, does not do, who it serves, how it creates value', target:'2026-11-15', week:'W9', priority:'Priority 4 — Bantuwa Reset', done:false },
+    { id:11, text:'Zambia Army Military Innovation Model — complete (Identify→Understand→Innovate→Design→Experiment→Validate→Adapt→Transition→Scale→Learn)', target:'2026-11-11', week:'W9 · Day 45', priority:'Priority 2/3 — Ukraine/VANGUARD', done:false },
+    { id:12, text:'Project Vanguard Framework — Ukraine-integrated, complete as finished document', target:'2026-11-26', week:'W11 · Day 60', priority:'Priority 3 — VANGUARD', done:false },
+    { id:13, text:'PhD proposal refined with Ukraine field research — target university list narrowed', target:'2026-12-31', week:'W15–16', priority:'Academic Exploitation', done:false },
+    { id:14, text:'Strategic Recommendations presented to relevant leadership and institutional stakeholders', target:'2026-12-20', week:'W14 · Day 90', priority:'Priority 2 — Ukraine close-out', done:false },
+    { id:15, text:'2026 Year-End Review complete — score against 5 capital forms · 2027 opening priorities set', target:'2026-12-31', week:'W16', priority:'Foundation', done:false }
+  ],
+  schedule: {
+    daily: [
+      { time:'05:00–05:30', block:'7BD Morning ritual — prayer, domain log, orient the day' },
+      { time:'05:30–07:00', block:'Protected deep-work block — this week\'s #1 Institutional Action (VANGUARD / R&D). Nothing else takes this slot.' },
+      { time:'07:00–07:30', block:'Knowledge touchpoint — 20 min on one of the 5 domains (Military Innovation / AI / Strategy & Warfare / African Development / Knowledge Systems)' },
+      { time:'07:30–08:00', block:'Two-line close-out prep + transition — what got finished, what today\'s deep-work block is. Five-Question filter any new ideas.' },
+      { time:'08:00–16:00', block:'Zambia Army R&D — primary institutional platform (40% of strategic energy). Use any gap time for VANGUARD, institutional relationships, or knowledge input.' },
+      { time:'16:00–17:30', block:'Buffer / decompress — light admin, no new builds started here.' },
+      { time:'17:30–19:00', block:'Day-theme project — Z Historian (Tue/Thu/Fri) · Bantuwa reset (Mon/Wed) · Y4PZ & Research (varies). One theme, finish before start.' },
+      { time:'19:00–19:30', block:'Feedback batch — comments, DMs, analytics (batched, never reactive mid-day)' },
+      { time:'20:30–21:00', block:'Shutdown — two-line close-out: what got finished today + tomorrow\'s deep-work block. Set Top 3. Run Finish-Before-Start check.' }
+    ],
+    weekly: [
+      { day:'Monday',    am:'Reflection & Planning — review last week vs calendar; name this week\'s Institutional, Public, Strategic-Dev & Relationship actions', pm:'Builder Block — Bantuwa reset work: Bantuwa 2027 Strategy, portfolio reclassification, institutional outreach', anchor:'Plan + Bantuwa' },
+      { day:'Tuesday',   am:'08:00–16:00 Army R&D (use gaps for VANGUARD feature work / pilot prep)', pm:'Builder Block — Z Historian: research, scripting, or drafting next episode', anchor:'VANGUARD + TZH' },
+      { day:'Wednesday', am:'08:00–16:00 Army R&D (use gaps for VANGUARD institutional relationships)', pm:'Builder Block — Bantuwa: one concrete action toward 2027 strategy or institutional outreach', anchor:'VANGUARD + Bantuwa' },
+      { day:'Thursday',  am:'08:00–16:00 Army R&D (use gaps for PhD proposal / research / Y4PZ)', pm:'Builder Block — Z Historian: record video, or edit, or publish. Non-negotiable.', anchor:'VANGUARD + TZH' },
+      { day:'Friday',    am:'08:00–16:00 Army R&D (use gaps for weekly review prep)', pm:'Builder Block — Z Historian: publish OR Friday Review (5 capital forms). One relationship action logged.', anchor:'TZH + Review' },
+      { day:'Saturday',  am:'Deep Work — Z Historian final edit / upload / SEO, OR VANGUARD document work', pm:'Research & Academic — PhD proposal, policy brief, knowledge domain reading', anchor:'Deep Work' },
+      { day:'Sunday',    am:'7BD review · prayer · family · church', pm:'15–30 min reflection: what moved, what stalled, what to stop. Feed into Monday planning.', anchor:'Reset + Strategy' }
+    ],
+    monthly: [
+      'THE FIVE PRIORITIES — Army (credibility & excellence), Bantuwa (build the company), VANGUARD (deliver the flagship), Knowledge (learn, write, teach), Personal (health, family, spiritual life). Every activity must strengthen one of these.',
+      'Week 1 — Build: improve VANGUARD, release improvements',
+      'Week 2 — Sell: present, meet, demonstrate, follow up',
+      'Week 3 — Teach: create AI lessons, write, research',
+      'Week 4 — Influence: publish, speak, network, reflect',
+      'MONTHLY DELIVERABLE — Product: one major improvement',
+      'MONTHLY DELIVERABLE — Business: four institutional meetings',
+      'MONTHLY DELIVERABLE — Clients: one new opportunity created',
+      'MONTHLY DELIVERABLE — Knowledge: one research paper/chapter/article advanced',
+      'MONTHLY DELIVERABLE — Content: four videos, or four articles',
+      'MONTHLY DELIVERABLE — AI: one new training lesson',
+      'MONTHLY DELIVERABLE — Reading: one book completed',
+      'MONTHLY DELIVERABLE — Health: sixteen workouts',
+      '90-DAY MISSION (Aug 2026) — Secure the Zambia Army presentation and pilot: polish the VANGUARD demo, deliver a compelling presentation, gather stakeholder feedback, identify a pilot implementation team, document every question and suggestion. Milestone: presentation completed; pilot pathway agreed or clearly defined.',
+      '90-DAY MISSION (Sep 2026) — Convert interest into active use: refine VANGUARD based on feedback, support pilot users, produce user guides and quick-reference material, capture early success stories. Milestone: active pilot with regular users; first measurable operational benefits identified.',
+      '90-DAY MISSION (Oct 2026) — Build credibility from results: document lessons learned, prepare a professional case study, develop a presentation for external institutions, begin conversations with a second potential client. Milestone: case study completed; pipeline beyond the Army established.'
+    ],
+    quarterly: [
+      'Set 1 Objective + 3 KRs per pillar (Bantuwa AI, Z Historian, Take Command, Ventures, Press)',
+      'Phase review: confirm current phase targets vs actuals — Phase 1 Reset & Rebuild (Aug–Dec 2026) → Phase 2 Validation (2027) → Phase 3 Scale (2028) → Phase 4 Transformation (2029) → Phase 5 Impact Platform (2030)',
+      'Revenue pipeline review — target trajectory toward phase revenue goals',
+      'Bantuwa AI: advance CORTEX-EDU / VANGUARD / SENTINEL proposals with MOE & Defence HQ',
+      'Z Historian: 1 documentary production milestone (script, film, or broadcast pitch); sustain 4 content pillars (African History, Military Leadership, AI & Future Africa, Innovation Stories) at weekly cadence',
+      'Take Command: 1 lecture event, Academy cohort, or consulting assignment delivered',
+      'Ventures: advance next category — Cat 1 cash flow → Cat 2 café / eco-homes pilot',
+      'Publish at least 1 title through Bantuwa Press per quarter',
+      'VANGUARD pilot cadence: Pilot 1 institutional (Nov 2026) → Pilot 2 education sector (Q1 2027) → Pilot 3 gov/private sector (Q2 2027) → first paid revenue contract (Q2–Q3 2027)',
+      'Dec 2027 — Career decision review: Army stay/transition assessed against explicit criteria (access, innovation leadership, credibility, revenue growth)',
+      'SENTINEL disaster-management module launch target — Q1 2028',
+      'Bantuwa Institute for AI & African Knowledge Systems launch target — Q2 2028',
+      'Divisional structure (Bantuwa Defence Technologies, Academy, Media, Research) formalised with named leads — Q1 2029',
+      'Regional market entry sequence (2029–2030): Botswana → Namibia → Kenya → Rwanda → South Africa, one market per quarter'
+    ]
+  },
+  reviews: {},
+  scorecard: {},
+  weeklyDeliverables: {},
+  lastBriefPush: null,
+  protocol: [
+    { time:'05:30–07:00', desc:'Deep work block #1 (Bantuwa or Z Historian writing / strategy)' },
+    { time:'07:30–16:30', desc:'Army duties (Research Officer, LTC)' },
+    { time:'17:00–17:30', desc:'Decompress · physical training' },
+    { time:'18:00–19:30', desc:'Deep work block #2 (build / create / film)' },
+    { time:'20:00–20:30', desc:'Family · admin · review' },
+    { time:'21:00',       desc:"Shutdown: log shipped, plan tomorrow's Top 3" }
+  ]
+};
+
+let S = loadLS();
+let sbOnline = false, sbTasks = false, sbOkrs = false;
+let tcCache = null, schedEditMode = false;
+
+/* ── PERSISTENCE ── */
+function loadLS() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return migrate();
+    const stored = JSON.parse(raw);
+    const s = Object.assign(JSON.parse(JSON.stringify(DEFAULT)), stored);
+    // Auto-apply new schedule defaults when version bumps — check stored version BEFORE merge
+    if ((stored.scheduleVersion || 0) < SCHEDULE_VER) {
+      s.schedule.daily    = JSON.parse(JSON.stringify(DEFAULT.schedule.daily));
+      s.schedule.weekly   = JSON.parse(JSON.stringify(DEFAULT.schedule.weekly));
+      s.schedule.monthly  = JSON.parse(JSON.stringify(DEFAULT.schedule.monthly));
+      s.schedule.quarterly= JSON.parse(JSON.stringify(DEFAULT.schedule.quarterly));
+      s.scheduleVersion   = SCHEDULE_VER;
+    }
+    // Ensure nested schedule sub-keys added after initial save are present
+    if (!s.schedule.daily || !s.schedule.daily.length) s.schedule.daily = JSON.parse(JSON.stringify(DEFAULT.schedule.daily));
+    if (!s.schedule.weekly || !s.schedule.weekly.length) s.schedule.weekly = JSON.parse(JSON.stringify(DEFAULT.schedule.weekly));
+    if (!s.milestones90 || !s.milestones90.length) s.milestones90 = JSON.parse(JSON.stringify(DEFAULT.milestones90));
+    return s;
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT)); }
+}
+function migrate() {
+  try {
+    const old = localStorage.getItem('victorCommandCenter_v2');
+    if (!old) return JSON.parse(JSON.stringify(DEFAULT));
+    const o = JSON.parse(old);
+    const s = JSON.parse(JSON.stringify(DEFAULT));
+    if (o.today) s.today = o.today;
+    if (o.week)  s.week  = o.week;
+    if (o.okrs)  o.okrs.forEach(okr => { s.okrs[okr.tag] = { title:okr.title, krs:okr.krs||[] }; });
+    if (o.review) s.reviews['migrated'] = { notes:o.review, savedAt:new Date().toISOString() };
+    return s;
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT)); }
+}
+function saveLS() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch(e) {} }
+function uid() { return Date.now() + Math.floor(Math.random()*9999); }
+function esc(s) { return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function todayKey() {
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function weekKey() {
+  const d=new Date(), jan1=new Date(d.getFullYear(),0,1);
+  const wk=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  return `${d.getFullYear()}-W${String(wk).padStart(2,'0')}`;
+}
+
+/* ── SUPABASE SYNC ── */
+async function sbPing() {
+  try { await SB.get('cc_tasks','?limit=1'); return true; } catch(e) { return false; }
+}
+async function sbCheckTables() {
+  let tasks=false, okrs=false, reviews=false;
+  try { await SB.get('cc_tasks','?limit=0'); tasks=true; } catch(e) {}
+  try { await SB.get('cc_okrs','?limit=0'); okrs=true; } catch(e) {}
+  try { await SB.get('cc_reviews','?limit=0'); reviews=true; } catch(e) {}
+  return { tasks, okrs, reviews };
+}
+async function sbLoadTasks() {
+  try {
+    const rows = await SB.get('cc_tasks','?order=created_at.asc');
+    S.today = rows.filter(r=>r.list_key==='today').map(r=>({ id:r.id, text:r.text, tag:r.tag, done:r.done, tcDomain:r.tc_domain }));
+    S.week  = rows.filter(r=>r.list_key==='week').map(r=>({ id:r.id, text:r.text, tag:r.tag, done:r.done }));
+    saveLS();
+  } catch(e) { console.warn('sbLoadTasks:',e.message); }
+}
+async function sbSaveTask(task, listKey) {
+  if (!sbTasks) return;
+  try {
+    await SB.upsert('cc_tasks', {
+      id: (String(task.id).length>15 ? task.id : undefined),
+      list_key:listKey, text:task.text, tag:task.tag||'bantuwa',
+      done:task.done||false, tc_domain:task.tcDomain||null,
+      updated_at:new Date().toISOString()
+    });
+  } catch(e) { console.warn('sbSaveTask:',e.message); }
+}
+async function sbDeleteTask(id) {
+  if (!sbTasks) return;
+  try { await SB.del('cc_tasks',`?id=eq.${id}`); } catch(e) {}
+}
+async function sbLoadOKRs() {
+  try {
+    const rows = await SB.get('cc_okrs','');
+    rows.forEach(r => {
+      const local = S.okrs[r.area_key];
+      const remoteKrs = r.krs || [];
+      // Only overwrite local if Supabase has at least as many KRs — prevents stale Supabase data wiping local additions
+      if (!local || remoteKrs.length >= (local.krs||[]).length) {
+        S.okrs[r.area_key] = { title: r.title, krs: remoteKrs };
+      }
+    });
+    saveLS();
+  } catch(e) { console.warn('sbLoadOKRs:',e.message); }
+}
+async function sbSaveOKR(areaKey) {
+  if (!sbOkrs) return;
+  const o = S.okrs[areaKey]; if (!o) return;
+  try {
+    await SB.upsert('cc_okrs', { area_key:areaKey, title:o.title, krs:o.krs, updated_at:new Date().toISOString() }, '?on_conflict=area_key');
+  } catch(e) { console.warn('sbSaveOKR:',e.message); }
+}
+async function sbDeleteOKR(areaKey) {
+  if (!sbOkrs) return;
+  try { await SB.del('cc_okrs',`?area_key=eq.${areaKey}`); } catch(e) {}
+}
+async function sbSaveReview(wk, notes) {
+  try {
+    await SB.upsert('cc_reviews', { week_key:wk, notes, updated_at:new Date().toISOString() }, '?on_conflict=week_key');
+  } catch(e) { console.warn('sbSaveReview:',e.message); }
+}
+
+/* ── INDEXED DB (file handle persistence) ── */
+function _db() {
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open('vs_cc_h',1);
+    r.onupgradeneeded=e=>e.target.result.createObjectStore('h');
+    r.onsuccess=e=>res(e.target.result);
+    r.onerror=()=>rej(r.error);
+  });
+}
+async function getHandle(key) {
+  try {
+    const db=await _db();
+    return new Promise(res=>{
+      const tx=db.transaction('h','readonly'), req=tx.objectStore('h').get(key);
+      req.onsuccess=()=>res(req.result||null);
+      req.onerror=()=>res(null);
+    });
+  } catch(e) { return null; }
+}
+async function setHandle(key,handle) {
+  try {
+    const db=await _db();
+    return new Promise(res=>{
+      const tx=db.transaction('h','readwrite');
+      tx.objectStore('h').put(handle,key);
+      tx.oncomplete=()=>res(true);
+      tx.onerror=()=>res(false);
+    });
+  } catch(e) { return false; }
+}
+async function readJson(key) {
+  const h=await getHandle(key); if(!h) return null;
+  try {
+    let p=await h.queryPermission({mode:'read'});
+    if(p!=='granted') p=await h.requestPermission({mode:'read'});
+    if(p!=='granted') return null;
+    return JSON.parse(await (await h.getFile()).text());
+  } catch(e) { return null; }
+}
+async function writeJson(key, data) {
+  const h=await getHandle(key); if(!h) return false;
+  try {
+    let p=await h.queryPermission({mode:'readwrite'});
+    if(p!=='granted') p=await h.requestPermission({mode:'readwrite'});
+    if(p!=='granted') return false;
+    const w=await h.createWritable();
+    await w.write(JSON.stringify(data,null,2));
+    await w.close();
+    return true;
+  } catch(e) { return false; }
+}
+
+/* ── TC FILE SYNC ── */
+async function setupTcSync() {
+  if(!window.showOpenFilePicker){toast('Requires Chrome or Edge',true);return;}
+  try {
+    const [h]=await window.showOpenFilePicker({
+      types:[{description:'JSON',accept:{'application/json':['.json']}}],
+      startIn:'documents',multiple:false
+    });
+    await setHandle('tc',h);
+    localStorage.setItem('tcFileName',h.name);
+    updateSyncNames();
+    await loadTcTasks();
+    toast('TC Tracker connected');
+  } catch(e){if(e.name!=='AbortError')toast('Failed: '+e.message,true);}
+}
+async function loadTcTasks() {
+  // Try Supabase first (live), fall back to file sync
+  try {
+    const rows=await SB.get('tc_status','?user_key=eq.victor&limit=1');
+    if(rows&&rows.length){
+      const r=rows[0];
+      const data={activeTasks:r.active_tasks||[],overdueCount:r.overdue_count||0,dueTodayCount:r.due_today_count||0,updatedAt:r.updated_at};
+      tcCache=data; renderTcTasks(data);
+      document.getElementById('tcSyncNameModal') && (document.getElementById('tcSyncNameModal').textContent='Live via Supabase · '+new Date(r.updated_at).toLocaleTimeString());
+      return;
+    }
+  } catch(e) {}
+  // Fallback: file sync
+  const data=await readJson('tc');
+  tcCache=data; renderTcTasks(data);
+}
+function renderTcTasks(data) {
+  const el=document.getElementById('tcList');
+  const badge=document.getElementById('tcBadge');
+  if(!data||!Array.isArray(data.activeTasks)){
+    el.innerHTML='<div class="empty">Connect your TC tracker file to see today\'s 7BD tasks.</div>';
+    badge.textContent='—'; return;
+  }
+  const today=todayKey();
+  const due=data.activeTasks.filter(t=>!t.dueDate||t.dueDate<=today);
+  due.sort((a,b)=>(a.dueDate||'9999').localeCompare(b.dueDate||'9999'));
+  badge.textContent=due.length;
+  if(!due.length){el.innerHTML='<div class="empty">No tasks due today in TC Tracker.</div>';return;}
+  const pinned=new Set((S.today||[]).map(t=>t.text));
+  el.innerHTML=due.slice(0,10).map(t=>{
+    const over=t.dueDate&&t.dueDate<today, isT=t.dueDate===today;
+    const dueLabel=!t.dueDate?''
+      :over?`<span class="lbl-overdue">OVERDUE ${t.dueDate}</span>`
+      :isT?`<span class="lbl-today">TODAY</span>`
+      :`<span class="lbl-soon">${t.dueDate}</span>`;
+    const pct=t.progress||0;
+    const isPinned=pinned.has(t.task);
+    return `<div class="tc-row">
+      <div class="tc-body">
+        <div class="tc-title">${esc(t.task)}</div>
+        <div class="tc-meta">
+          <span class="domain-pill">${esc(t.domainIcon||'')} ${esc(t.domainName||t.domainId||'')}</span>
+          ${dueLabel}
+          <span style="font-size:11px;color:var(--text3);">${pct}%</span>
+        </div>
+        ${pct>0?`<div class="pct-bar"><div class="pct-fill" style="width:${pct}%"></div></div>`:''}
+      </div>
+      <button class="btn-pin ${isPinned?'pinned':''}"
+        onclick="pinToTop3(${JSON.stringify(t.task).replace(/"/g,'&quot;')},${JSON.stringify(t.domainName||t.domainId||'').replace(/"/g,'&quot;')})">
+        ${isPinned?'✓ Pinned':'Pin ↑'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+/* ── TC PODCAST (Supabase live) ── */
+async function loadTCPodcast() {
+  try {
+    const eps=await SB.get('episodes','?order=episode_number.desc&limit=20');
+    renderTCPodcast(eps);
+  } catch(e) {
+    const el=document.getElementById('tcPodcastBriefing');
+    if(el) el.innerHTML='<div class="brf-empty">Could not load podcast data.</div>';
+  }
+}
+function renderTCPodcast(eps) {
+  const el=document.getElementById('tcPodcastBriefing'); if(!el) return;
+  if(!eps||!eps.length){el.innerHTML='<div class="brf-empty">No episodes yet.</div>';return;}
+  const pub=eps.filter(e=>e.published).length;
+  const latest=eps[0];
+  const cats=[...new Set(eps.map(e=>e.category).filter(Boolean))];
+  el.innerHTML=`
+    <div class="brf-stat" style="border-top:none;padding-top:0;">
+      <span>Episodes published</span><strong>${pub}</strong>
+    </div>
+    <div class="brf-stat">
+      <span>Latest episode</span>
+      <strong>EP${String(latest.episode_number).padStart(2,'0')} — ${esc(latest.category||'')}</strong>
+    </div>
+    <div class="brf-stat">
+      <span style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(latest.title)}">${esc(latest.title)}</span>
+      <span style="font-size:10px;color:${latest.published?'var(--green)':'var(--text3)'};">${latest.published?'● Published':'○ Draft'}</span>
+    </div>
+    <div class="brf-stat">
+      <span>Topics covered</span>
+      <span style="font-size:11px;color:var(--text3);">${cats.slice(0,3).join(' · ')}</span>
+    </div>`;
+}
+
+/* ── TZH FILE SYNC ── */
+async function setupTzhSync() {
+  if(!window.showOpenFilePicker){toast('Requires Chrome or Edge',true);return;}
+  try {
+    const [h]=await window.showOpenFilePicker({
+      types:[{description:'JSON',accept:{'application/json':['.json']}}],
+      startIn:'documents',multiple:false
+    });
+    await setHandle('tzh',h);
+    localStorage.setItem('tzhFileName',h.name);
+    updateSyncNames();
+    await loadTzhBriefing();
+    toast('TZH status connected');
+  } catch(e){if(e.name!=='AbortError')toast('Failed: '+e.message,true);}
+}
+async function loadTzhBriefing() {
+  // Try Supabase first (cross-device live)
+  try {
+    const rows = await SB.get('tzh_status','?user_key=eq.victor&limit=1');
+    if (rows&&rows.length) { renderTzhBriefing(rows[0]); return; }
+  } catch(e) {}
+  // Try shared localStorage (same-device fallback)
+  try {
+    const raw = localStorage.getItem('vs_sync_tzh');
+    if (raw) { renderTzhBriefing(JSON.parse(raw)); return; }
+  } catch(e) {}
+  // Last resort: file sync
+  renderTzhBriefing(await readJson('tzh'));
+}
+function renderTzhBriefing(data) {
+  const el=document.getElementById('tzhBriefing'); if(!el) return;
+  if(!data){el.innerHTML='<button class="connect-btn" onclick="setupTzhSync()">📎 Connect TZH status file</button>';return;}
+  const eps=data.episodes||[];
+  const inProd=eps.filter(e=>e.status&&e.status!=='published').length;
+  const pub=eps.filter(e=>e.status==='published').length;
+  const next=eps.find(e=>e.status&&e.status!=='published');
+  el.innerHTML=`
+    <div class="brf-stat" style="border-top:none;padding-top:0;">
+      <span>In production</span><strong>${inProd}</strong>
+    </div>
+    <div class="brf-stat"><span>Published</span><strong>${pub}</strong></div>
+    ${next?`<div class="brf-stat">
+      <span>Next up</span>
+      <strong style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(next.title)}">${esc(next.title||'—')}</strong>
+    </div>
+    <div class="brf-stat">
+      <span>Status</span>
+      <span style="font-size:10px;background:var(--bg4);padding:2px 7px;border-radius:8px;color:var(--text3);">${esc(next.status)}</span>
+    </div>`:''}
+    <button class="connect-btn" style="border-style:solid;margin-top:8px;" onclick="loadTzhBriefing()">⟳ Refresh</button>`;
+}
+
+/* ── BANTUWA FILE SYNC ── */
+async function setupBantuwaSync() {
+  if(!window.showOpenFilePicker){toast('Requires Chrome or Edge',true);return;}
+  try {
+    const [h]=await window.showOpenFilePicker({
+      types:[{description:'JSON',accept:{'application/json':['.json']}}],
+      startIn:'documents',multiple:false
+    });
+    await setHandle('bantwa',h);
+    localStorage.setItem('bantuwaFileName',h.name);
+    updateSyncNames();
+    await loadBantwaBriefing();
+    toast('Bantuwa status connected');
+  } catch(e){if(e.name!=='AbortError')toast('Failed: '+e.message,true);}
+}
+async function loadBantwaBriefing() {
+  // Try Supabase first (cross-device live)
+  try {
+    const rows = await SB.get('bantuwa_status','?user_key=eq.victor&limit=1');
+    if (rows&&rows.length) {
+      const r=rows[0];
+      renderBantwaBriefing({ activeProjects: r.active_projects||[], pendingTasks: r.pending_tasks||[], quarterFocus: r.quarter_focus||'' });
+      return;
+    }
+  } catch(e) {}
+  // Try shared localStorage (same-device fallback)
+  try {
+    const raw = localStorage.getItem('vs_sync_bantuwa');
+    if (raw) { renderBantwaBriefing(JSON.parse(raw)); return; }
+  } catch(e) {}
+  // Last resort: file sync
+  renderBantwaBriefing(await readJson('bantwa'));
+}
+function renderBantwaBriefing(data) {
+  const el=document.getElementById('bantwaBriefing'); if(!el) return;
+  if(!data){el.innerHTML='<button class="connect-btn" onclick="setupBantuwaSync()">📎 Connect Bantuwa status file</button>';return;}
+  const active=(data.activeProjects||[]).length;
+  const pending=(data.pendingTasks||[]).length;
+  const focus=data.quarterFocus||'';
+  el.innerHTML=`
+    <div class="brf-stat" style="border-top:none;padding-top:0;">
+      <span>Active projects</span><strong>${active}</strong>
+    </div>
+    <div class="brf-stat"><span>Pending tasks</span><strong>${pending}</strong></div>
+    ${focus?`<div class="brf-stat">
+      <span>Q focus</span>
+      <strong style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(focus)}</strong>
+    </div>`:''}
+    <button class="connect-btn" style="border-style:solid;margin-top:8px;" onclick="loadBantwaBriefing()">⟳ Refresh</button>`;
+}
+
+/* ── BRIEF FILE SYNC ── */
+async function setupBriefSync() {
+  if(!window.showSaveFilePicker){toast('Requires Chrome or Edge',true);return;}
+  try {
+    const h=await window.showSaveFilePicker({
+      suggestedName:'tomorrow-brief.json',startIn:'documents',
+      types:[{description:'JSON',accept:{'application/json':['.json']}}]
+    });
+    await setHandle('brief',h);
+    localStorage.setItem('briefFileName',h.name);
+    updateSyncNames();
+    toast('Brief output file set');
+  } catch(e){if(e.name!=='AbortError')toast('Failed: '+e.message,true);}
+}
+async function pushBrief() {
+  const top3=(S.today||[]).filter(t=>!t.done).slice(0,3);
+  if(!top3.length){setBriefStatus('Add Top 3 tasks first.',true);return;}
+  const domain=document.getElementById('brief7bd').value;
+  const action=document.getElementById('briefAction').value.trim();
+  const tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  const dateStr=tomorrow.toISOString().split('T')[0];
+  const payload={
+    lastUpdated:new Date().toISOString(), forDate:dateStr,
+    top3:top3.map(t=>({text:t.text,tag:t.tag||null})),
+    domain7bd:domain||null, action7bd:action||null
+  };
+  S.lastBriefPush={...payload,pushedAt:new Date().toISOString()};
+  saveLS();
+  const ok=await writeJson('brief',payload);
+  if(ok){setBriefStatus(`Pushed for ${dateStr} at ${new Date().toLocaleTimeString()}`,false);toast('Brief pushed');}
+  else setBriefStatus('No brief file set. Click 📎 to connect one.',true);
+}
+function setBriefStatus(msg,err) {
+  const el=document.getElementById('briefStatus');
+  el.textContent=msg; el.style.color=err?'var(--red)':'var(--green)';
+}
+function updateSyncNames() {
+  const s=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  s('tcSyncNameModal',  localStorage.getItem('tcFileName')||'Not connected');
+  s('tzhSyncNameModal', localStorage.getItem('tzhFileName')||'Not connected');
+  s('bantwaSyncNameModal',localStorage.getItem('bantuwaFileName')||'Not connected');
+  s('briefSyncNameModal',localStorage.getItem('briefFileName')||'Not connected');
+}
+
+/* ── TODAY — TOP 3 ── */
+function addTop3() {
+  const inp=document.getElementById('top3Input');
+  const tag=document.getElementById('top3Tag').value;
+  const text=inp.value.trim(); if(!text) return;
+  if((S.today||[]).length>=3){toast('Top 3 is full — complete or remove a task first',true);return;}
+  const task={id:uid(),text,tag,done:false};
+  S.today.push(task);
+  inp.value=''; saveLS(); renderToday();
+  sbSaveTask(task,'today');
+}
+function toggleTop3(idx) {
+  const t=S.today[idx]; if(!t) return;
+  t.done=!t.done; saveLS(); renderToday();
+  if(sbTasks&&t.id) SB.patch('cc_tasks',`?id=eq.${t.id}`,{done:t.done,updated_at:new Date().toISOString()}).catch(()=>{});
+}
+function deleteTop3(idx) {
+  const removed=S.today.splice(idx,1)[0];
+  saveLS(); renderToday();
+  if(removed&&removed.id) sbDeleteTask(removed.id);
+}
+function pinToTop3(text,domain) {
+  if((S.today||[]).some(t=>t.text===text)){toast('Already in Top 3');return;}
+  if((S.today||[]).length>=3){
+    if(!confirm('Top 3 is full. Replace oldest?')) return;
+    const removed=S.today.shift(); sbDeleteTask(removed.id);
+  }
+  const task={id:uid(),text,tag:'va',done:false,tcDomain:domain};
+  S.today.push(task);
+  saveLS(); renderToday(); renderTcTasks(tcCache);
+  sbSaveTask(task,'today');
+  toast('Pinned to Top 3');
+}
+function renderToday() {
+  const el=document.getElementById('top3List');
+  const badge=document.getElementById('top3Badge');
+  const items=S.today||[];
+  const done=items.filter(t=>t.done).length;
+  badge.textContent=`${done} / ${items.length}`;
+  if(!items.length){
+    el.innerHTML='<div class="empty">Set your 3 most important actions for today.</div>';
+    document.getElementById('top3AddRow').style.display='flex'; return;
+  }
+  el.innerHTML=items.map((t,i)=>`
+    <div class="top3-item ${t.done?'done':''}">
+      <div class="top3-num" onclick="toggleTop3(${i})">${t.done?'✓':i+1}</div>
+      <div class="top3-body">
+        <div class="top3-text" onclick="toggleTop3(${i})">${esc(t.text)}</div>
+        <div class="top3-meta">
+          ${t.tcDomain?`<span class="tag tag-tc">${esc(t.tcDomain)}</span>`:`<span class="tag ${TAG_CLS[t.tag]||''}">${TAG_LBL[t.tag]||t.tag||''}</span>`}
+        </div>
+      </div>
+      <div class="top3-actions">
+        <button class="btn-icon" onclick="deleteTop3(${i})" title="Remove">×</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('top3AddRow').style.display=items.length>=3?'none':'flex';
+}
+
+/* ── WEEK TASKS ── */
+function addWeekTask() {
+  const inp=document.getElementById('weekInput');
+  const tag=document.getElementById('weekTag').value;
+  const text=inp.value.trim(); if(!text) return;
+  const task={id:uid(),text,tag,done:false};
+  S.week.push(task); inp.value=''; saveLS(); renderWeek();
+  sbSaveTask(task,'week');
+}
+function toggleWeekTask(id) {
+  const t=S.week.find(x=>x.id===id); if(!t) return;
+  t.done=!t.done; saveLS(); renderWeek();
+  if(sbTasks) SB.patch('cc_tasks',`?id=eq.${id}`,{done:t.done,updated_at:new Date().toISOString()}).catch(()=>{});
+}
+function deleteWeekTask(id) {
+  S.week=S.week.filter(x=>x.id!==id);
+  saveLS(); renderWeek(); sbDeleteTask(id);
+}
+function clearDoneWeek() {
+  const removed=S.week.filter(t=>t.done);
+  S.week=S.week.filter(t=>!t.done);
+  saveLS(); renderWeek();
+  removed.forEach(t=>sbDeleteTask(t.id));
+  toast(`Cleared ${removed.length} completed task${removed.length!==1?'s':''}`);
+}
+function resetWeek() {
+  if(!confirm('Clear all week tasks and start fresh?')) return;
+  S.week.forEach(t=>sbDeleteTask(t.id));
+  S.week=[]; saveLS(); renderWeek(); toast('Week reset');
+}
+function renderWeek() {
+  const el=document.getElementById('weekList');
+  const items=S.week||[];
+  if(!items.length){el.innerHTML='<div class="empty">Add your week\'s targets.</div>';return;}
+  el.innerHTML=items.map(t=>`
+    <div class="week-item ${t.done?'done':''}">
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggleWeekTask('${t.id}')">
+      <span class="week-text" onclick="toggleWeekTask('${t.id}')">${esc(t.text)}</span>
+      <span class="tag ${TAG_CLS[t.tag]||''}" style="flex-shrink:0;">${TAG_LBL[t.tag]||t.tag||''}</span>
+      <button class="btn-icon" onclick="deleteWeekTask('${t.id}')">×</button>
+    </div>`).join('');
+  renderWeekOkrWidgets();
+}
+function renderWeek90Banner() {
+  const el=document.getElementById('week90Banner'); if(!el) return;
+  const ms=S.milestones90||[];
+  const now=new Date();
+  const dow=now.getDay();
+  const monday=new Date(now);
+  monday.setDate(now.getDate()-(dow===0?6:dow-1));
+  monday.setHours(0,0,0,0);
+  const sunday=new Date(monday);
+  sunday.setDate(monday.getDate()+6);
+  sunday.setHours(23,59,59,999);
+  const thisWeek=ms.filter(m=>{const d=new Date(m.target);return d>=monday&&d<=sunday;});
+  const overdue=ms.filter(m=>{const d=new Date(m.target);return !m.done&&d<monday;});
+  if(!thisWeek.length&&!overdue.length){el.innerHTML='';return;}
+  let html=`<div style="background:linear-gradient(135deg,rgba(212,175,55,0.08),rgba(212,175,55,0.03));border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:14px 16px;">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gold2);margin-bottom:10px;">◈ 90-Day Focus — This Week</div>`;
+  thisWeek.forEach(m=>{
+    html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <input type="checkbox" ${m.done?'checked':''} onchange="toggleMilestone90(${m.id})" style="accent-color:var(--gold2);">
+      <span style="${m.done?'text-decoration:line-through;color:var(--text3);':'color:var(--text);'}font-size:13px;">${esc(m.text)}</span>
+      <span style="font-size:10px;color:var(--text3);margin-left:auto;white-space:nowrap;">${m.priority}</span>
+    </div>`;
+  });
+  if(overdue.length){
+    html+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#ef4444;margin-top:8px;margin-bottom:6px;">⚠ Overdue</div>`;
+    overdue.forEach(m=>{
+      html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <input type="checkbox" onchange="toggleMilestone90(${m.id})" style="accent-color:var(--gold2);">
+        <span style="color:#ef4444;font-size:12px;">${esc(m.text)}</span>
+        <span style="font-size:10px;color:var(--text3);margin-left:auto;white-space:nowrap;">Due ${m.target}</span>
+      </div>`;
+    });
+  }
+  html+=`</div>`;
+  el.innerHTML=html;
+}
+function renderWeekRhythmQuick() {
+  const el=document.getElementById('weekRhythmQuick'); if(!el) return;
+  const day=new Date().getDay();
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  el.innerHTML=(S.schedule.weekly||[]).map(row=>{
+    const isToday=days[day]===row.day;
+    return `<div style="${isToday?'color:var(--gold2);font-weight:600;':''}">${isToday?'▶ ':'  '}<strong>${row.day}:</strong> ${esc(row.am||'—')}</div>`;
+  }).join('');
+}
+function renderWeekOkrWidgets() {
+  const el=document.getElementById('weekOkrWidgets'); if(!el) return;
+  el.innerHTML=OKR_AREAS.map(area=>{
+    const o=S.okrs[area.key];
+    if(!o) return `<div class="card-sm" style="border-left:2px solid ${area.color};">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">${area.label}</div>
+      <div style="font-size:12px;color:var(--text3);font-style:italic;">No objective set</div>
+    </div>`;
+    const avg=o.krs.length?Math.round(o.krs.reduce((s,k)=>s+(k.progress||0),0)/o.krs.length):0;
+    return `<div class="card-sm" style="border-left:2px solid ${area.color};">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">${area.label}</div>
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.3;">${esc(o.title)}</div>
+      <div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:4px;">
+        <div style="height:100%;width:${avg}%;background:${area.color};border-radius:2px;transition:width .3s;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);">${avg}% complete</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── OKRs ── */
+function setObjective(areaKey) {
+  const inp=document.getElementById(`obj-input-${areaKey}`);
+  const title=inp?inp.value.trim():''; if(!title) return;
+  if(!S.okrs) S.okrs={};
+  S.okrs[areaKey]={title,krs:[]};
+  saveLS(); renderOKRs(); sbSaveOKR(areaKey);
+}
+function addKR(areaKey) {
+  const inp=document.getElementById(`kr-input-${areaKey}`);
+  const text=inp?inp.value.trim():''; if(!text) return;
+  const o=S.okrs[areaKey]; if(!o) return;
+  if(o.krs.length>=3) return;
+  o.krs.push({text,progress:0});
+  if(inp) inp.value='';
+  saveLS(); renderOKRs(); sbSaveOKR(areaKey);
+}
+function updateKR(areaKey,idx,val) {
+  const o=S.okrs[areaKey]; if(!o) return;
+  o.krs[idx].progress=parseInt(val,10);
+  saveLS(); renderOKRs(); sbSaveOKR(areaKey);
+}
+function removeKR(areaKey,idx) {
+  const o=S.okrs[areaKey]; if(!o) return;
+  o.krs.splice(idx,1); saveLS(); renderOKRs(); sbSaveOKR(areaKey);
+}
+function deleteOKR(areaKey) {
+  if(!confirm('Clear this objective?')) return;
+  delete S.okrs[areaKey];
+  saveLS(); renderOKRs(); sbDeleteOKR(areaKey);
+}
+function editObjTitle(areaKey) {
+  const o=S.okrs[areaKey]; if(!o) return;
+  const t=prompt('Edit objective:',o.title);
+  if(t&&t.trim()){o.title=t.trim();saveLS();renderOKRs();sbSaveOKR(areaKey);}
+}
+function renderOKRs() {
+  const el=document.getElementById('okrList'); if(!el) return;
+  const sbBadge=document.getElementById('okrSbBadge');
+  if(sbBadge) sbBadge.textContent=sbOkrs?'● Synced to Supabase':'○ Local only — run SQL setup to sync';
+  el.innerHTML=OKR_AREAS.map(area=>{
+    const o=S.okrs[area.key];
+    const avg=o&&o.krs.length?Math.round(o.krs.reduce((s,k)=>s+(k.progress||0),0)/o.krs.length):0;
+    return `<div class="okr-block">
+      <div class="okr-header">
+        <span class="area-badge" style="background:${area.color};">${area.label}</span>
+        ${o?`
+          <span style="font-size:14px;font-weight:600;flex:1;color:var(--text);">${esc(o.title)}</span>
+          <span style="font-size:14px;font-weight:700;color:var(--gold2);">${avg}%</span>
+          <button class="btn-icon" style="color:var(--text3);font-size:12px;" onclick="editObjTitle('${area.key}')" title="Edit">✎</button>
+          <button class="btn-icon" onclick="deleteOKR('${area.key}')" title="Clear">×</button>
+        `:`<span style="font-size:13px;color:var(--text3);flex:1;font-style:italic;">No objective set</span>`}
+      </div>
+      ${o?`
+        <div class="okr-prog-bar"><div class="okr-prog-fill" style="width:${avg}%;"></div></div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:4px;">Key Results</div>
+        ${o.krs.map((k,i)=>`
+          <div class="kr-row">
+            <span class="kr-text">${esc(k.text)}</span>
+            <span style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+              <input type="range" class="kr-slider" min="0" max="100" value="${k.progress||0}"
+                oninput="updateKR('${area.key}',${i},this.value)">
+              <span class="kr-pct">${k.progress||0}%</span>
+              <button class="btn-icon" onclick="removeKR('${area.key}',${i})" title="Remove KR">×</button>
+            </span>
+          </div>`).join('')}
+        ${o.krs.length<3?`
+          <div class="add-row" style="margin-top:10px;gap:6px;">
+            <input type="text" id="kr-input-${area.key}" placeholder="Add key result…"
+              style="flex:1;font-size:12px;"
+              onkeydown="if(event.key==='Enter')addKR('${area.key}')">
+            <button class="btn btn-gold btn-sm" onclick="addKR('${area.key}')">Add KR</button>
+          </div>
+        `:`<div style="font-size:11px;color:var(--text3);margin-top:8px;">3/3 key results — limit reached</div>`}
+      `:`
+        <div class="add-row" style="margin-top:4px;gap:6px;">
+          <input type="text" id="obj-input-${area.key}" placeholder="Set this quarter's objective…"
+            onkeydown="if(event.key==='Enter')setObjective('${area.key}')">
+          <button class="btn btn-gold btn-sm" onclick="setObjective('${area.key}')">Set</button>
+        </div>`}
+    </div>`;
+  }).join('');
+  renderWeekOkrWidgets();
+}
+
+/* ── SCHEDULE ── */
+function toggleSchedEdit() {
+  schedEditMode=!schedEditMode;
+  document.getElementById('schedEditBtn').textContent=schedEditMode?'✔ Save':'✎ Edit';
+  if(!schedEditMode){
+    document.querySelectorAll('#schedBody tr').forEach((tr,i)=>{
+      const cells=tr.querySelectorAll('[contenteditable]');
+      if(cells.length>=3){
+        S.schedule.weekly[i].am=cells[0].innerText.trim();
+        S.schedule.weekly[i].pm=cells[1].innerText.trim();
+        S.schedule.weekly[i].anchor=cells[2].innerText.trim();
+      }
+    });
+    saveLS(); toast('Schedule saved');
+  }
+  renderSchedule();
+}
+let dailyEditMode=false;
+function toggleDailyEdit(e) {
+  e.stopPropagation();
+  dailyEditMode=!dailyEditMode;
+  document.getElementById('dailyEditBtn').textContent=dailyEditMode?'✔ Save':'✎ Edit';
+  if(!dailyEditMode){
+    document.querySelectorAll('#dailyBody tr').forEach((tr,i)=>{
+      const cells=tr.querySelectorAll('[contenteditable]');
+      if(cells.length>=2 && S.schedule.daily[i]){
+        S.schedule.daily[i].time=cells[0].innerText.trim();
+        S.schedule.daily[i].block=cells[1].innerText.trim();
+      }
+    });
+    saveLS(); toast('Daily schedule saved');
+  }
+  renderDailySchedule();
+}
+function renderDailySchedule() {
+  const tbody=document.getElementById('dailyBody'); if(!tbody) return;
+  const ed=dailyEditMode;
+  tbody.innerHTML=(S.schedule.daily||[]).map((row,i)=>`
+    <tr ${i%2===1?'style="background:rgba(232,180,36,.06);"':''}>
+      <td style="color:var(--gold2);font-weight:600;" ${ed?'contenteditable="true" style="outline:1px solid var(--gold);border-radius:3px;color:var(--gold2);font-weight:600;"':''}>${esc(row.time)}</td>
+      <td ${ed?'contenteditable="true" style="outline:1px solid var(--gold);border-radius:3px;"':''}>${esc(row.block)}</td>
+    </tr>`).join('');
+}
+function resetWeeklyToDefault() {
+  if(!confirm('Reset weekly schedule to the VS Master Schedule default?')) return;
+  S.schedule.weekly = JSON.parse(JSON.stringify(DEFAULT.schedule.weekly));
+  saveLS(); renderSchedule(); toast('Weekly schedule reset to default');
+}
+function addSchedItem(type) {
+  const inp=document.getElementById(type==='monthly'?'monthlyInput':'quarterlyInput');
+  const text=inp.value.trim(); if(!text) return;
+  S.schedule[type].push(text); inp.value=''; saveLS(); renderSchedule();
+}
+function removeSchedItem(type,idx) {
+  S.schedule[type].splice(idx,1); saveLS(); renderSchedule();
+}
+function renderSchedule() {
+  const tbody=document.getElementById('schedBody'); if(!tbody) return;
+  const ed=schedEditMode;
+  tbody.innerHTML=(S.schedule.weekly||[]).map((row,i)=>`
+    <tr>
+      <td class="day-cell">${esc(row.day)}</td>
+      <td class="am-cell" ${ed?'contenteditable="true" style="outline:1px solid var(--gold);border-radius:3px;"':''}>${esc(row.am)}</td>
+      <td ${ed?'contenteditable="true" style="outline:1px solid var(--gold);border-radius:3px;"':''}>${esc(row.pm)}</td>
+      <td ${ed?'contenteditable="true" style="outline:1px solid var(--gold);border-radius:3px;"':''}>${esc(row.anchor)}</td>
+    </tr>`).join('');
+  const ml=document.getElementById('monthlyList');
+  if(ml) ml.innerHTML=(S.schedule.monthly||[]).map((item,i)=>`
+    <li style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:2px 0;">
+      <span>▸ ${esc(item)}</span>
+      ${ed?`<button class="btn-icon" style="flex-shrink:0;" onclick="removeSchedItem('monthly',${i})">×</button>`:''}
+    </li>`).join('');
+  const ql=document.getElementById('quarterlyList');
+  if(ql) ql.innerHTML=(S.schedule.quarterly||[]).map((item,i)=>`
+    <li style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:2px 0;">
+      <span>▸ ${esc(item)}</span>
+      ${ed?`<button class="btn-icon" style="flex-shrink:0;" onclick="removeSchedItem('quarterly',${i})">×</button>`:''}
+    </li>`).join('');
+  document.getElementById('monthlyAddRow').style.display=ed?'flex':'none';
+  document.getElementById('quarterlyAddRow').style.display=ed?'flex':'none';
+  renderDailySchedule();
+}
+
+/* ── DAILY SCORECARD ── */
+const SCORECARD_ITEMS = [
+  { key:'army',      label:'Army excellence?' },
+  { key:'vanguard',  label:'VANGUARD advanced?' },
+  { key:'learned',   label:'Learned something?' },
+  { key:'created',   label:'Created something?' },
+  { key:'exercised', label:'Exercised?' },
+  { key:'family',    label:'Family/spiritual time?' },
+];
+function weekKeyForDate(d) {
+  const jan1=new Date(d.getFullYear(),0,1);
+  const wk=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  return `${d.getFullYear()}-W${String(wk).padStart(2,'0')}`;
+}
+function weekKeyOffset(days) {
+  const d=new Date(); d.setDate(d.getDate()+days);
+  return weekKeyForDate(d);
+}
+function scorecardFor(dateKey) {
+  if(!S.scorecard) S.scorecard={};
+  if(!S.scorecard[dateKey]) S.scorecard[dateKey]={};
+  return S.scorecard[dateKey];
+}
+function scoreOf(rec) {
+  if(!rec) return 0;
+  return SCORECARD_ITEMS.reduce((s,it)=>s+(rec[it.key]?1:0),0);
+}
+function toggleScorecard(dateKey,key) {
+  const rec=scorecardFor(dateKey);
+  rec[key]=!rec[key];
+  saveLS();
+  renderScorecard();
+}
+function last7Dates() {
+  const out=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    out.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  }
+  return out;
+}
+function avgScoreForWeek(wk) {
+  const entries=Object.entries(S.scorecard||{}).filter(([dk])=>weekKeyForDate(new Date(dk+'T00:00:00'))===wk);
+  if(!entries.length) return null;
+  const total=entries.reduce((s,[,rec])=>s+scoreOf(rec),0);
+  return total/entries.length;
+}
+function renderScorecard() {
+  const tk=todayKey();
+  const rec=scorecardFor(tk);
+  const cl=document.getElementById('scorecardChecklist');
+  if(cl) cl.innerHTML=SCORECARD_ITEMS.map(it=>`
+    <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);cursor:pointer;">
+      <input type="checkbox" ${rec[it.key]?'checked':''} onchange="toggleScorecard('${tk}','${it.key}')">
+      <span style="${rec[it.key]?'color:var(--text);':''}">${esc(it.label)}</span>
+    </label>`).join('');
+  const badge=document.getElementById('scorecardTodayBadge');
+  if(badge) badge.textContent=`${scoreOf(rec)}/6 today`;
+
+  const dates=last7Dates();
+  const hist=document.getElementById('scorecardHistory');
+  if(hist) hist.innerHTML=dates.map(dk=>{
+    const r=S.scorecard&&S.scorecard[dk];
+    const s=scoreOf(r);
+    const hasData=r&&Object.keys(r).length>0;
+    const d=new Date(dk+'T00:00:00');
+    const label=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const isToday=dk===tk;
+    const pct=s/6;
+    const color=!hasData?'var(--text3)':pct>=1?'var(--green)':pct>=0.5?'var(--gold2)':'var(--red)';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:12px;${isToday?'color:var(--gold2);font-weight:700;':'color:var(--text2);'}">
+      <span>${isToday?'▶ ':''}${label}</span>
+      <span style="color:${color};font-weight:600;">${hasData?s+'/6':'—'}</span>
+    </div>`;
+  }).join('');
+
+  const thisWk=weekKey();
+  const prevWk=weekKeyOffset(-7);
+  const thisAvg=avgScoreForWeek(thisWk), prevAvg=avgScoreForWeek(prevWk);
+  const cmp=document.getElementById('scorecardWeekCompare');
+  if(cmp) cmp.textContent = prevAvg===null
+    ? `This week average: ${thisAvg===null?'—':thisAvg.toFixed(1)}/6`
+    : `This week: ${thisAvg===null?'—':thisAvg.toFixed(1)}/6  vs  last week: ${prevAvg.toFixed(1)}/6`;
+}
+
+/* ── WEEKLY DELIVERABLES ── */
+const DELIVERABLE_ITEMS = [
+  { key:'institutional', label:'1 Institutional Action — something that moves VANGUARD or R&D forward' },
+  { key:'public',        label:'1 Public Output — Z Historian: record, write or publish (non-negotiable)' },
+  { key:'strategic',     label:'1 Strategic Development — Bantuwa reset / research / PhD / Y4PZ' },
+  { key:'relationship',  label:'1 Relationship Action — one deliberate move in the five circles' },
+  { key:'reflection',    label:'1 Reflection Period — what moved, what stalled, what to stop' },
+  { key:'knowledge',     label:'5× Knowledge Touchpoint — 20 min/day on a knowledge domain' },
+  { key:'finish',        label:'Finish Before Start — no task carried open from the day before' },
+];
+function deliverablesFor(wk) {
+  if(!S.weeklyDeliverables) S.weeklyDeliverables={};
+  if(!S.weeklyDeliverables[wk]) S.weeklyDeliverables[wk]={};
+  return S.weeklyDeliverables[wk];
+}
+function deliverableScore(rec) {
+  if(!rec) return 0;
+  return DELIVERABLE_ITEMS.reduce((s,it)=>s+(rec[it.key]?1:0),0);
+}
+function toggleDeliverable(wk,key) {
+  const rec=deliverablesFor(wk);
+  rec[key]=!rec[key];
+  saveLS();
+  renderDeliverables();
+}
+function renderDeliverables() {
+  const wk=weekKey();
+  const rec=deliverablesFor(wk);
+  const cl=document.getElementById('deliverablesChecklist');
+  if(cl) cl.innerHTML=DELIVERABLE_ITEMS.map(it=>`
+    <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);cursor:pointer;">
+      <input type="checkbox" ${rec[it.key]?'checked':''} onchange="toggleDeliverable('${wk}','${it.key}')">
+      <span style="${rec[it.key]?'color:var(--text);':''}">${esc(it.label)}</span>
+    </label>`).join('');
+  const badge=document.getElementById('deliverablesBadge');
+  if(badge) badge.textContent=`${deliverableScore(rec)}/7 this week`;
+
+  const hist=document.getElementById('deliverablesHistory');
+  // Merge all weeks that have deliverables OR a review
+  const allWeeks=new Set([
+    ...Object.keys(S.weeklyDeliverables||{}),
+    ...Object.keys(S.reviews||{}).filter(k=>k!=='migrated')
+  ]);
+  const weeks=[...allWeeks].filter(k=>k!==wk).sort((a,b)=>b.localeCompare(a)).slice(0,12);
+  if(hist) hist.innerHTML = weeks.length ? weeks.map(w=>{
+    const rec=S.weeklyDeliverables?.[w]||{};
+    const s=deliverableScore(rec);
+    const color=s>=6?'var(--green)':s>=4?'var(--gold2)':'var(--text3)';
+    const rev=S.reviews?.[w];
+    const itemsHtml=DELIVERABLE_ITEMS.map(it=>`
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${rec[it.key]?'var(--text1)':'var(--text3)'};padding:1px 0;">
+        <span style="font-size:11px;">${rec[it.key]?'✅':'⬜'}</span>
+        <span style="${rec[it.key]?'':'text-decoration:line-through;opacity:0.5;'}">${esc(it.label)}</span>
+      </div>`).join('');
+    const reviewHtml=rev?`
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border1);">
+        <div style="font-size:11px;color:var(--gold2);font-weight:600;margin-bottom:4px;">REVIEW NOTES</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-wrap;">${esc(rev.notes||'')}</div>
+      </div>`:'';
+    return `<details style="margin-bottom:6px;">
+      <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:var(--bg3);border-radius:6px;font-size:12px;">
+        <span style="color:var(--text2);">${esc(w)}</span>
+        <span style="display:flex;gap:10px;align-items:center;">
+          ${rev?'<span style="font-size:10px;color:var(--gold2);">📝 review</span>':''}
+          <span style="color:${color};font-weight:700;">${s}/7</span>
+        </span>
+      </summary>
+      <div style="padding:8px 8px 4px;">${itemsHtml}${reviewHtml}</div>
+    </details>`;
+  }).join('') : '<div class="empty" style="font-size:12px;">No past weeks recorded yet.</div>';
+}
+
+/* ── REVIEW ── */
+async function saveReview() {
+  const text=document.getElementById('reviewText').value;
+  const wk=weekKey();
+  if(!S.reviews) S.reviews={};
+  S.reviews[wk]={notes:text,savedAt:new Date().toISOString()};
+  saveLS();
+  document.getElementById('reviewSavedAt').textContent=`Saved ${new Date().toLocaleTimeString()}`;
+  await sbSaveReview(wk,text);
+  toast('Review saved');
+  renderPastReviews();
+}
+function exportReview() {
+  const text=document.getElementById('reviewText').value;
+  const blob=new Blob([text||''],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`weekly-review-${weekKey()}.txt`;
+  a.click();
+}
+function renderReview() {
+  const wk=weekKey(), rev=S.reviews&&S.reviews[wk];
+  const ta=document.getElementById('reviewText');
+  if(ta&&!ta.dataset.dirty) ta.value=rev?rev.notes:'';
+  if(rev&&rev.savedAt) document.getElementById('reviewSavedAt').textContent=`Last saved ${new Date(rev.savedAt).toLocaleString()}`;
+  renderPastReviews();
+}
+function renderPastReviews() {
+  const el=document.getElementById('pastReviews'); if(!el) return;
+  const revs=Object.entries(S.reviews||{}).filter(([k])=>k!=='migrated').sort(([a],[b])=>b.localeCompare(a)).slice(0,20);
+  if(!revs.length){el.innerHTML='<div class="empty">No past reviews yet.</div>';return;}
+  el.innerHTML=`<div style="max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;">`+revs.map(([wk,rev])=>`
+    <div class="card-sm">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:12px;font-weight:600;color:var(--gold2);">${wk}</span>
+        <span style="font-size:11px;color:var(--text3);">${rev.savedAt?new Date(rev.savedAt).toLocaleDateString():''}</span>
+      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;white-space:pre-wrap;">${esc(rev.notes||'')}</div>
+    </div>`).join('')+`</div>`;
+}
+
+/* ── DAILY QUOTE ── */
+const QUOTES = [
+  { text: "You have power over your mind — not outside events. Realise this, and you will find strength.", author: "Marcus Aurelius" },
+  { text: "Waste no more time arguing about what a good man should be. Be one.", author: "Marcus Aurelius" },
+  { text: "The impediment to action advances action. What stands in the way becomes the way.", author: "Marcus Aurelius" },
+  { text: "Confine yourself to the present.", author: "Marcus Aurelius" },
+  { text: "If it is not right, do not do it; if it is not true, do not say it.", author: "Marcus Aurelius" },
+  { text: "Very little is needed to make a happy life; it is all within yourself, in your way of thinking.", author: "Marcus Aurelius" },
+  { text: "Never let the future disturb you. You will meet it with the same weapons of reason which today arm you against the present.", author: "Marcus Aurelius" },
+  { text: "Loss is nothing else but change, and change is Nature's delight.", author: "Marcus Aurelius" },
+  { text: "Luck is what happens when preparation meets opportunity.", author: "Seneca" },
+  { text: "Begin at once to live, and count each separate day as a separate life.", author: "Seneca" },
+  { text: "We suffer more in imagination than in reality.", author: "Seneca" },
+  { text: "No man was ever wise by chance.", author: "Seneca" },
+  { text: "Difficulties strengthen the mind, as labour does the body.", author: "Seneca" },
+  { text: "He who fears death will never do anything worthy of a man who is alive.", author: "Seneca" },
+  { text: "If you really want to escape the things that harass you, what you need is not to be in a different place but to be a different person.", author: "Seneca" },
+  { text: "It is not the man who has too little, but the man who craves more, that is poor.", author: "Seneca" },
+  { text: "Retire into yourself as much as possible with those who will make you better.", author: "Seneca" },
+  { text: "Make the best use of what is in your power, and take the rest as it happens.", author: "Epictetus" },
+  { text: "First say to yourself what you would be; then do what you have to do.", author: "Epictetus" },
+  { text: "It is not what happens to you, but how you react to it that matters.", author: "Epictetus" },
+  { text: "No man is free who is not master of himself.", author: "Epictetus" },
+  { text: "Do not explain your philosophy. Embody it.", author: "Epictetus" },
+  { text: "How long are you going to wait before you demand the best for yourself?", author: "Epictetus" },
+  { text: "Seek not the good in external things; seek it in yourself.", author: "Epictetus" },
+  { text: "He is a wise man who does not grieve for what he has not, but rejoices for what he has.", author: "Epictetus" },
+  { text: "Wealth consists not in having great possessions, but in having few wants.", author: "Epictetus" },
+  { text: "Build fewer things. Build stronger positions. Create lasting systems.", author: "Victor S. — Master Plan 2026–2030" },
+  { text: "One major breakthrough is better than ten impressive prototypes.", author: "Victor S. — Master Plan 2026–2030" },
+  { text: "No major system without a clear problem, user and champion.", author: "Victor S. — The Bantuwa Rule" },
+  { text: "Memento mori — remember you will die. Use the time well.", author: "Stoic Maxim" },
+  { text: "Amor fati — love your fate. Not merely bear what is necessary, but love it.", author: "Stoic Maxim" },
+  { text: "The obstacle is the way.", author: "Ryan Holiday" }
+];
+let lastQuoteIdx = -1;
+function initQuote() { showRandomQuote(); }
+function nextQuote() { showRandomQuote(); }
+function showRandomQuote() {
+  const el = document.getElementById('dailyQuoteText'); if (!el) return;
+  let idx;
+  do { idx = Math.floor(Math.random() * QUOTES.length); } while (idx === lastQuoteIdx);
+  lastQuoteIdx = idx;
+  const q = QUOTES[idx];
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.innerHTML = `"${esc(q.text)}" <span style="color:var(--gold2);font-size:12px;font-style:normal;opacity:0.8;">— ${esc(q.author)}</span>`;
+    el.style.transition = 'opacity 0.4s';
+    el.style.opacity = '1';
+  }, 200);
+}
+
+/* ── 90-DAY PLAN ── */
+function render90Day() {
+  const el = document.getElementById('plan90List'); if (!el) return;
+  if (!S.milestones90 || !S.milestones90.length) {
+    S.milestones90 = JSON.parse(JSON.stringify(DEFAULT.milestones90));
+  }
+  const today = new Date(); today.setHours(0,0,0,0);
+  const done = S.milestones90.filter(m=>m.done).length;
+  const total = S.milestones90.length;
+  const pct = Math.round(done/total*100);
+  const prog = document.getElementById('plan90Progress');
+  if (prog) prog.innerHTML = `${done}/${total} done &nbsp;<span style="color:var(--text3);font-weight:400;">${pct}%</span>`;
+
+  // Group by month
+  const groups = {'Sep':[], 'Oct':[], 'Nov':[], 'Dec':[]};
+  S.milestones90.forEach(m => {
+    const d = new Date(m.target);
+    const mo = ['Sep','Oct','Nov','Dec'][d.getMonth()-8] || 'Dec';
+    groups[mo].push(m);
+  });
+
+  el.innerHTML = Object.entries(groups).map(([mo, items]) => {
+    if (!items.length) return '';
+    const moDone = items.filter(m=>m.done).length;
+    const moColor = moDone === items.length ? 'var(--green)' : 'var(--gold2)';
+    return `<div style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--text3);">${mo.toUpperCase()} 2026</span>
+        <span style="font-size:11px;color:${moColor};">${moDone}/${items.length}</span>
+        <div style="flex:1;height:2px;background:var(--border1);border-radius:1px;"><div style="height:2px;width:${items.length?moDone/items.length*100:0}%;background:${moColor};border-radius:1px;transition:width .4s;"></div></div>
+      </div>
+      ${items.map(m => {
+        const tDate = new Date(m.target); tDate.setHours(0,0,0,0);
+        const overdue = !m.done && tDate < today;
+        const dueToday = !m.done && tDate.getTime()===today.getTime();
+        const daysLeft = Math.ceil((tDate-today)/86400000);
+        let dueBadge = '';
+        if (m.done) dueBadge = `<span style="font-size:10px;color:var(--green);">✓ done</span>`;
+        else if (overdue) dueBadge = `<span style="font-size:10px;color:#ef4444;font-weight:700;">⚠ OVERDUE</span>`;
+        else if (dueToday) dueBadge = `<span style="font-size:10px;color:var(--gold2);font-weight:700;">DUE TODAY</span>`;
+        else dueBadge = `<span style="font-size:10px;color:var(--text3);">${daysLeft}d left · ${m.target}</span>`;
+        return `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;margin-bottom:4px;background:var(--bg2);border-radius:6px;border-left:3px solid ${m.done?'var(--green)':overdue?'#ef4444':'var(--border2)'};">
+          <span onclick="toggleMilestone90(${m.id})" style="cursor:pointer;font-size:16px;flex-shrink:0;margin-top:1px;">${m.done?'✅':'⬜'}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;color:${m.done?'var(--text3)':'var(--text1)'};text-decoration:${m.done?'line-through':'none'};line-height:1.4;">${esc(m.text)}</div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:4px;flex-wrap:wrap;">
+              <span style="font-size:10px;color:var(--gold2);opacity:0.8;">${esc(m.week)}</span>
+              <span style="font-size:10px;color:var(--text3);">${esc(m.priority)}</span>
+              ${dueBadge}
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+function toggleMilestone90(id) {
+  if (!S.milestones90) return;
+  const m = S.milestones90.find(x=>x.id===id); if (!m) return;
+  m.done = !m.done;
+  saveLS(); render90Day();
+  if (m.done) toast('Milestone complete ✓');
+}
+
+/* ── MISC TASKS ── */
+function renderMisc() {
+  const el = document.getElementById('miscList'); if (!el) return;
+  if (!S.misc || !S.misc.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:2px 0;">No misc tasks. Add one below.</div>';
+    return;
+  }
+  el.innerHTML = S.misc.map((t, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border1);">
+      <span onclick="toggleMisc(${i})" style="cursor:pointer;font-size:15px;flex-shrink:0;">${t.done ? '✅' : '⬜'}</span>
+      <span style="flex:1;font-size:13px;color:${t.done ? 'var(--text3)' : 'var(--text1)'};text-decoration:${t.done ? 'line-through' : 'none'};">${esc(t.text)}</span>
+      <button title="Pin to Top 3" onclick="pinMiscToTop3(${i})" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--gold);opacity:0.7;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">📌</button>
+      <button onclick="deleteMisc(${i})" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--text3);line-height:1;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">×</button>
+    </div>`).join('');
+}
+function addMiscTask() {
+  const inp = document.getElementById('miscInput');
+  const text = inp.value.trim(); if (!text) return;
+  if (!S.misc) S.misc = [];
+  S.misc.push({ text, done: false, id: Date.now() });
+  inp.value = ''; saveLS(); renderMisc();
+}
+function toggleMisc(i) {
+  if (!S.misc[i]) return;
+  S.misc[i].done = !S.misc[i].done;
+  saveLS(); renderMisc();
+}
+function deleteMisc(i) {
+  S.misc.splice(i, 1); saveLS(); renderMisc();
+}
+function pinMiscToTop3(i) {
+  const t = S.misc[i]; if (!t) return;
+  if (S.today.length >= 3) { toast('Top 3 is full — complete or remove one first'); return; }
+  if (S.today.find(x => x.text === t.text)) { toast('Already in Top 3'); return; }
+  S.today.push({ text: t.text, done: false, id: Date.now(), tag: 'misc' });
+  saveLS(); renderToday(); renderMisc();
+  toast('Pinned to Top 3');
+}
+
+/* ── DAILY PROTOCOL ── */
+let protocolEditMode = false;
+
+function renderProtocol() {
+  const el = document.getElementById('protocolList'); if (!el) return;
+  if (!S.protocol) S.protocol = JSON.parse(JSON.stringify(DEFAULT.protocol));
+  const ed = protocolEditMode;
+  el.innerHTML = S.protocol.map((row, i) => `
+    <div class="protocol-row">
+      <span class="protocol-time" ${ed ? 'contenteditable="true"' : ''} data-idx="${i}" data-field="time">${esc(row.time)}</span>
+      <span class="protocol-desc" ${ed ? 'contenteditable="true"' : ''} data-idx="${i}" data-field="desc">${esc(row.desc)}</span>
+      ${ed ? `<button class="btn-icon" onclick="removeProtocolRow(${i})" style="flex-shrink:0;">×</button>` : ''}
+    </div>`).join('');
+  const btn = document.getElementById('protocolEditBtn');
+  if (btn) btn.textContent = ed ? '✔ Save' : '✎ Edit';
+}
+
+function toggleProtocolEdit() {
+  if (protocolEditMode) {
+    // save edits from contenteditable cells
+    document.querySelectorAll('#protocolList .protocol-row').forEach((row, i) => {
+      const timeEl = row.querySelector('[data-field="time"]');
+      const descEl = row.querySelector('[data-field="desc"]');
+      if (timeEl) S.protocol[i].time = timeEl.innerText.trim();
+      if (descEl) S.protocol[i].desc = descEl.innerText.trim();
+    });
+    saveLS(); toast('Protocol saved');
+  }
+  protocolEditMode = !protocolEditMode;
+  renderProtocol();
+}
+
+function addProtocolRow() {
+  if (!S.protocol) S.protocol = [];
+  S.protocol.push({ time: '00:00–00:00', desc: 'New block' });
+  protocolEditMode = true;
+  saveLS(); renderProtocol();
+}
+
+function removeProtocolRow(idx) {
+  S.protocol.splice(idx, 1);
+  saveLS(); renderProtocol();
+}
+
+/* ── UI ── */
+function toast(msg,isErr) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.style.borderColor=isErr?'var(--red)':'var(--gold)';
+  el.classList.add('show'); clearTimeout(toast._t);
+  toast._t=setTimeout(()=>el.classList.remove('show'),2800);
+}
+function toggleProtocol() {
+  const body=document.getElementById('protocolBody');
+  const label=document.getElementById('protocolToggleLabel');
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  label.textContent=open?'▶':'▼';
+}
+function setDate() {
+  document.getElementById('headerDate').textContent=
+    new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+function setSbStatus(state,label) {
+  document.getElementById('sbDot').className='sync-dot '+state;
+  document.getElementById('sbLabel').textContent=label;
+}
+function switchTab(panelId) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.panel===panelId));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+panelId));
+  if(panelId==='review'){renderReview();renderDeliverables();}
+  if(panelId==='week'){renderWeek();renderWeekRhythmQuick();}
+  if(panelId==='okrs') renderOKRs();
+  if(panelId==='aila') renderAILA();
+  if(panelId==='plan90') render90Day();
+  if(panelId==='schedule'){renderSchedule();renderScorecard();}
+}
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>switchTab(btn.dataset.panel));
+});
+document.getElementById('reviewText').addEventListener('input',function(){this.dataset.dirty='1';});
+
+/* ── SETUP MODAL ── */
+function openSetup() {
+  document.getElementById('setupOverlay').style.display='flex';
+  document.getElementById('setupSql').textContent=SETUP_SQL;
+  updateSyncNames();
+  updateModalSbStatus();
+}
+function closeSetup() { document.getElementById('setupOverlay').style.display='none'; }
+async function updateModalSbStatus() {
+  const dot=document.getElementById('modalSbDot');
+  const label=document.getElementById('modalSbStatus');
+  const tables=document.getElementById('modalSbTables');
+  if(!dot) return;
+  if(!sbOnline){
+    dot.style.background='var(--red)'; label.textContent='Supabase not reachable'; return;
+  }
+  dot.style.background='var(--green)'; label.textContent='Connected — checking tables…';
+  const t=await sbCheckTables();
+  sbTasks=t.tasks; sbOkrs=t.okrs;
+  const row=(name,ok)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;">
+    <span style="width:8px;height:8px;border-radius:50%;background:${ok?'var(--green)':'var(--red)'};display:inline-block;flex-shrink:0;"></span>
+    <span style="color:var(--text2);">${name}</span>
+    <span style="color:${ok?'var(--green)':'var(--red)'};font-size:11px;">${ok?'ready':'missing — run SQL setup'}</span>
+  </div>`;
+  tables.innerHTML=row('episodes (TC Podcast)',true)+row('cc_tasks',t.tasks)+row('cc_okrs',t.okrs)+row('cc_reviews',t.reviews);
+  label.textContent='Connected to Supabase';
+}
+function copySql() {
+  navigator.clipboard.writeText(SETUP_SQL).then(()=>toast('SQL copied!')).catch(()=>toast('Copy failed',true));
+}
+
+/* ── DATA EXPORT / IMPORT ── */
+function exportAllData() {
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`vs-cc-backup-${todayKey()}.json`; a.click();
+}
+function importData() {
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json';
+  inp.onchange=async()=>{
+    try {
+      const data=JSON.parse(await inp.files[0].text());
+      if(confirm('Replace all local data?')){
+        S=Object.assign(JSON.parse(JSON.stringify(DEFAULT)),data);
+        saveLS(); renderAll(); toast('Data imported');
+      }
+    } catch(e){toast('Invalid file: '+e.message,true);}
+  };
+  inp.click();
+}
+function clearAllData() {
+  if(!confirm('Clear ALL local data? This cannot be undone.')) return;
+  localStorage.removeItem(LS_KEY);
+  S=JSON.parse(JSON.stringify(DEFAULT));
+  saveLS(); renderAll(); toast('Local data cleared');
+}
+
+/* ══════════════════════════════════════════
+   AILA SPRINT DATA & TRACKER
+   ══════════════════════════════════════════ */
+
+const AILA_SPRINT = {
+  deadline: '2026-09-30',
+  pilotStart: '2026-10-01',
+  weeks: [
+    {
+      num:1, label:'POSITION', dates:'Aug 1–7',
+      start:'2026-08-01', end:'2026-08-07',
+      goal:'Know exactly what AILA is.',
+      deliverable:'AILA Strategic Foundation',
+      tasks:[
+        'Write AILA Purpose & Positioning Statement (why it exists, problem, audience, differentiation, transformation promise)',
+        'Define the Target Learner Profile (institutional leaders, government, military, managers, researchers, educators, entrepreneurs)',
+        'Develop AILA Value Proposition (1-sentence, 30-sec, 100-word, website, and institutional pitch versions)',
+        'Finalise mission and vision statements',
+        'Define differentiation from other AI education programmes',
+        'Finalise AILA tagline',
+        'Finalise AILA philosophy statement',
+        'Confirm name: AI Leadership Academy (AILA) — check domain, handles, trademark'
+      ]
+    },
+    {
+      num:2, label:'METHODOLOGY', dates:'Aug 8–14',
+      start:'2026-08-08', end:'2026-08-14',
+      goal:"Create AILA's intellectual framework.",
+      deliverable:'AILA Methodology v1.0',
+      tasks:[
+        'Finalise Problem-Solving Cycle: IDENTIFY → UNDERSTAND → DESIGN → BUILD → DEPLOY → IMPROVE',
+        'Define objective, key questions, activities, tools, AI applications, and outputs for each of the 6 stages',
+        'Finalise Innovation Toolkit — six capability areas: THINK / ANALYSE / DESIGN / BUILD / DEPLOY / IMPROVE',
+        'Map AI augmentation to every capability (e.g. Critical thinking → AI as devil\'s advocate)',
+        'Define four-level learning pathway: Problem Solver → Solution Builder → AI System Builder → Transformation Leader',
+        'Define learner progression and competencies per level',
+        'Define AILA terminology and brand language (words to use and words to avoid)'
+      ]
+    },
+    {
+      num:3, label:'COURSE ARCHITECTURE', dates:'Aug 15–21',
+      start:'2026-08-15', end:'2026-08-21',
+      goal:'Design Level 1.',
+      deliverable:'Level 1 Curriculum Map',
+      tasks:[
+        'Write the Level 1 course promise: "AI-Enabled Problem Solving for Leaders"',
+        'Define 6–8 measurable learning outcomes',
+        'Design the 10 course modules (Problem-Solving Leader → Capstone)',
+        'Create module template: objective, outcomes, concepts, lessons, AI demos, exercise, takeaway, asset',
+        'Define course duration for pilot: 4–6 weeks',
+        'Design weekly workload: 60–90 min lessons + 60–120 min practical + weekly live session',
+        'Define capstone concept: MY PROBLEM-SOLVING CHALLENGE (9 deliverables)'
+      ]
+    },
+    {
+      num:4, label:'CONTENT DEVELOPMENT', dates:'Aug 22–28',
+      start:'2026-08-22', end:'2026-08-28',
+      goal:'Turn the curriculum into teachable material.',
+      deliverable:'Course Content v1',
+      tasks:[
+        'Write lesson outlines for all 10 modules',
+        'Create slide decks per module',
+        'Write instructor notes for every lesson',
+        'Create student workbook (frameworks, worksheets, templates, exercises, reflection questions, AI prompts)',
+        'Design AI demonstrations per module',
+        'Develop case studies',
+        'Create 9 core templates: Problem Statement, Stakeholder Map, Root Cause Analysis, Systems Map, Process Map, AI Opportunity Assessment, Solution Evaluation Matrix, Capstone Template, AI Risk Checklist',
+        'Create AI workflow examples (research, problem framing, document analysis, brainstorming, root-cause analysis, solution evaluation)'
+      ]
+    },
+    {
+      num:5, label:'ASSESSMENT & PORTFOLIO', dates:'Sep 1–7',
+      start:'2026-09-01', end:'2026-09-07',
+      goal:'Create the measurement system.',
+      deliverable:'AILA Assessment & Certification System',
+      tasks:[
+        'Define assessment philosophy: "Can you solve a problem?" not "Can you remember what was said?"',
+        'Create assessment structure: Module exercises 30%, AI application 20%, Problem diagnosis 20%, Capstone 30%',
+        'Design capstone: MY PROBLEM-SOLVING CHALLENGE — all 9 deliverable sections',
+        'Create capstone rubric (problem clarity, diagnosis quality, evidence, systems understanding, AI use, solution quality, feasibility, originality)',
+        'Define AILA Portfolio model — Level 1: Problem Diagnosis asset',
+        'Define AILA Certified AI-Enabled Problem Solver requirements',
+        'Design professional certificate template (Certificate + Portfolio Asset = core value)'
+      ]
+    },
+    {
+      num:6, label:'DIGITAL & BRAND MVP', dates:'Sep 8–14',
+      start:'2026-09-08', end:'2026-09-14',
+      goal:'Make AILA publicly presentable.',
+      deliverable:'AILA MVP Platform',
+      tasks:[
+        'Finalise logo and create AILA Brand Kit (typography, colour palette, visual style, iconography)',
+        'Create AILA Messaging Guide (brand vocabulary and language to avoid)',
+        'Build AILA landing page answering: What, Who, Learn, Produce, Different, Teach, When, Apply',
+        'Create registration/application form (role, org, AI experience, biggest challenge, expectation)',
+        'Set up student communication channel',
+        'Set up course content delivery environment (simple — no sophisticated LMS)',
+        'Create assignment submission and feedback mechanism',
+        'Create payment or registration process',
+        'Design certificate template for print and digital'
+      ]
+    },
+    {
+      num:7, label:'PILOT PREPARATION', dates:'Sep 15–21',
+      start:'2026-09-15', end:'2026-09-21',
+      goal:'Prepare to teach.',
+      deliverable:'Pilot-Ready AILA',
+      tasks:[
+        'Define first cohort parameters: 15–25 participants, professions, eligibility, dates, format, fee status',
+        'Build list of potential pilot participants (people with real problems, curious about AI, likely completers)',
+        'Send invitations to pilot participants',
+        'Conduct participant onboarding',
+        'Finalise October programme schedule',
+        'Prepare facilitator materials and facilitation guide',
+        'Create pilot feedback collection mechanism'
+      ]
+    },
+    {
+      num:8, label:'FINAL VALIDATION', dates:'Sep 22–30',
+      start:'2026-09-22', end:'2026-09-30',
+      goal:'Make sure the whole system works.',
+      deliverable:'AILA MVP v1.0',
+      tasks:[
+        'Conduct complete internal course walkthrough as a student (registration → onboarding → lesson → exercise → assignment → feedback → capstone → certification)',
+        'Test every module exercise: clarity, completability, AI explanation, output quality',
+        'Have 2–3 people independently attempt the capstone — rewrite if interpreted differently',
+        'Fix every friction point found in the simulation',
+        'Assemble AILA Master Document ("AILA Bible") — all 14 sections',
+        'Version and file all documents',
+        'Declare AILA MVP v1.0 complete — check all 45 items on master checklist'
+      ]
+    }
+  ],
+  masterChecklist: {
+    'Strategy': [
+      'Define mission','Define vision','Define audience','Define problem',
+      'Define value proposition','Define differentiation','Define brand promise'
+    ],
+    'Methodology': [
+      'Finalise Problem-Solving Cycle','Finalise Innovation Toolkit',
+      'Map AI across toolkit','Finalise four-level pathway','Define competencies'
+    ],
+    'Level 1 Course': [
+      'Define course promise','Define learning outcomes','Design modules',
+      'Design lessons','Develop exercises','Develop AI workflows',
+      'Develop case studies','Develop capstone'
+    ],
+    'Learning System': [
+      'Define delivery model','Define assessment','Define rubric',
+      'Define certification','Define portfolio'
+    ],
+    'Course Assets': [
+      'Create workbook','Create templates','Create slides',
+      'Create instructor notes','Create student resources'
+    ],
+    'Brand & Digital': [
+      'Finalise brand','Create landing page','Create registration',
+      'Create student environment','Create communication system','Create certificate'
+    ],
+    'Pilot': [
+      'Define cohort','Recruit participants','Schedule programme',
+      'Onboard participants','Test entire experience','Fix problems'
+    ],
+    'Final': [
+      'Assemble AILA Master Document','Version everything','Declare AILA MVP v1.0 complete'
+    ]
+  }
+};
+
+const AILA_LS_KEY = 'vs_aila_v1';
+let ailaActiveWeek = null; // tracks which week detail is currently open
+
+function loadAILA() {
+  try { return JSON.parse(localStorage.getItem(AILA_LS_KEY)||'{}'); } catch(e) { return {}; }
+}
+function saveAILA(data) {
+  try { localStorage.setItem(AILA_LS_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function ailaCurrentWeek() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (const w of AILA_SPRINT.weeks) {
+    const s = new Date(w.start); const e = new Date(w.end);
+    if (today >= s && today <= e) return w.num;
+  }
+  if (today < new Date(AILA_SPRINT.weeks[0].start)) return 1;
+  if (today > new Date(AILA_SPRINT.deadline)) return 8;
+  // Between weeks (e.g. Aug 29-31)
+  for (let i = 0; i < AILA_SPRINT.weeks.length - 1; i++) {
+    const e = new Date(AILA_SPRINT.weeks[i].end);
+    const s = new Date(AILA_SPRINT.weeks[i+1].start);
+    if (today > e && today < s) return AILA_SPRINT.weeks[i+1].num;
+  }
+  return 1;
+}
+
+function ailaDaysLeft() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const end = new Date(AILA_SPRINT.deadline);
+  const diff = Math.ceil((end - now) / 86400000);
+  return Math.max(0, diff);
+}
+
+function ailaWeekProgress(weekNum, progress) {
+  const week = AILA_SPRINT.weeks[weekNum - 1];
+  if (!week) return 0;
+  const done = week.tasks.filter((_, i) => progress[`w${weekNum}-${i}`]).length;
+  return Math.round((done / week.tasks.length) * 100);
+}
+
+function ailaMasterProgress(progress) {
+  let total = 0, done = 0;
+  Object.entries(AILA_SPRINT.masterChecklist).forEach(([cat, items]) => {
+    items.forEach((_, i) => {
+      total++;
+      if (progress[`cl-${cat}-${i}`]) done++;
+    });
+  });
+  return { total, done, pct: total ? Math.round((done/total)*100) : 0 };
+}
+
+function renderAILA() {
+  const progress = loadAILA();
+  const currentWeek = ailaCurrentWeek();
+  const daysLeft = ailaDaysLeft();
+  const master = ailaMasterProgress(progress);
+
+  // Update banner stats
+  const dlEl = document.getElementById('ailaDaysLeft');
+  const wkEl = document.getElementById('ailaWeekNum');
+  const pctEl = document.getElementById('ailaPctDone');
+  if (dlEl) dlEl.textContent = daysLeft > 0 ? daysLeft : '✓';
+  if (wkEl) wkEl.textContent = currentWeek;
+  if (pctEl) pctEl.textContent = master.pct + '%';
+
+  // Week tiles
+  const grid = document.getElementById('ailaWeekGrid');
+  if (grid) {
+    grid.innerHTML = AILA_SPRINT.weeks.map(w => {
+      const pct = ailaWeekProgress(w.num, progress);
+      const isCurrent = w.num === currentWeek;
+      const today = new Date(); today.setHours(0,0,0,0);
+      const isDone = new Date(w.end) < today && pct === 100;
+      const isPast = new Date(w.end) < today;
+      let cls = 'aila-week-tile';
+      if (isCurrent) cls += ' current';
+      else if (isDone) cls += ' done';
+      else if (!isPast) cls += ' future';
+      return `<div class="${cls}" onclick="ailaShowWeek(${w.num})">
+        <div class="aila-wk-num">Week ${w.num} ${isCurrent ? '← NOW' : ''}</div>
+        <div class="aila-wk-label">${w.label}</div>
+        <div class="aila-wk-dates">${w.dates}</div>
+        <div class="aila-wk-progress"><div class="aila-wk-fill" style="width:${pct}%"></div></div>
+        <div class="aila-wk-pct">${pct}% complete</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Week detail — keep whichever week was open, default to current
+  if (!ailaActiveWeek) ailaActiveWeek = currentWeek;
+  ailaShowWeek(ailaActiveWeek, false);
+
+  // Master checklist
+  renderAILAChecklist(progress, master);
+}
+
+function ailaShowWeek(num, scroll) {
+  ailaActiveWeek = num;
+  const progress = loadAILA();
+  const week = AILA_SPRINT.weeks[num - 1];
+  if (!week) return;
+  const detail = document.getElementById('ailaWeekDetail');
+  if (!detail) return;
+
+  const tasksHTML = week.tasks.map((task, i) => {
+    const key = `w${num}-${i}`;
+    const done = !!progress[key];
+    return `<div class="aila-task-row ${done?'done':''}" id="aila-task-${num}-${i}">
+      <input type="checkbox" ${done?'checked':''} onchange="ailaToggleTask(${num},${i},this.checked)">
+      <span class="aila-task-text">${esc(task)}</span>
+    </div>`;
+  }).join('');
+
+  const pct = ailaWeekProgress(num, progress);
+  detail.innerHTML = `<div class="aila-week-detail">
+    <div class="aila-detail-header">
+      <div>
+        <div class="aila-detail-badge">✦ Week ${num} — ${esc(week.label)}</div>
+        <div class="aila-detail-title" style="margin-top:8px;">${esc(week.dates)}</div>
+        <div class="aila-detail-goal">${esc(week.goal)}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:28px;font-weight:800;color:var(--aila);">${pct}%</div>
+        <div style="font-size:11px;color:var(--text3);">${week.tasks.filter((_,i)=>progress[`w${num}-${i}`]).length} / ${week.tasks.length} tasks</div>
+      </div>
+    </div>
+    <div class="aila-detail-deliverable">📦 Deliverable: ${esc(week.deliverable)}</div>
+    ${tasksHTML}
+  </div>`;
+
+  if (scroll !== false) detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function ailaToggleTask(weekNum, taskIdx, checked) {
+  const progress = loadAILA();
+  const key = `w${weekNum}-${taskIdx}`;
+  if (checked) progress[key] = true;
+  else delete progress[key];
+  saveAILA(progress);
+  // Re-render just the week detail (keeps ailaActiveWeek, so card stays on same week)
+  ailaShowWeek(weekNum, false);
+
+  // Update the tile progress bar for this week
+  const pct = ailaWeekProgress(weekNum, progress);
+  const grid = document.getElementById('ailaWeekGrid');
+  if (grid && grid.children[weekNum-1]) {
+    const fill = grid.children[weekNum-1].querySelector('.aila-wk-fill');
+    const pctLbl = grid.children[weekNum-1].querySelector('.aila-wk-pct');
+    if (fill) fill.style.width = pct + '%';
+    if (pctLbl) pctLbl.textContent = pct + '% complete';
+  }
+
+  // Update banner checklist %
+  const master = ailaMasterProgress(progress);
+  const pctEl = document.getElementById('ailaPctDone');
+  if (pctEl) pctEl.textContent = master.pct + '%';
+}
+
+function renderAILAChecklist(progress, master) {
+  const el = document.getElementById('ailaMasterChecklist');
+  if (!el) return;
+  el.innerHTML = Object.entries(AILA_SPRINT.masterChecklist).map(([cat, items]) => {
+    const done = items.filter((_, i) => progress[`cl-${cat}-${i}`]).length;
+    const pct = Math.round((done / items.length) * 100);
+    const itemsHTML = items.map((item, i) => {
+      const key = `cl-${cat}-${i}`;
+      const isDone = !!progress[key];
+      return `<div class="aila-mini-task ${isDone?'done':''}">
+        <input type="checkbox" id="${esc(key)}" ${isDone?'checked':''} onchange="ailaToggleChecklist('${esc(cat)}',${i},this.checked)">
+        <label for="${esc(key)}">${esc(item)}</label>
+      </div>`;
+    }).join('');
+    return `<div class="aila-cat-card">
+      <div class="aila-cat-header">
+        <span class="aila-cat-name">${esc(cat)}</span>
+        <span class="aila-cat-count">${done}/${items.length}</span>
+      </div>
+      <div class="aila-cat-bar"><div class="aila-cat-fill" style="width:${pct}%"></div></div>
+      ${itemsHTML}
+    </div>`;
+  }).join('');
+
+  // Update overall pct
+  const pctEl = document.getElementById('ailaPctDone');
+  if (pctEl) pctEl.textContent = master.pct + '%';
+}
+
+function ailaToggleChecklist(cat, idx, checked) {
+  const progress = loadAILA();
+  const key = `cl-${cat}-${idx}`;
+  if (checked) progress[key] = true;
+  else delete progress[key];
+  saveAILA(progress);
+  const master = ailaMasterProgress(progress);
+  renderAILAChecklist(progress, master);
+}
+
+/* ══════════════════════════════════════════
+   AI PROPOSAL ENGINE
+   ══════════════════════════════════════════ */
+
+const ROADMAP = {
+  phases: [
+    {
+      name: 'Phase I — Foundation',
+      start: '2026-07', end: '2026-12',
+      goal: 'Build institutional foundation. Launch digital + physical Bantuwa presence. Begin cash flow from Category 1 ventures.',
+      pillars: ['Corporate structure registered', 'Bantuwa.com live', 'Social accounts created', 'Z Historian: 20 videos / 5K subscribers', 'Podcast: 12+ episodes', 'First book published', 'Craft/herbal/lifestyle products on sale', 'First Bantuwa AI meeting with MOE or Defence HQ'],
+      months: {
+        '2026-07': 'Corporate Foundation & Brand — register Bantuwa Innovate, develop brand identity, source craft/herbal suppliers',
+        '2026-08': 'Digital Infrastructure — Bantuwa.com live, 9+ social accounts, online store with 10 products, Bantuwa Press setup',
+        '2026-09': 'Content Pipeline & First Sales — batch 4 TZH videos, record 4 podcast episodes, first venture sales, manuscripts in production',
+        '2026-10': 'Audience & Revenue Build — aggressive publishing, target 20 TZH videos, newsletter launch, pitch 3 retail partners',
+        '2026-11': 'Audience & Revenue Build — scale online sales, podcast at 12 eps, 1000 newsletter subs, book in final production',
+        '2026-12': 'Phase I Close — first book published, 5K YT subscribers, first Bantuwa AI meeting scheduled, retail partnership confirmed'
+      }
+    },
+    {
+      name: 'Phase II — Credibility',
+      start: '2027-01', end: '2027-12',
+      goal: 'National recognition. Cultural Café pilot. Documentaries. Take Command podcast public. 3 books. USD 10K–30K revenue.',
+      pillars: ['Z Historian documentary series live', 'Cultural Café pilot operational', 'Take Command podcast formally launched', 'Academy entry programs launched', 'Bantuwa AI proposal submitted to MOE/Defence', '3 books published', 'First consulting assignment delivered'],
+      months: {
+        '2027-01': 'Documentary series launch + Café pilot — flagship Z Historian series, first episode live, café pop-up operational',
+        '2027-02': 'Academy curriculum design — short courses in identity, discipline, AI basics, entrepreneurship',
+        '2027-03': 'Q1 review + guest strategy — book 5 high-profile podcast guests, expand craft/herbal distribution',
+        '2027-04': 'Take Command podcast formal launch — full brand assets, distribution on Spotify/Apple/YouTube',
+        '2027-05': 'Ventures scale — second retail partnership, first part-time sales assistant, monthly sales growing',
+        '2027-06': 'Q2 review + Academy prep — 20 podcast episodes live, course sign-ups open',
+        '2027-07': 'Lecture series launch — 3 lectures at universities/military institutions, first event revenue',
+        '2027-08': 'Academy first cohort — deliver first short courses, collect testimonials',
+        '2027-09': 'Bantuwa AI proposal — submit CORTEX-EDU pilot proposal to MOE or Defence HQ',
+        '2027-10': 'Book publications — publish 2–3 books through Bantuwa Press, launch events',
+        '2027-11': 'First consulting assignment — accept and deliver first strategic consulting or historical research project',
+        '2027-12': 'Year-end review + Phase III planning — full enterprise review, set Phase III targets, identify first hire'
+      }
+    },
+    {
+      name: 'Phase III — Commercialisation',
+      start: '2028-01', end: '2028-12',
+      goal: 'Convert influence into revenue. Four active revenue streams. Bantuwa AI first contract. USD 50K+ annual revenue.',
+      pillars: ['Take Command Academy: 2+ courses live', 'Bantuwa AI: first institutional contract signed', 'Permanent Cultural Café open', 'Eco-Home prototype built', 'Bantuwa Marketplace launched', '5+ titles in press catalogue'],
+      months: {}
+    },
+    {
+      name: 'Phase IV — Scale',
+      start: '2029-01', end: '2029-12',
+      goal: 'Institution over personality. Research Institute established. 5-person team. USD 150K–300K revenue.',
+      pillars: ['Bantuwa Research Institute operational', 'Zambia Leadership Index published', 'Bantuwa AI USD 100K+ annual revenue', 'Eco-Neighbourhoods first project underway', '5-person core team'],
+      months: {}
+    },
+    {
+      name: 'Phase V — African Expansion',
+      start: '2030-01', end: '2030-12',
+      goal: 'Recognised African institution. International contracts. Global brand export. Full Academy. USD 500K–1.5M revenue.',
+      pillars: ['Z Historian in 5+ African countries', 'African Leadership Forum launched', 'Bantuwa AI first international contract', 'Global brand export live', 'Full Academy open'],
+      months: {}
+    }
+  ],
+  weeklyKPIs: {
+    zhist: '1 Long Video + 4 Shorts per month',
+    va: '4 Podcasts + 4 Articles per month',
+    books: '20,000 words manuscript progress per month',
+    bantuwa: '1 Major AI/Tech feature per month',
+    y4pz: '30 Sales per month',
+    sales: '23 Meetings + 12 Proposals per month',
+    research: '1 Policy Brief + 4 Articles + 1 Journal submission per month'
+  }
+};
+
+function getCurrentPhase() {
+  const now = new Date();
+  const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  return ROADMAP.phases.find(p => key >= p.start && key <= p.end) || ROADMAP.phases[0];
+}
+
+function getCurrentMonthFocus() {
+  const now = new Date();
+  const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const phase = getCurrentPhase();
+  return phase.months[key] || `${phase.name} — ${phase.goal}`;
+}
+
+function getAIKey() { return localStorage.getItem('tc_apiKey') || ''; }
+
+function setAIKey(key) { localStorage.setItem('tc_apiKey', key.trim()); }
+
+async function aiPropose(mode) {
+  const containerId = mode === 'today' ? 'aiProposalToday' : 'aiProposalWeek';
+  const el = document.getElementById(containerId);
+
+  const apiKey = getAIKey();
+  if (!apiKey) {
+    el.innerHTML = `<div class="ai-proposal-wrap"><div class="ai-key-missing">
+      No Claude API key set. <a onclick="aiSetKey()">Add key</a> to enable AI proposals.
+      (Same key as TC Coach — set it there first, or click here.)
+    </div></div>`;
+    return;
+  }
+
+  // Show loading
+  el.innerHTML = `<div class="ai-proposal-wrap">
+    <div class="ai-loading"><div class="ai-spinner"></div> Claude is reading your roadmap…</div>
+  </div>`;
+
+  try {
+    const proposals = await callClaudePropose(mode, apiKey);
+    renderAIProposals(el, proposals, mode);
+  } catch(e) {
+    el.innerHTML = `<div class="ai-proposal-wrap"><div class="ai-key-missing">
+      Error: ${e.message}. Check your API key or try again.
+    </div></div>`;
+  }
+}
+
+async function callClaudePropose(mode, apiKey) {
+  const now = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const dayName = days[now.getDay()];
+  const phase = getCurrentPhase();
+  const monthFocus = getCurrentMonthFocus();
+  const weekTheme = (S.schedule.weekly || []).find(r => r.day === dayName);
+
+  const existingToday = (S.today || []).map(t => `[${TAG_LBL[t.tag]||t.tag}] ${t.text}${t.done?' (done)':''}`).join('\n') || 'None';
+  const existingWeek  = (S.week  || []).map(t => `[${TAG_LBL[t.tag]||t.tag}] ${t.text}${t.done?' ✓':''}`).join('\n') || 'None';
+  const okrSummary    = Object.entries(S.okrs||{}).filter(([,v])=>v&&v.title).map(([k,v])=>`${k}: ${v.title}`).join('\n') || 'No OKRs set yet';
+
+  const prompt = `You are the strategic AI for Victor Simz / Bantuwa Innovate — a multi-pillar African knowledge, culture, and technology enterprise.
+
+CURRENT CONTEXT:
+- Date: ${now.toDateString()}
+- Day: ${dayName} | Today's Weekly Theme: ${weekTheme ? `${weekTheme.anchor} — ${weekTheme.am}` : 'Not set'}
+- Roadmap Phase: ${phase.name}
+- Phase Goal: ${phase.goal}
+- This Month's Focus: ${monthFocus}
+- Key Phase Milestones Remaining: ${phase.pillars.join(' | ')}
+
+CURRENT STATE:
+Today's existing Top 3:
+${existingToday}
+
+This Week's existing targets:
+${existingWeek}
+
+Active OKRs:
+${okrSummary}
+
+Monthly KPI Targets:
+${Object.entries(ROADMAP.weeklyKPIs).map(([k,v])=>`${k}: ${v}`).join('\n')}
+
+AILA SPRINT STATUS (PRIORITY PROJECT — Aug–Sep 2026, pilot Oct 2026):
+${(()=>{
+  const wk = ailaCurrentWeek();
+  const dl = ailaDaysLeft();
+  const week = AILA_SPRINT.weeks[wk-1];
+  const prog = loadAILA();
+  const doneTasks = week ? week.tasks.filter((_,i)=>prog[`w${wk}-${i}`]).length : 0;
+  const totalTasks = week ? week.tasks.length : 0;
+  const pendingTasks = week ? week.tasks.filter((_,i)=>!prog[`w${wk}-${i}`]).map(t=>t.split('(')[0].trim()).slice(0,4) : [];
+  return `Current AILA Week: ${wk} — ${week?.label||''} (${week?.dates||''})
+Week Goal: ${week?.goal||''}
+Week Deliverable: ${week?.deliverable||''}
+Week Progress: ${doneTasks}/${totalTasks} tasks done
+Days to Sep 30 deadline: ${dl}
+Pending AILA tasks this week: ${pendingTasks.join(' | ')||'All done!'}`;
+})()}
+
+PILLARS (use for tag field):
+- bantuwa = Bantuwa Innovate / Bantuwa AI
+- zhist   = The Z Historian
+- va      = Take Command (podcast, lectures, academy, consulting)
+- y4pz    = Bantuwa Ventures (crafts, herbal, lifestyle, café, eco-homes)
+- aila    = AILA Academy (AI Leadership Academy — PRIORITY SPRINT until Sep 30)
+- army    = Army (LTC duties)
+
+TASK: Propose ${mode === 'today' ? '3 Top priorities for TODAY specifically' : '4–5 targets for THIS WEEK'}.
+
+Rules:
+- Be SPECIFIC and ACTIONABLE — not vague ("work on AILA") but concrete ("write AILA Problem-Solving Cycle one-pager with all 6 stages defined")
+- AILA is a PRIORITY SPRINT — if there are pending AILA week tasks, at least one proposal should address AILA
+- Align with today's theme (${weekTheme?.anchor || 'current phase'}) and current month focus
+- Do NOT duplicate tasks already listed above
+- Each item must have: text (the task), tag (pillar key), reason (≤12 words: why this is the priority right now)
+- The "brief" field is one punchy sentence: the strategic focus for ${mode === 'today' ? 'today' : 'this week'}
+
+Return ONLY valid JSON — no markdown fences, no explanation, just the JSON object:
+{
+  "brief": "One sentence strategic focus",
+  "items": [
+    {"text": "Specific actionable task", "tag": "pillar-key", "reason": "Why this is the priority right now"}
+  ]
+}`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 900,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(()=>({}));
+    throw new Error(err.error?.message || `API error ${resp.status}`);
+  }
+
+  const data = await resp.json();
+  const text = data.content[0].text.trim();
+  const match = text.match(/\{[\s\S]+\}/);
+  if (!match) throw new Error('Invalid response from Claude');
+  return JSON.parse(match[0]);
+}
+
+const _aiStore = {};
+function renderAIProposals(el, proposals, mode) {
+  _aiStore[mode] = proposals.items || [];
+  const itemsHTML = (_aiStore[mode]).map((item, i) => `
+    <div class="ai-item" id="ai-item-${mode}-${i}">
+      <div class="ai-item-body">
+        <div class="ai-item-text">${esc(item.text)}</div>
+        <div class="ai-item-reason" style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+          <span class="tag ${TAG_CLS[item.tag]||'tag-bantuwa'}">${TAG_LBL[item.tag]||item.tag}</span>
+          <span>${esc(item.reason)}</span>
+        </div>
+      </div>
+      <div class="ai-item-actions">
+        <button class="btn-ai-accept" onclick="acceptAIItem(${i},'${mode}')">✓ Add</button>
+        <button class="btn-ai-skip"   onclick="dismissAIItem(${i},'${mode}')">✕</button>
+      </div>
+    </div>`).join('');
+
+  el.innerHTML = `<div class="ai-proposal-wrap">
+    <div class="ai-proposal-header">
+      <span class="ai-proposal-title">✦ AI Proposal — ${mode === 'today' ? "Today's Top 3" : "This Week's Targets"}</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-ai-accept" onclick="acceptAllAI('${mode}')">✓ Accept All</button>
+        <button class="btn-ai-skip"   onclick="document.getElementById('aiProposal${mode==='today'?'Today':'Week'}').innerHTML=''">✕ Dismiss</button>
+      </div>
+    </div>
+    ${proposals.brief ? `<div class="ai-brief-text">💡 ${esc(proposals.brief)}</div>` : ''}
+    ${itemsHTML}
+  </div>`;
+
+  // Store for accept-all
+  el.dataset.proposals = JSON.stringify(proposals.items || []);
+}
+
+function acceptAIItem(i, mode) {
+  const item = (_aiStore[mode] || [])[i];
+  if (!item) return;
+  const { text, tag } = item;
+  if (mode === 'today') {
+    if ((S.today||[]).length >= 3) { toast('Top 3 is full — complete or remove one first', true); return; }
+    const task = { id: uid(), text, tag, done: false };
+    S.today.push(task); saveLS(); renderToday(); sbSaveTask(task,'today');
+  } else {
+    const task = { id: uid(), text, tag, done: false };
+    S.week.push(task); saveLS(); renderWeek(); sbSaveTask(task,'week');
+  }
+  dismissAIItem(i, mode);
+  toast('Added ✓');
+}
+
+function dismissAIItem(i, mode) {
+  const itemEl = document.getElementById(`ai-item-${mode}-${i}`);
+  if (itemEl) itemEl.remove();
+  // If no items left, clear the wrapper
+  const wrap = document.getElementById(mode === 'today' ? 'aiProposalToday' : 'aiProposalWeek');
+  if (wrap && !wrap.querySelector('.ai-item')) wrap.innerHTML = '';
+}
+
+function acceptAllAI(mode) {
+  const wrap = document.getElementById(mode === 'today' ? 'aiProposalToday' : 'aiProposalWeek');
+  if (!wrap) return;
+  const items = JSON.parse(wrap.dataset.proposals || '[]');
+  items.forEach(item => {
+    if (mode === 'today') {
+      if ((S.today||[]).length >= 3) return;
+      const task = { id: uid(), text: item.text, tag: item.tag, done: false };
+      S.today.push(task); sbSaveTask(task,'today');
+    } else {
+      const task = { id: uid(), text: item.text, tag: item.tag, done: false };
+      S.week.push(task); sbSaveTask(task,'week');
+    }
+  });
+  saveLS(); renderToday(); renderWeek();
+  wrap.innerHTML = '';
+  toast(`Added ${items.length} items ✓`);
+}
+
+function aiSetKey() {
+  const key = prompt('Paste your Claude API key (sk-ant-…):');
+  if (key && key.startsWith('sk-')) { setAIKey(key); toast('API key saved'); }
+  else if (key) toast('Invalid key — must start with sk-ant-', true);
+}
+
+/* ── RENDER ALL ── */
+function seed90DayOKRs() {
+  if(!S.okrs) S.okrs={};
+  let seeded=false;
+  Object.entries(OKR_SEEDS).forEach(([key,seed])=>{
+    if(!S.okrs[key]){
+      S.okrs[key]={title:seed.title,krs:seed.krs.map(t=>({text:t,progress:0}))};
+      seeded=true;
+    }
+  });
+  if(seeded){saveLS();Object.keys(OKR_SEEDS).forEach(k=>{if(S.okrs[k])sbSaveOKR(k);});}
+}
+function renderAll() {
+  renderToday();
+  renderProtocol();
+  renderMisc();
+  renderWeek(); renderWeekRhythmQuick(); renderWeek90Banner();
+  renderOKRs();
+  renderAILA();
+  render90Day();
+  renderSchedule();
+  renderScorecard();
+  renderDeliverables();
+  renderReview();
+}
+
+/* ── RESTORE STATE ── */
+function restoreBriefState() {
+  const last=S.lastBriefPush; if(!last) return;
+  if(last.domain7bd) document.getElementById('brief7bd').value=last.domain7bd;
+  if(last.action7bd) document.getElementById('briefAction').value=last.action7bd;
+  if(last.pushedAt) setBriefStatus(`Last pushed ${new Date(last.pushedAt).toLocaleString()} for ${last.forDate}`,false);
+}
+
+/* ── INIT ── */
+async function init() {
+  setDate();
+  S=loadLS();
+  seed90DayOKRs();
+  renderAll();
+  initQuote();
+  restoreBriefState();
+  updateSyncNames();
+
+  setSbStatus('spin','Connecting…');
+  sbOnline=await sbPing();
+
+  if(sbOnline){
+    setSbStatus('ok','Supabase ✓');
+    const t=await sbCheckTables();
+    sbTasks=t.tasks; sbOkrs=t.okrs;
+    const ops=[loadTCPodcast()];
+    if(sbTasks) ops.push(sbLoadTasks());
+    if(sbOkrs)  ops.push(sbLoadOKRs());
+    await Promise.all(ops);
+    renderAll();
+  } else {
+    setSbStatus('err','Supabase offline');
+    loadTCPodcast().catch(()=>{});
+  }
+
+  // Restore file syncs
+  if(localStorage.getItem('tcFileName'))      loadTcTasks().catch(()=>{});
+  if(localStorage.getItem('tzhFileName'))     loadTzhBriefing().catch(()=>{});
+  if(localStorage.getItem('bantuwaFileName')) loadBantwaBriefing().catch(()=>{});
+
+  // Auto-refresh TC every 5 min
+  setInterval(()=>{ if(tcCache!==null) loadTcTasks().catch(()=>{}); }, 5*60*1000);
+}
+
+init();
+</script>
+</body>
+</html>
