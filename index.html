@@ -1535,6 +1535,8 @@ function loadLS() {
     if (!s.schedule.daily || !s.schedule.daily.length) s.schedule.daily = JSON.parse(JSON.stringify(DEFAULT.schedule.daily));
     if (!s.schedule.weekly || !s.schedule.weekly.length) s.schedule.weekly = JSON.parse(JSON.stringify(DEFAULT.schedule.weekly));
     if (!s.milestones90 || !s.milestones90.length) s.milestones90 = JSON.parse(JSON.stringify(DEFAULT.milestones90));
+    // Enforce caps — data may have accumulated before limits were added
+    if (Array.isArray(s.today) && s.today.length > 3) s.today = s.today.slice(0, 3);
     return s;
   } catch(e) { return JSON.parse(JSON.stringify(DEFAULT)); }
 }
@@ -1659,6 +1661,9 @@ async function sbLoadAll() {
       try {
         const remote = JSON.parse(appRow.value);
         Object.assign(S, remote);
+        // Enforce 3-task cap — older synced data may have had more
+        if (Array.isArray(S.today) && S.today.length > 3) S.today = S.today.slice(0, 3);
+        if (Array.isArray(S.week)  && S.week.length  > 7) S.week  = S.week.slice(0, 7);
         localStorage.setItem(LS_KEY, JSON.stringify(S));
         changed = true;
       } catch(e) {}
@@ -2124,7 +2129,7 @@ function renderToday() {
   const badge=document.getElementById('top3Badge');
   const items=S.today||[];
   const done=items.filter(t=>t.done).length;
-  badge.textContent=`${done} / ${items.length}`;
+  badge.textContent=`${done} / 3`;
   if(!items.length){
     el.innerHTML='<div class="empty">Set your 3 most important actions for today.</div>';
     document.getElementById('top3AddRow').style.display='flex'; return;
