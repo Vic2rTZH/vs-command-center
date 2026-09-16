@@ -1071,6 +1071,19 @@ body {
     <div class="divider"></div>
 
     <div class="modal-section">
+      <h3>Claude API Key</h3>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Used for AI Propose. Stored in Supabase and syncs across devices.</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-…" style="flex:1;min-width:200px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+        <button class="btn btn-gold btn-sm" onclick="saveApiKeyFromSetup()">Save Key</button>
+        <button class="btn btn-ghost btn-sm" onclick="showCurrentKeyStatus()">Check Status</button>
+      </div>
+      <div id="apiKeyStatus" style="font-size:12px;margin-top:8px;color:var(--text3);"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="modal-section">
       <h3>Data Backup</h3>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-ghost btn-sm" onclick="exportAllData()">⬇ Export JSON</button>
@@ -3326,6 +3339,28 @@ function acceptAllAI(mode) {
   toast(`Added ${items.length} items ✓`);
 }
 
+function saveApiKeyFromSetup() {
+  const inp = document.getElementById('apiKeyInput');
+  const key = inp ? inp.value.trim() : '';
+  if (!key) { toast('Paste your key first', true); return; }
+  if (!key.startsWith('sk-')) { toast('Invalid key — must start with sk-', true); return; }
+  setAIKey(key);
+  if (inp) inp.value = '';
+  document.getElementById('apiKeyStatus').textContent = '✓ Key saved and synced to Supabase';
+  document.getElementById('apiKeyStatus').style.color = 'var(--green)';
+  toast('API key saved ✓');
+}
+function showCurrentKeyStatus() {
+  const el = document.getElementById('apiKeyStatus');
+  const key = getAIKey();
+  if (key && key.startsWith('sk-')) {
+    el.textContent = `✓ Key set (${key.slice(0,12)}…)`;
+    el.style.color = 'var(--green)';
+  } else {
+    el.textContent = '✗ No key set';
+    el.style.color = 'var(--red)';
+  }
+}
 async function aiSetKey() {
   // Try Supabase first before prompting
   if (sbOnline) {
