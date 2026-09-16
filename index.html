@@ -1354,7 +1354,9 @@ async function sbCheckTables() {
   try { await SB.get('cc_reviews','?limit=0'); reviews=true; } catch(e) {}
   try { await SB.get('cc_schedule','?limit=0'); schedule=true; } catch(e) {}
   try { await SB.get('cc_milestones','?limit=0'); milestones=true; } catch(e) {}
-  return { tasks, okrs, reviews, schedule, milestones };
+  let settings=false;
+  try { await SB.get('cc_settings','?limit=0'); settings=true; } catch(e) {}
+  return { tasks, okrs, reviews, schedule, milestones, settings };
 }
 async function sbLoadTasks() {
   try {
@@ -2557,7 +2559,7 @@ async function updateModalSbStatus() {
     <span style="color:var(--text2);">${name}</span>
     <span style="color:${ok?'var(--green)':'var(--red)'};font-size:11px;">${ok?'ready':'missing — run SQL setup'}</span>
   </div>`;
-  tables.innerHTML=row('episodes (TC Podcast)',true)+row('cc_tasks',t.tasks)+row('cc_okrs',t.okrs)+row('cc_reviews',t.reviews)+row('cc_schedule',t.schedule)+row('cc_milestones',t.milestones);
+  tables.innerHTML=row('episodes (TC Podcast)',true)+row('cc_tasks',t.tasks)+row('cc_okrs',t.okrs)+row('cc_reviews',t.reviews)+row('cc_schedule',t.schedule)+row('cc_milestones',t.milestones)+row('cc_settings',t.settings);
   label.textContent='Connected to Supabase';
 }
 function copySql() {
@@ -3045,7 +3047,27 @@ function getCurrentMonthFocus() {
 
 function getAIKey() { return localStorage.getItem('tc_apiKey') || ''; }
 
-function setAIKey(key) { localStorage.setItem('tc_apiKey', key.trim()); }
+function setAIKey(key) {
+  localStorage.setItem('tc_apiKey', key.trim());
+  sbSaveApiKey(key.trim());
+}
+
+async function sbSaveApiKey(key) {
+  if (!sbOnline) return;
+  try {
+    await SB.upsert('cc_settings', { key:'claude_api_key', value:key, updated_at:new Date().toISOString() }, '?on_conflict=key');
+  } catch(e) { console.warn('sbSaveApiKey:',e.message); }
+}
+
+async function sbLoadApiKey() {
+  try {
+    const rows = await SB.get('cc_settings','?key=eq.claude_api_key');
+    if (rows.length && rows[0].value && !getAIKey()) {
+      localStorage.setItem('tc_apiKey', rows[0].value);
+      toast('API key loaded from Supabase ✓');
+    }
+  } catch(e) { console.warn('sbLoadApiKey:',e.message); }
+}
 
 async function aiPropose(mode) {
   const containerId = mode === 'today' ? 'aiProposalToday' : 'aiProposalWeek';
@@ -3337,6 +3359,7 @@ async function init() {
     if(sbOkrs)       ops.push(sbLoadOKRs());
     if(sbSchedule)   ops.push(sbLoadSchedule());
     if(sbMilestones) ops.push(sbLoadMilestones());
+    ops.push(sbLoadApiKey());
     await Promise.all(ops);
     renderAll();
   } else {
