@@ -121,6 +121,24 @@ body {
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
 @media (max-width: 720px) { .grid-2,.grid-3 { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .header { padding: 9px 14px; gap: 8px; }
+  .header-date { display: none; }
+  .header-meta { gap: 8px; }
+  .sync-pill { padding: 3px 8px; font-size: 10px; }
+  .launch-bar { padding: 7px 14px; flex-wrap: nowrap; overflow-x: auto; gap: 6px; }
+  .launch-label { display: none; }
+  .launch-btn { padding: 4px 10px; font-size: 11px; flex-shrink: 0; }
+  .tabs-bar { margin-bottom: 14px; }
+  .tab-btn { padding: 9px 12px; font-size: 12px; }
+  .main { padding: 12px 12px 48px; }
+  .card { padding: 14px; }
+  .card-title { font-size: 13px; flex-wrap: wrap; gap: 6px; }
+  .sec-title { font-size: 11px; margin: 16px 0 10px; }
+  .add-row { flex-wrap: wrap; gap: 6px; }
+  .add-row input { width: 100%; min-width: 0; }
+  .add-row select { flex: 1; min-width: 0; }
+}
 
 /* ── CARDS ── */
 .card {
