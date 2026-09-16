@@ -354,6 +354,9 @@ async function sbLoad() {
     // prefer whichever has more episodes; use timestamp as tiebreaker
     const useRemote = remoteEps > localEps || (remoteEps === localEps && remoteTs > localTs);
     if (useRemote) {
+      // backup local before overwriting
+      const cur = localStorage.getItem(DB._key);
+      if (cur) localStorage.setItem(DB._key+'_backup', cur);
       DB.d = remote;
       ['episodes','research','thumbnails','analytics'].forEach(k=>{ if(!DB.d[k]) DB.d[k]=[]; });
       localStorage.setItem(DB._key, JSON.stringify(DB.d));
