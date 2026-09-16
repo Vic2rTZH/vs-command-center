@@ -210,7 +210,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
   <div class="sidebar-section">
     <div class="sidebar-label">Create</div>
     <div class="nav-item" onclick="switchPanel('quotes',this)"><span class="nav-icon">🖼</span> Quote Cards</div>
-    <div class="nav-item" onclick="switchPanel('posts',this)"><span class="nav-icon">✦</span> Social Posts</div>
+    <div class="nav-item" onclick="switchPanel('posts',this)"><span class="nav-icon"><span data-ic="sparkles"></span></span> Social Posts</div>
     <div class="nav-item" onclick="switchPanel('podcast',this)"><span class="nav-icon">🎙</span> Podcast Scripts</div>
   </div>
   <div class="sidebar-section">
@@ -220,7 +220,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
   </div>
   <div class="sidebar-section">
     <div class="sidebar-label">Measure</div>
-    <div class="nav-item" onclick="switchPanel('analytics',this)"><span class="nav-icon">↗</span> Analytics</div>
+    <div class="nav-item" onclick="switchPanel('analytics',this)"><span class="nav-icon"><span data-ic="external-link"></span></span> Analytics</div>
   </div>
 
   <div class="sidebar-footer">
@@ -283,7 +283,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
     <div class="section-title">Quick Actions</div>
     <div class="grid-4">
       <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('quotes',null)"><div style="font-size:22px;margin-bottom:6px;">🖼</div><div style="font-size:13px;font-weight:600;">Quote Card</div><div style="font-size:11px;color:var(--text-muted);">AI-sourced from book</div></div>
-      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('posts',null)"><div style="font-size:22px;margin-bottom:6px;">✦</div><div style="font-size:13px;font-weight:600;">Social Post</div><div style="font-size:11px;color:var(--text-muted);">Any platform</div></div>
+      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('posts',null)"><div style="font-size:22px;margin-bottom:6px;"><span data-ic="sparkles"></span></div><div style="font-size:13px;font-weight:600;">Social Post</div><div style="font-size:11px;color:var(--text-muted);">Any platform</div></div>
       <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('podcast',null)"><div style="font-size:22px;margin-bottom:6px;">🎙</div><div style="font-size:13px;font-weight:600;">Podcast Script</div><div style="font-size:11px;color:var(--text-muted);">Full episode</div></div>
       <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('calendar',null)"><div style="font-size:22px;margin-bottom:6px;">⬡</div><div style="font-size:13px;font-weight:600;">Schedule Post</div><div style="font-size:11px;color:var(--text-muted);">Plan your content</div></div>
     </div>
@@ -313,8 +313,8 @@ canvas { width: 100%; border-radius: 6px; display: block; }
           <textarea id="custom-quote" rows="3" placeholder="Type any passage from Take Command, or leave blank to let AI source one…"></textarea>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-gold" onclick="generateQuote()" style="flex:1;">⚡ Generate Quote + Card</button>
-          <button class="btn btn-primary" onclick="downloadCard()">⬇ PNG</button>
+          <button class="btn btn-gold" onclick="generateQuote()" style="flex:1;"><span data-ic="zap"></span> Generate Quote + Card</button>
+          <button class="btn btn-primary" onclick="downloadCard()"><span data-ic="download"></span> PNG</button>
         </div>
         <div style="margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="regenerateQuote()">↺ Try Another</button></div>
       </div>
@@ -400,7 +400,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
         </div>
         <div class="form-row"><label>Key Message (optional)</label><textarea id="post-msg" rows="2" placeholder="Core idea or quote to anchor the post…"></textarea></div>
         <div style="display:flex;gap:8px;">
-          <button class="btn btn-gold" onclick="generatePost()" style="flex:1;">⚡ Generate Post</button>
+          <button class="btn btn-gold" onclick="generatePost()" style="flex:1;"><span data-ic="zap"></span> Generate Post</button>
           <button class="btn btn-outline" onclick="clearPost()">Clear</button>
         </div>
       </div>
@@ -457,7 +457,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
             <option value="long">Deep Dive (30+ min)</option>
           </select>
         </div>
-        <button class="btn btn-gold" onclick="generateScript()" style="width:100%;">⚡ Generate Episode Script</button>
+        <button class="btn btn-gold" onclick="generateScript()" style="width:100%;"><span data-ic="zap"></span> Generate Episode Script</button>
       </div>
     </div>
     <div>
@@ -560,6 +560,14 @@ canvas { width: 100%; border-radius: 6px; display: block; }
 </div>
 
 <script>
+
+/* === ICON SYSTEM === */
+const _IP={sun:"<circle cx="12" cy="12" r="4"/>",sparkles:"<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>","external-link":"<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>",zap:"<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>",download:"<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>","triangle-alert":"<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/>"};
+function I(n,s){s=s||13;return '<svg xmlns="http://www.w3.org/2000/svg" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex-shrink:0;" aria-hidden="true">'+(_IP[n]||'')+'</svg>';}
+function applyIcons(r){(r||document).querySelectorAll('[data-ic]').forEach(function(e){var f=document.createRange().createContextualFragment(I(e.getAttribute('data-ic'),e.getAttribute('data-ic-size')||13));e.parentNode.insertBefore(f,e);e.parentNode.removeChild(e);});}
+/* === END ICON SYSTEM === */
+
+
 // ══════════════════════════════════════════════════════════════════
 //  SUPABASE CONFIG
 // ══════════════════════════════════════════════════════════════════
@@ -624,7 +632,7 @@ function saveApiKey() {
   localStorage.setItem('tc_apiKey', key);
   const el = document.getElementById('api-key-status');
   if (key.startsWith('sk-')) { el.textContent='✓ Key saved — AI enabled'; el.style.color='#6ee7b7'; }
-  else if (key.length>0)    { el.textContent='⚠ Key should start with sk-…'; el.style.color='#fcd34d'; }
+  else if (key.length>0)    { el.textContent=I('triangle-alert')+' Key should start with sk-…'; el.style.color='#fcd34d'; }
   else                       { el.textContent='Enter key to enable AI generation'; el.style.color='rgba(255,255,255,.28)'; }
 }
 function toggleApiKeyVis() { const i=document.getElementById('api-key-input'); i.type=i.type==='password'?'text':'password'; }

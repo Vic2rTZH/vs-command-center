@@ -173,30 +173,6 @@
   @media (max-width: 900px) {
     .grid-4 { grid-template-columns: repeat(2, 1fr); }
   }
-  @media (max-width: 640px) {
-    body { overflow-x: hidden; }
-    .app { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; position: static; }
-    .sidebar-logo { padding: 10px 14px 8px; }
-    .sidebar-logo .logo-sub { display: none; }
-    .sidebar-section { display: none; }
-    .sidebar-section:first-of-type { display: block; padding: 0 8px 8px; }
-    .sidebar-section:first-of-type .sidebar-label { display: none; }
-    .sidebar-section:first-of-type { display: flex; flex-direction: row; overflow-x: auto; gap: 2px; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
-    .nav-item { white-space: nowrap; flex-shrink: 0; padding: 6px 10px; font-size: 12px; margin-bottom: 0; }
-    #sb-status { font-size: 9px; }
-    .main { overflow: visible; }
-    .panel { padding: 16px 14px; }
-    .grid-4 { grid-template-columns: repeat(2,1fr) !important; }
-    .grid-3 { grid-template-columns: 1fr !important; }
-    .grid-2 { grid-template-columns: 1fr !important; }
-    .card { padding: 14px !important; }
-    .card-title { font-size: 13px !important; flex-wrap: wrap; gap: 6px; }
-    .btn { font-size: 12px; padding: 6px 10px; }
-    .add-row { flex-wrap: wrap; gap: 6px; }
-    .add-row input, .add-row select { width: 100%; min-width: 0; }
-    table { font-size: 12px; }
-  }
 </style>
 </head>
 <body>
@@ -208,7 +184,6 @@
     <div class="sidebar-logo">
       <div class="logo-text">BANTUWA</div>
       <div class="logo-sub">Content HQ</div>
-      <div id="sb-status" style="font-size:10px;color:#666;margin-top:4px;">○ Local only</div>
     </div>
 
     <div class="sidebar-section">
@@ -221,7 +196,7 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Create</div>
       <div class="nav-item" onclick="switchPanel('generator')">
-        <span class="nav-icon">✦</span> Post Generator
+        <span class="nav-icon"><span data-ic="sparkles"></span></span> Post Generator
       </div>
       <div class="nav-item" onclick="switchPanel('article')">
         <span class="nav-icon">≡</span> Article Writer
@@ -241,7 +216,7 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Measure</div>
       <div class="nav-item" onclick="switchPanel('analytics')">
-        <span class="nav-icon">↗</span> Analytics
+        <span class="nav-icon"><span data-ic="external-link"></span></span> Analytics
       </div>
     </div>
 
@@ -264,6 +239,9 @@
         </div>
         <div id="api-key-status" style="font-size:10px;margin-top:4px;color:rgba(255,255,255,0.3);">Enter key to enable AI generation</div>
       </div>
+      <button onclick="exportStatusJSON()" style="margin-top:12px;width:100%;background:rgba(200,168,75,0.15);border:1px solid rgba(200,168,75,0.3);color:#c8a84b;padding:7px 10px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.4px;">
+        ↑ Export Status for Command Center
+      </button>
     </div>
   </nav>
 
@@ -327,7 +305,7 @@
         <div class="section-title">Quick Actions</div>
         <div class="grid-4" style="gap:12px;">
           <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('generator')">
-            <div style="font-size:22px;margin-bottom:6px;">✦</div>
+            <div style="font-size:22px;margin-bottom:6px;"><span data-ic="sparkles"></span></div>
             <div style="font-size:13px;font-weight:500;">Generate Post</div>
             <div style="font-size:11px;color:var(--text-muted);">Any platform</div>
           </div>
@@ -342,7 +320,7 @@
             <div style="font-size:11px;color:var(--text-muted);">Posting schedule</div>
           </div>
           <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('analytics')">
-            <div style="font-size:22px;margin-bottom:6px;">↗</div>
+            <div style="font-size:22px;margin-bottom:6px;"><span data-ic="external-link"></span></div>
             <div style="font-size:13px;font-weight:500;">Analytics</div>
             <div style="font-size:11px;color:var(--text-muted);">Track performance</div>
           </div>
@@ -713,7 +691,7 @@
 
       <!-- Empty state -->
       <div id="an-empty" style="text-align:center;padding:48px 24px;color:var(--text-muted);">
-        <div style="font-size:32px;margin-bottom:12px;">↗</div>
+        <div style="font-size:32px;margin-bottom:12px;"><span data-ic="external-link"></span></div>
         <div style="font-size:15px;font-weight:500;color:var(--navy);margin-bottom:6px;">No analytics data yet</div>
         <div style="font-size:13px;margin-bottom:20px;">Log your first month to start tracking real performance. Pull numbers from LinkedIn Analytics, X Analytics, and Instagram Insights.</div>
         <button class="btn btn-primary" onclick="toggleLogForm()">Log First Month</button>
@@ -825,67 +803,56 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── Supabase sync ───
-const SB_URL = 'https://vdlhcxbldiszghofghgi.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDY2NjUsImV4cCI6MjA5NzU4MjY2NX0.28RjGPZdbzJ2gYAfLo6Fn26cQmKp9KFbPnIaBgg0YC8';
-const SB = {
-  h() { return { 'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json' }; },
-  async get(t,q){ const r=await fetch(`${SB_URL}/rest/v1/${t}${q||''}`,{headers:this.h()}); if(!r.ok)throw new Error(await r.text()); return r.json(); },
-  async upsert(t,d){ const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{...this.h(),'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(d)}); if(!r.ok)throw new Error(await r.text()); }
+
+/* ═══ ICON SYSTEM ═══════════════════════════════════════════════════════════ */
+const _IP = {
+  sun:             '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  'pen-line':      '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  mic:             '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+  hammer:          '<path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/>',
+  dumbbell:        '<path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1 2.828-2.829l6.364 6.364a2 2 0 1 1-2.828 2.829l-1.768 1.767a2 2 0 1 1-2.828-2.828z"/>',
+  target:          '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  send:            '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+  moon:            '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  paperclip:       '<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+  settings:        '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+  sparkles:        '<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>',
+  'rotate-cw':     '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
+  pencil:          '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+  'rotate-ccw':    '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  check:           '<path d="M20 6 9 17l-5-5"/>',
+  download:        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  upload:          '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+  'triangle-alert':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/>',
+  'external-link': '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  zap:             '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  lightbulb:       '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+  film:            '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/>',
+  image:           '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+  search:          '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  'file-text':     '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+  'clipboard-list':'<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
 };
-let sbOnline = false;
-function showSbStatus(msg) {
-  const el = document.getElementById('sb-status');
-  if (el) { el.textContent = msg; el.style.color = msg.startsWith('●') ? '#c9a84c' : '#666'; }
+function I(name, sz) {
+  sz = sz || 13;
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + sz + '" height="' + sz + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex-shrink:0;" aria-hidden="true">' + (_IP[name] || '') + '</svg>';
 }
-function sbBundle() {
-  return { vault, analytics: analyticsData, scheduled: scheduledPosts };
+function applyIcons(root) {
+  (root || document).querySelectorAll('[data-ic]').forEach(function(el) {
+    var frag = document.createRange().createContextualFragment(I(el.getAttribute('data-ic'), el.getAttribute('data-ic-size') || 13));
+    el.parentNode.insertBefore(frag, el);
+    el.parentNode.removeChild(el);
+  });
 }
-function sbUnpack(data) {
-  if (data.vault)     { vault = data.vault; }
-  if (data.analytics) { analyticsData = data.analytics; }
-  if (data.scheduled) { scheduledPosts = data.scheduled; }
-  STORE.save('vault', vault);
-  STORE.save('analytics', analyticsData);
-  STORE.save('scheduled', scheduledPosts);
-}
-async function sbSave() {
-  if (!sbOnline) return;
-  const ts = new Date().toISOString();
-  localStorage.setItem('bantuwa__updatedAt', ts);
-  try {
-    await SB.upsert('bantuwa_hq_data', { id:'main', data:{ ...sbBundle(), _updatedAt:ts }, updated_at:ts });
-    showSbStatus('● Synced');
-  } catch(e) { showSbStatus('○ Sync error'); console.warn('sbSave:', e.message); }
-}
-async function sbInit() {
-  try {
-    await SB.get('bantuwa_hq_data','?limit=0');
-    sbOnline = true;
-    showSbStatus('○ Connecting…');
-    const rows = await SB.get('bantuwa_hq_data','?id=eq.main');
-    if (!rows.length) { await sbSave(); showSbStatus('● Synced'); return; }
-    const remote    = rows[0].data;
-    const remoteItems = (remote.vault||[]).length + (remote.scheduled||[]).length;
-    const localItems  = vault.length + scheduledPosts.length;
-    const remoteTs  = new Date(rows[0].updated_at||0).getTime();
-    const localTs   = new Date(localStorage.getItem('bantuwa__updatedAt')||0).getTime();
-    const useRemote = remoteItems > localItems || (remoteItems === localItems && remoteTs > localTs);
-    if (useRemote) {
-      const backup = sbBundle();
-      localStorage.setItem('bantuwa__backup', JSON.stringify(backup));
-      sbUnpack(remote);
-      renderDashboard();
-    } else {
-      await sbSave();
-    }
-    showSbStatus('● Synced');
-  } catch(e) { showSbStatus('○ Local only'); console.warn('sbInit:', e.message); }
-}
+/* ═══ END ICON SYSTEM ═══════════════════════════════════════════════════════ */
+
 
 // ─── Persistence helpers ───
 const STORE = {
-  save(key, val) { try { localStorage.setItem('bantuwa_' + key, JSON.stringify(val)); } catch(e) {} },
+  save(key, val) {
+    try { localStorage.setItem('bantuwa_' + key, JSON.stringify(val)); } catch(e) {}
+    if (key === 'scheduled' || key === 'vault') { setTimeout(syncToCommandCenter, 0); setTimeout(pushToSupabase, 0); }
+  },
   load(key, fallback) { try { const v = localStorage.getItem('bantuwa_' + key); return v ? JSON.parse(v) : fallback; } catch(e) { return fallback; } }
 };
 
@@ -906,8 +873,6 @@ let vault          = STORE.load('vault', []);
 let analyticsData  = STORE.load('analytics', []);
 let scheduledPosts = STORE.load('scheduled', defaultScheduled);
 let calYear = 2026, calMonth = 4;
-// kick off Supabase sync after local state is ready
-window.addEventListener('DOMContentLoaded', () => sbInit());
 
 // ─── Nav ───
 function switchPanel(id) {
@@ -955,7 +920,7 @@ function saveApiKey() {
     statusEl.textContent = '✓ Key saved';
     statusEl.style.color = '#6ee7b7';
   } else if (key.length > 0) {
-    statusEl.textContent = '⚠ Key format looks off';
+    statusEl.textContent = I('triangle-alert')+' Key format looks off';
     statusEl.style.color = '#fcd34d';
   } else {
     statusEl.textContent = 'Enter key to enable AI generation';
@@ -1427,7 +1392,7 @@ function saveArticleToVault() {
   const content = document.getElementById('art-output').textContent;
   if (content.includes('appear here') || content.length < 200) { showToast('Generate an article first'); return; }
   vault.push({ id: Date.now(), title, platform: 'Article', status: 'Draft', content, date: new Date().toLocaleDateString('en-ZM', { day: '2-digit', month: 'short', year: 'numeric' }) });
-  STORE.save('vault', vault); sbSave();
+  STORE.save('vault', vault);
   showToast('Article saved to vault');
 }
 
@@ -1525,7 +1490,7 @@ function showDayDetail(dateStr, day) {
 function deleteScheduledPost(idx) {
   if (!confirm('Delete this scheduled post?')) return;
   scheduledPosts.splice(idx, 1);
-  STORE.save('scheduled', scheduledPosts); sbSave();
+  STORE.save('scheduled', scheduledPosts);
   renderCalendar();
   document.getElementById('day-detail').style.display = 'none';
   showToast('Post deleted');
@@ -1587,7 +1552,7 @@ function confirmSchedule() {
     scheduledPosts.push({ date, title, platform, pillar, time });
     showToast('Post scheduled');
   }
-  STORE.save('scheduled', scheduledPosts); sbSave();
+  STORE.save('scheduled', scheduledPosts);
   closeScheduleModal();
   renderCalendar();
   renderDashboard();
@@ -1609,7 +1574,7 @@ function saveToVault() {
     content,
     date: new Date().toLocaleDateString('en-ZM', { day: '2-digit', month: 'short', year: 'numeric' })
   });
-  STORE.save('vault', vault); sbSave();
+  STORE.save('vault', vault);
   renderDashboard();
   showToast('Saved to vault');
 }
@@ -1678,11 +1643,11 @@ function scheduleFromVault(id) {
 }
 function markPublished(id) {
   const item = vault.find(v => v.id === id);
-  if (item) { item.status = 'Published'; STORE.save('vault', vault); sbSave(); renderVault(); renderDashboard(); showToast('Marked as published'); }
+  if (item) { item.status = 'Published'; STORE.save('vault', vault); renderVault(); renderDashboard(); showToast('Marked as published'); }
 }
 function deleteVaultItem(id) {
   vault = vault.filter(v => v.id !== id);
-  STORE.save('vault', vault); sbSave();
+  STORE.save('vault', vault);
   renderVault();
   showToast('Deleted');
 }
@@ -1747,7 +1712,7 @@ function saveAnalyticsEntry() {
 
   analyticsData.push(entry);
   analyticsData.sort((a, b) => a.month.localeCompare(b.month));
-  STORE.save('analytics', analyticsData); sbSave();
+  STORE.save('analytics', analyticsData);
 
   // Reset form
   ['li-imp','li-eng','li-fol','li-clk','tw-imp','tw-eng','tw-fol','tw-clk',
@@ -2203,9 +2168,96 @@ function renderDashboard() {
   }
 })();
 
+// ─── Supabase live sync ───
+const BNT_SB_URL = 'https://vdlhcxbldiszghofghgi.supabase.co';
+const BNT_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDY2NjUsImV4cCI6MjA5NzU4MjY2NX0.28RjGPZdbzJ2gYAfLo6Fn26cQmKp9KFbPnIaBgg0YC8';
+
+async function pushToSupabase() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const upcoming = scheduledPosts
+      .filter(p => p.date >= today)
+      .sort((a,b) => a.date.localeCompare(b.date))
+      .slice(0,10)
+      .map(p => ({ name: p.title, status: 'scheduled', platform: p.platform, date: p.date }));
+    const drafts = vault
+      .filter(v => v.status !== 'published')
+      .slice(0,10)
+      .map(v => ({ text: v.title || v.topic || '(untitled)' }));
+    await fetch(`${BNT_SB_URL}/rest/v1/bantuwa_status`, {
+      method: 'POST',
+      headers: {
+        'apikey': BNT_SB_KEY,
+        'Authorization': 'Bearer ' + BNT_SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({
+        user_key: 'victor',
+        active_projects: upcoming,
+        pending_tasks: drafts,
+        quarter_focus: 'Q2–Q3 2026: Bantuwa content & distribution',
+        updated_at: new Date().toISOString()
+      })
+    });
+  } catch(e) {}
+}
+
+// ─── Auto-sync to shared localStorage (read by Command Center) ───
+function syncToCommandCenter() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const upcoming = scheduledPosts
+      .filter(p => p.date >= today)
+      .sort((a,b) => a.date.localeCompare(b.date))
+      .slice(0, 10)
+      .map(p => ({ name: p.title, status: 'scheduled', platform: p.platform, date: p.date }));
+    const drafts = vault
+      .filter(v => v.status !== 'published')
+      .slice(0, 10)
+      .map(v => ({ text: v.title || v.topic || '(untitled)' }));
+    localStorage.setItem('vs_sync_bantuwa', JSON.stringify({
+      app: 'Bantuwa Content HQ',
+      exported: new Date().toISOString(),
+      activeProjects: upcoming,
+      pendingTasks: drafts,
+      quarterFocus: 'Q2–Q3 2026: Bantuwa content & distribution'
+    }));
+  } catch(e) {}
+}
+
+// ─── Export Status JSON for VS Command Center ───
+function exportStatusJSON() {
+  const today = new Date().toISOString().split('T')[0];
+  const upcoming = scheduledPosts
+    .filter(p => p.date >= today)
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .slice(0, 10)
+    .map(p => ({ name: p.title, status: 'scheduled', platform: p.platform, date: p.date }));
+  const drafts = vault
+    .filter(v => v.status !== 'published')
+    .slice(0, 10)
+    .map(v => ({ text: v.title || v.topic || '(untitled)' }));
+  const payload = {
+    app: 'Bantuwa Content HQ',
+    exported: new Date().toISOString(),
+    activeProjects: upcoming,
+    pendingTasks: drafts,
+    quarterFocus: 'Q2–Q3 2026: Bantuwa content & distribution'
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bantuwa_status.json';
+  a.click();
+  showToast('Status exported — save to VS Command Center folder');
+}
+
 updatePlatformTips();
 renderCalendar();
 renderDashboard();
+syncToCommandCenter();
+pushToSupabase();
 // Restore analytics dashboard if saved data exists
 if (analyticsData.length > 0) {
   showAnalyticsDash();
