@@ -184,6 +184,7 @@
     <div class="sidebar-logo">
       <div class="logo-text">BANTUWA</div>
       <div class="logo-sub">Content HQ</div>
+      <div id="sb-status" style="font-size:10px;color:#666;margin-top:4px;">○ Local only</div>
     </div>
 
     <div class="sidebar-section">
@@ -800,6 +801,64 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── Supabase sync ───
+const SB_URL = 'https://vdlhcxbldiszghofghgi.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDY2NjUsImV4cCI6MjA5NzU4MjY2NX0.28RjGPZdbzJ2gYAfLo6Fn26cQmKp9KFbPnIaBgg0YC8';
+const SB = {
+  h() { return { 'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json' }; },
+  async get(t,q){ const r=await fetch(`${SB_URL}/rest/v1/${t}${q||''}`,{headers:this.h()}); if(!r.ok)throw new Error(await r.text()); return r.json(); },
+  async upsert(t,d){ const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{...this.h(),'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(d)}); if(!r.ok)throw new Error(await r.text()); }
+};
+let sbOnline = false;
+function showSbStatus(msg) {
+  const el = document.getElementById('sb-status');
+  if (el) { el.textContent = msg; el.style.color = msg.startsWith('●') ? '#c9a84c' : '#666'; }
+}
+function sbBundle() {
+  return { vault, analytics: analyticsData, scheduled: scheduledPosts };
+}
+function sbUnpack(data) {
+  if (data.vault)     { vault = data.vault; }
+  if (data.analytics) { analyticsData = data.analytics; }
+  if (data.scheduled) { scheduledPosts = data.scheduled; }
+  STORE.save('vault', vault);
+  STORE.save('analytics', analyticsData);
+  STORE.save('scheduled', scheduledPosts);
+}
+async function sbSave() {
+  if (!sbOnline) return;
+  const ts = new Date().toISOString();
+  localStorage.setItem('bantuwa__updatedAt', ts);
+  try {
+    await SB.upsert('bantuwa_hq_data', { id:'main', data:{ ...sbBundle(), _updatedAt:ts }, updated_at:ts });
+    showSbStatus('● Synced');
+  } catch(e) { showSbStatus('○ Sync error'); console.warn('sbSave:', e.message); }
+}
+async function sbInit() {
+  try {
+    await SB.get('bantuwa_hq_data','?limit=0');
+    sbOnline = true;
+    showSbStatus('○ Connecting…');
+    const rows = await SB.get('bantuwa_hq_data','?id=eq.main');
+    if (!rows.length) { await sbSave(); showSbStatus('● Synced'); return; }
+    const remote    = rows[0].data;
+    const remoteItems = (remote.vault||[]).length + (remote.scheduled||[]).length;
+    const localItems  = vault.length + scheduledPosts.length;
+    const remoteTs  = new Date(rows[0].updated_at||0).getTime();
+    const localTs   = new Date(localStorage.getItem('bantuwa__updatedAt')||0).getTime();
+    const useRemote = remoteItems > localItems || (remoteItems === localItems && remoteTs > localTs);
+    if (useRemote) {
+      const backup = sbBundle();
+      localStorage.setItem('bantuwa__backup', JSON.stringify(backup));
+      sbUnpack(remote);
+      renderDashboard();
+    } else {
+      await sbSave();
+    }
+    showSbStatus('● Synced');
+  } catch(e) { showSbStatus('○ Local only'); console.warn('sbInit:', e.message); }
+}
+
 // ─── Persistence helpers ───
 const STORE = {
   save(key, val) { try { localStorage.setItem('bantuwa_' + key, JSON.stringify(val)); } catch(e) {} },
@@ -823,6 +882,8 @@ let vault          = STORE.load('vault', []);
 let analyticsData  = STORE.load('analytics', []);
 let scheduledPosts = STORE.load('scheduled', defaultScheduled);
 let calYear = 2026, calMonth = 4;
+// kick off Supabase sync after local state is ready
+window.addEventListener('DOMContentLoaded', () => sbInit());
 
 // ─── Nav ───
 function switchPanel(id) {
@@ -1342,7 +1403,7 @@ function saveArticleToVault() {
   const content = document.getElementById('art-output').textContent;
   if (content.includes('appear here') || content.length < 200) { showToast('Generate an article first'); return; }
   vault.push({ id: Date.now(), title, platform: 'Article', status: 'Draft', content, date: new Date().toLocaleDateString('en-ZM', { day: '2-digit', month: 'short', year: 'numeric' }) });
-  STORE.save('vault', vault);
+  STORE.save('vault', vault); sbSave();
   showToast('Article saved to vault');
 }
 
@@ -1440,7 +1501,7 @@ function showDayDetail(dateStr, day) {
 function deleteScheduledPost(idx) {
   if (!confirm('Delete this scheduled post?')) return;
   scheduledPosts.splice(idx, 1);
-  STORE.save('scheduled', scheduledPosts);
+  STORE.save('scheduled', scheduledPosts); sbSave();
   renderCalendar();
   document.getElementById('day-detail').style.display = 'none';
   showToast('Post deleted');
@@ -1502,7 +1563,7 @@ function confirmSchedule() {
     scheduledPosts.push({ date, title, platform, pillar, time });
     showToast('Post scheduled');
   }
-  STORE.save('scheduled', scheduledPosts);
+  STORE.save('scheduled', scheduledPosts); sbSave();
   closeScheduleModal();
   renderCalendar();
   renderDashboard();
@@ -1524,7 +1585,7 @@ function saveToVault() {
     content,
     date: new Date().toLocaleDateString('en-ZM', { day: '2-digit', month: 'short', year: 'numeric' })
   });
-  STORE.save('vault', vault);
+  STORE.save('vault', vault); sbSave();
   renderDashboard();
   showToast('Saved to vault');
 }
@@ -1593,11 +1654,11 @@ function scheduleFromVault(id) {
 }
 function markPublished(id) {
   const item = vault.find(v => v.id === id);
-  if (item) { item.status = 'Published'; STORE.save('vault', vault); renderVault(); renderDashboard(); showToast('Marked as published'); }
+  if (item) { item.status = 'Published'; STORE.save('vault', vault); sbSave(); renderVault(); renderDashboard(); showToast('Marked as published'); }
 }
 function deleteVaultItem(id) {
   vault = vault.filter(v => v.id !== id);
-  STORE.save('vault', vault);
+  STORE.save('vault', vault); sbSave();
   renderVault();
   showToast('Deleted');
 }
@@ -1662,7 +1723,7 @@ function saveAnalyticsEntry() {
 
   analyticsData.push(entry);
   analyticsData.sort((a, b) => a.month.localeCompare(b.month));
-  STORE.save('analytics', analyticsData);
+  STORE.save('analytics', analyticsData); sbSave();
 
   // Reset form
   ['li-imp','li-eng','li-fol','li-clk','tw-imp','tw-eng','tw-fol','tw-clk',
