@@ -1551,7 +1551,7 @@ function migrate() {
     return s;
   } catch(e) { return JSON.parse(JSON.stringify(DEFAULT)); }
 }
-function saveLS() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch(e) {} }
+function saveLS() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch(e) {} sbQueueSync(); }
 function uid() { return Date.now() + Math.floor(Math.random()*9999); }
 function esc(s) { return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function todayKey() {
@@ -1626,6 +1626,76 @@ async function sbLoadTasksFromSettings() {
     if (changed) { saveLS(); renderToday(); renderWeek(); toast('Tasks synced from Supabase ✓'); }
   } catch(e) { console.warn('sbLoadTasksFromSettings:',e.message); }
 }
+// ── Comprehensive cross-device sync via cc_settings ──
+let _sbSyncing = false;
+let _sbSyncAllTimer = null;
+function sbQueueSync() {
+  if (!sbOnline || _sbSyncing) return;
+  clearTimeout(_sbSyncAllTimer);
+  _sbSyncAllTimer = setTimeout(sbSyncAll, 1000);
+}
+async function sbSyncAll() {
+  if (!sbOnline) return;
+  try {
+    const sq = sqLoad();
+    await Promise.all([
+      SB.upsert('cc_settings', { key:'app_state',  value: JSON.stringify(S),      updated_at: new Date().toISOString() }, '?on_conflict=key'),
+      SB.upsert('cc_settings', { key:'sd_data',    value: JSON.stringify(sdData), updated_at: new Date().toISOString() }, '?on_conflict=key'),
+      SB.upsert('cc_settings', { key:'sq_journal', value: JSON.stringify(sq),     updated_at: new Date().toISOString() }, '?on_conflict=key'),
+    ]);
+  } catch(e) { console.warn('sbSyncAll:', e.message); }
+}
+async function sbLoadAll() {
+  try {
+    const rows = await SB.get('cc_settings', '?key=in.(app_state,sd_data,sq_journal,today_tasks,week_tasks)');
+    _sbSyncing = true;
+    let changed = false;
+    const appRow = rows.find(r => r.key === 'app_state');
+    const sdRow  = rows.find(r => r.key === 'sd_data');
+    const sqRow  = rows.find(r => r.key === 'sq_journal');
+    const trRow  = rows.find(r => r.key === 'today_tasks');
+    const wrRow  = rows.find(r => r.key === 'week_tasks');
+    if (appRow && appRow.value) {
+      try {
+        const remote = JSON.parse(appRow.value);
+        Object.assign(S, remote);
+        localStorage.setItem(LS_KEY, JSON.stringify(S));
+        changed = true;
+      } catch(e) {}
+    } else {
+      // Legacy fallback: today_tasks / week_tasks entries
+      if (trRow && trRow.value) { try { const t=JSON.parse(trRow.value); if(Array.isArray(t)&&t.length>0){S.today=t;changed=true;} } catch(e){} }
+      if (wrRow && wrRow.value) { try { const w=JSON.parse(wrRow.value); if(Array.isArray(w)&&w.length>0){S.week=w;changed=true;} } catch(e){} }
+      if (changed) localStorage.setItem(LS_KEY, JSON.stringify(S));
+    }
+    if (sdRow && sdRow.value) {
+      try {
+        const remote = JSON.parse(sdRow.value);
+        const remoteTs = new Date(remote._updatedAt || 0).getTime();
+        const localTs  = new Date(sdData._updatedAt  || 0).getTime();
+        if (remoteTs > localTs) {
+          sdData = remote;
+          localStorage.setItem(SD_KEY, JSON.stringify(sdData));
+          changed = true;
+        }
+      } catch(e) {}
+    }
+    if (sqRow && sqRow.value) {
+      try {
+        const remote = JSON.parse(sqRow.value);
+        const remoteKeys = Object.keys(remote).length;
+        const localKeys  = Object.keys(sqLoad()).length;
+        if (remoteKeys > localKeys) {
+          localStorage.setItem(SQ_STORE, sqRow.value);
+          changed = true;
+        }
+      } catch(e) {}
+    }
+    _sbSyncing = false;
+    if (changed) { renderAll(); toast('Data synced from Supabase ✓'); }
+  } catch(e) { console.warn('sbLoadAll:', e.message); _sbSyncing = false; }
+}
+
 async function sbDeleteTask(id) {
   if (!sbTasks) return;
   try { await SB.del('cc_tasks',`?id=eq.${id}`); } catch(e) {}
@@ -3750,7 +3820,7 @@ function sdLoad() {
   if (!sdData.stopList) sdData.stopList = {};
   if (!sdData.qm)       sdData.qm = { q1:{}, q2:{}, q3:{}, q4:{} };
 }
-function sdSave() { try { localStorage.setItem(SD_KEY, JSON.stringify(sdData)); } catch(e) {} sbSaveSelfDev(); }
+function sdSave() { try { localStorage.setItem(SD_KEY, JSON.stringify(sdData)); } catch(e) {} sbSaveSelfDev(); sbQueueSync(); }
 
 // Supabase sync for self-dev
 let sbSelfDev = false;
@@ -4006,7 +4076,7 @@ function sdClearWeeklyReview() {
 /* ── STRATEGIC QUESTION JOURNAL ── */
 const SQ_STORE = 'vs_sq_journal';
 function sqLoad() { try { return JSON.parse(localStorage.getItem(SQ_STORE)||'{}'); } catch(e) { return {}; } }
-function sqSave(data) { localStorage.setItem(SQ_STORE, JSON.stringify(data)); }
+function sqSave(data) { localStorage.setItem(SQ_STORE, JSON.stringify(data)); sbQueueSync(); }
 
 async function generateSQ() {
   const key = getAIKey();
@@ -4186,7 +4256,7 @@ async function retrySbConnect() {
     if (sbSchedule)   ops.push(sbLoadSchedule());
     if (sbMilestones) ops.push(sbLoadMilestones());
     ops.push(sbLoadApiKey());
-    ops.push(sbLoadTasksFromSettings());
+    ops.push(sbLoadAll());
     await Promise.all(ops);
     renderAll();
     toast('Supabase connected ✓');
@@ -4213,7 +4283,7 @@ async function init() {
   if(sbOnline){
     setSbStatus('ok','Supabase ✓');
     const t=await sbCheckTables();
-    sbTasks=t.tasks; sbOkrs=t.okrs; sbSchedule=t.schedule; sbMilestones=t.milestones; sbSelfDev=selfdev;
+    sbTasks=t.tasks; sbOkrs=t.okrs; sbSchedule=t.schedule; sbMilestones=t.milestones; sbSelfDev=t.selfdev;
     const ops=[loadTCPodcast()];
     if(sbTasks)      ops.push(sbLoadTasks());
     if(sbOkrs)       ops.push(sbLoadOKRs());
@@ -4221,7 +4291,7 @@ async function init() {
     if(sbMilestones) ops.push(sbLoadMilestones());
     if(sbSelfDev)    ops.push(sbLoadSelfDev());
     ops.push(sbLoadApiKey());
-    ops.push(sbLoadTasksFromSettings());
+    ops.push(sbLoadAll());
     await Promise.all(ops);
     renderAll();
   } else {
