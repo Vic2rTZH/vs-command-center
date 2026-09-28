@@ -1159,7 +1159,7 @@ body {
       <div class="uav-banner-left">
         <div class="uav-label">Bantuwa Autonomous Systems · 12-Month MVP</div>
         <div class="uav-title">UAV MVP — X1 Drone System</div>
-        <div class="uav-sub">Build · Certify · Fly · Sell · Jan – Dec 2027</div>
+        <div class="uav-sub">Build · Certify · Fly · Sell · Oct – Dec 2026</div>
       </div>
       <div class="uav-cd-group">
         <div class="uav-cd-block">
@@ -3461,14 +3461,14 @@ function ailaToggleChecklist(cat, idx, checked) {
    ══════════════════════════════════════════ */
 
 const UAV_PLAN = {
-  start: '2027-01-01',
-  gateOne: '2027-06-30',
-  deadline: '2027-12-31',
+  start: '2026-10-01',
+  gateOne: '2026-11-30',
+  deadline: '2026-12-31',
   phases: [
     {
-      num:1, label:'FOUNDATION', months:'Jan 2027',
-      start:'2027-01-01', end:'2027-01-31',
-      goal:'Legal entity live, regulatory pathway defined.',
+      num:1, label:'FOUNDATION', months:'Oct 1–14',
+      start:'2026-10-01', end:'2026-10-14',
+      goal:'Legal entity live, regulatory pathway defined, funds committed.',
       deliverable:'Legal entity ready + Regulatory roadmap',
       tasks:[
         'Board approval & Phase A funds committed (~K590,000)',
@@ -3481,9 +3481,9 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:2, label:'TEAM & PARTNER', months:'Feb 2027',
-      start:'2027-02-01', end:'2027-02-28',
-      goal:'Team in place, workspace secured, partner flying under their certificate.',
+      num:2, label:'TEAM & PARTNER', months:'Oct 15–31',
+      start:'2026-10-15', end:'2026-10-31',
+      goal:'Team in place, workspace secured, partner operator agreement signed.',
       deliverable:'Team in place + Partner agreement signed',
       tasks:[
         'Host workspace agreement signed (university / innovation hub, ~50–70 m²)',
@@ -3496,8 +3496,8 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:3, label:'BUILD & DISCOVER', months:'Mar–Apr 2027',
-      start:'2027-03-01', end:'2027-04-30',
+      num:3, label:'BUILD & DISCOVER', months:'Nov 1–21',
+      start:'2026-11-01', end:'2026-11-21',
       goal:'X1 prototypes being built, pilot customer pipeline established.',
       deliverable:'Workshop running + Pilot customer pipeline (15–20 meetings)',
       tasks:[
@@ -3508,13 +3508,13 @@ const UAV_PLAN = {
         'X1 components ordered — 3 prototypes + 1 demo aircraft (K100,000)',
         'Long-lead items ordered from 2 suppliers to manage exchange-rate risk',
         'Customer discovery: 15–20 meetings — mining, infrastructure, conservancies',
-        'Radio / telemetry equipment approval applied for — ZICTA (Month 4 target)',
+        'Radio / telemetry equipment approval applied for — ZICTA',
         'RPAS Operator Certificate application process started — ZCAA'
       ]
     },
     {
-      num:4, label:'TEST & FIRST REVENUE', months:'May–Jun 2027',
-      start:'2027-05-01', end:'2027-06-30',
+      num:4, label:'TEST & FIRST REVENUE', months:'Nov 22 – Dec 5',
+      start:'2026-11-22', end:'2026-12-05',
       goal:'X1 flying to specification. First paid missions via partner. Gate 1 passed.',
       deliverable:'X1 flying to spec + First revenue [GATE 1]',
       tasks:[
@@ -3526,60 +3526,60 @@ const UAV_PLAN = {
         'Open-source autopilot and mission-planning software configured',
         'Third-party liability insurance in place before first flight',
         'First partner-flown paid service mission delivered',
-        'Remote pilot licensing underway — ZCAA (Month 6 target)',
+        'Remote pilot licensing underway — ZCAA',
         '★ GATE 1: X1 flown to spec AND ≥1 paid mission → release K220,000 Phase B'
       ]
     },
     {
-      num:5, label:'VALIDATE & CERTIFY', months:'Jul–Sep 2027',
-      start:'2027-07-01', end:'2027-09-30',
-      goal:'3 pilot customers signed. ZCAA operator certification obtained.',
-      deliverable:'Pilot agreements + Certified operator',
+      num:5, label:'VALIDATE & CERTIFY', months:'Dec 6–20',
+      start:'2026-12-06', end:'2026-12-20',
+      goal:'Pilot customers signed. ZCAA certification in progress. Own ops begin.',
+      deliverable:'Pilot agreements + Certification in progress',
       tasks:[
         'X1 design frozen for pilot-phase builds',
         'Pilot customer 1 signed — Mining (stockpile volumes / site mapping)',
         'Pilot customer 2 signed — Infrastructure / construction (progress mapping)',
         'Pilot customer 3 signed — Environment / conservancy (site / habitat mapping)',
         'Deposits collected on any X1 orders (30–50%)',
-        'ZCAA RPAS Operator Certificate obtained (Month 9 deadline)',
-        'Aircraft registration completed with ZCAA',
-        'Remote-pilot licences obtained — all operational pilots'
+        'ZCAA RPAS Operator Certificate — application complete, process active',
+        'Aircraft registration submitted to ZCAA',
+        'Remote-pilot licence training underway for all operational pilots'
       ]
     },
     {
-      num:6, label:'DELIVER & CONVERT', months:'Oct–Dec 2027',
-      start:'2027-10-01', end:'2027-12-31',
-      goal:'Paying customers. Contracts and first X1 orders. Gate 2 passed.',
+      num:6, label:'DELIVER & CONVERT', months:'Dec 21–31',
+      start:'2026-12-21', end:'2026-12-31',
+      goal:'Paying customers. Contracts and first X1 orders. Year-end Gate 2 review.',
       deliverable:'Paying customers + X1 orders [GATE 2]',
       tasks:[
-        'Deliver pilot missions with own certified operations (≥8 total paid missions)',
+        'Deliver paid missions via partner (≥8 total for year-end gate)',
         'Convert pilot 1 into repeat contract or X1 sale',
         'Convert pilot 2 into repeat contract or X1 sale',
         'Convert pilot 3 into repeat contract or X1 sale',
         'At least 1 training cohort delivered (~K15,000 revenue)',
         'Build and quality procedures fully documented',
         'Phase B funding accounted for; financials reconciled',
-        '★ GATE 2: Operator cert + ≥3 pilots + ≥8 missions → scale to full plan'
+        '★ GATE 2: ≥3 pilots + ≥8 missions + cert in progress → scale to full plan 2027'
       ]
     }
   ],
   gates: {
     gate1: {
-      id: 'g1', label: 'GATE 1', month: 'Month 6 — Jun 2027', date: '2027-06-30',
+      id: 'g1', label: 'GATE 1', month: 'Week 9 — End Nov 2026', date: '2026-11-30',
       criteria: [
         'X1 prototype has flown to specification',
-        '≥1 paid service mission delivered'
+        '≥1 paid service mission delivered via partner'
       ],
       reward: 'Release Phase B funds (~K220,000)'
     },
     gate2: {
-      id: 'g2', label: 'GATE 2', month: 'Month 12 — Dec 2027', date: '2027-12-31',
+      id: 'g2', label: 'GATE 2', month: 'Year-End — Dec 31 2026', date: '2026-12-31',
       criteria: [
-        'ZCAA RPAS Operator Certificate held',
         '≥3 signed pilot customers',
-        '≥8 paid service missions completed'
+        '≥8 paid service missions completed',
+        'ZCAA certification process active (operator cert in progress)'
       ],
-      reward: 'Scale to full plan — team of 6, additional X1 variants, Insight AI platform, next funding round'
+      reward: 'Scale to full plan 2027 — team of 6, additional X1 variants, Insight AI platform, next funding round'
     }
   },
   regulatoryChecklist: {
@@ -3617,7 +3617,7 @@ const UAV_PLAN = {
   }
 };
 
-const UAV_LS_KEY = 'vs_uav_v1';
+const UAV_LS_KEY = 'vs_uav_v2';
 let uavActivePhase = null;
 
 function loadUAV() { try { return JSON.parse(localStorage.getItem(UAV_LS_KEY)||'{}'); } catch(e) { return {}; } }
