@@ -36,6 +36,7 @@
   --va:      #9b2335;
   --y4pz:    #b45309;
   --aila:    #0ea5e9;
+  --uav:     #f97316;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -179,6 +180,7 @@ body {
 .tag-va      { background:#7f1d1d; color:#fca5a5; }
 .tag-y4pz    { background:#78350f; color:#fcd34d; }
 .tag-aila    { background:#0c4a6e; color:#7dd3fc; }
+.tag-uav     { background:#431407; color:#fdba74; }
 .tag-tc      { background:var(--gold); color:#000; }
 
 /* ── BUTTONS ── */
@@ -492,6 +494,73 @@ body {
 .aila-mini-task label { color: var(--text2); cursor: pointer; line-height: 1.3; }
 .aila-mini-task.done label { text-decoration: line-through; color: var(--text3); }
 
+/* ── UAV MVP TRACKER ── */
+.uav-banner {
+  background: linear-gradient(135deg, rgba(249,115,22,.12) 0%, rgba(249,115,22,.04) 100%);
+  border: 1px solid rgba(249,115,22,.3); border-radius: 12px;
+  padding: 20px 24px; display: flex; align-items: center;
+  justify-content: space-between; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.uav-banner-left { flex: 1; min-width: 200px; }
+.uav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--uav); margin-bottom: 4px; }
+.uav-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.uav-sub   { font-size: 12px; color: var(--text3); }
+.uav-cd-group { display: flex; gap: 16px; flex-shrink: 0; }
+.uav-cd-block { text-align: center; }
+.uav-cd-num { font-size: 32px; font-weight: 800; color: var(--uav); line-height: 1; font-variant-numeric: tabular-nums; }
+.uav-cd-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .8px; margin-top: 2px; }
+.uav-phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+@media (max-width: 900px) { .uav-phase-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 500px) { .uav-phase-grid { grid-template-columns: 1fr; } }
+.uav-phase-tile {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px; cursor: pointer; transition: all .15s;
+}
+.uav-phase-tile:hover { border-color: var(--uav); }
+.uav-phase-tile.current { border-color: var(--uav); background: rgba(249,115,22,.08); box-shadow: 0 0 0 1px rgba(249,115,22,.2); }
+.uav-phase-tile.done { opacity: .6; }
+.uav-phase-tile.future { opacity: .45; }
+.uav-ph-num { font-size: 10px; font-weight: 700; color: var(--uav); letter-spacing: .8px; margin-bottom: 2px; }
+.uav-ph-label { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.uav-ph-months { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+.uav-ph-bar { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+.uav-ph-fill { height: 100%; background: var(--uav); border-radius: 2px; transition: width .4s; }
+.uav-ph-pct { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.uav-phase-detail { background: var(--bg2); border: 1px solid rgba(249,115,22,.2); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+.uav-detail-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--uav); letter-spacing: .8px; }
+.uav-detail-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.uav-detail-goal { font-size: 13px; color: var(--text3); margin-top: 4px; }
+.uav-detail-deliverable { font-size: 12px; color: var(--text3); background: var(--bg4); border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; }
+.uav-task-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.uav-task-row:last-child { border-bottom: none; }
+.uav-task-row.done .uav-task-text { text-decoration: line-through; color: var(--text3); }
+.uav-task-row.gate-item { background: rgba(249,115,22,.06); border-radius: 6px; padding: 8px 10px; margin-top: 4px; border-bottom: none !important; border: 1px solid rgba(249,115,22,.25); }
+.uav-task-row input[type=checkbox] { margin-top: 3px; accent-color: var(--uav); cursor: pointer; flex-shrink: 0; }
+.uav-task-text { color: var(--text2); flex: 1; line-height: 1.4; font-size: 13px; }
+.uav-gate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+@media (max-width: 600px) { .uav-gate-grid { grid-template-columns: 1fr; } }
+.uav-gate-card { border: 1px solid rgba(249,115,22,.3); border-radius: 10px; padding: 16px; background: rgba(249,115,22,.05); }
+.uav-gate-card.passed { border-color: var(--teal); background: rgba(0,178,148,.06); }
+.uav-gate-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--uav); letter-spacing: .8px; margin-bottom: 4px; }
+.uav-gate-card.passed .uav-gate-title { color: var(--teal); }
+.uav-gate-month { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.uav-gate-criterion { display: flex; gap: 8px; align-items: flex-start; padding: 4px 0; font-size: 12px; color: var(--text2); }
+.uav-gate-criterion input[type=checkbox] { accent-color: var(--uav); margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+.uav-gate-reward { font-size: 11px; color: var(--text3); margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+.uav-checklist-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 720px) { .uav-checklist-grid { grid-template-columns: 1fr; } }
+.uav-cat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.uav-cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.uav-cat-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); }
+.uav-cat-count { font-size: 11px; color: var(--uav); font-weight: 700; }
+.uav-cat-bar { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+.uav-cat-fill { height: 100%; background: var(--uav); border-radius: 2px; transition: width .4s; }
+.uav-mini-task { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
+.uav-mini-task:last-child { border-bottom: none; }
+.uav-mini-task input[type=checkbox] { margin-top: 2px; accent-color: var(--uav); cursor: pointer; flex-shrink: 0; }
+.uav-mini-task label { color: var(--text2); cursor: pointer; line-height: 1.3; }
+.uav-mini-task.done label { text-decoration: line-through; color: var(--text3); }
+
 /* ── AI PROPOSAL ── */
 .ai-proposal-wrap {
   margin-top: 14px; border: 1px solid rgba(232,180,36,.35);
@@ -622,6 +691,7 @@ body {
     <button class="tab-btn" data-panel="strategy" style="color:var(--gold2);">◈ Strategy</button>
     <button class="tab-btn" data-panel="schedule">Rhythm</button>
     <button class="tab-btn" data-panel="aila" style="color:var(--aila)"><span data-ic="sparkles"></span> AILA Sprint</button>
+    <button class="tab-btn" data-panel="uav" style="color:var(--uav)">✈ UAV MVP</button>
   </div>
 
   <!-- ═══════════════ TODAY ═══════════════ -->
@@ -1078,6 +1148,50 @@ body {
     <!-- Master checklist -->
     <div class="sec-title" style="margin-bottom:12px;">Master Checklist — 45 Items</div>
     <div class="aila-checklist-grid" id="ailaMasterChecklist"></div>
+
+  </div>
+
+  <!-- ═══════════════ UAV MVP ═══════════════ -->
+  <div class="panel" id="panel-uav">
+
+    <!-- Banner -->
+    <div class="uav-banner">
+      <div class="uav-banner-left">
+        <div class="uav-label">Bantuwa Autonomous Systems · 12-Month MVP</div>
+        <div class="uav-title">UAV MVP — X1 Drone System</div>
+        <div class="uav-sub">Build · Certify · Fly · Sell · Jan – Dec 2027</div>
+      </div>
+      <div class="uav-cd-group">
+        <div class="uav-cd-block">
+          <div class="uav-cd-num" id="uavDaysLeft">--</div>
+          <div class="uav-cd-lbl">Days Left</div>
+        </div>
+        <div class="uav-cd-block">
+          <div class="uav-cd-num" id="uavPhaseNum">--</div>
+          <div class="uav-cd-lbl">Phase</div>
+        </div>
+        <div class="uav-cd-block">
+          <div class="uav-cd-num" id="uavPctDone">0%</div>
+          <div class="uav-cd-lbl">Complete</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase grid -->
+    <div class="sec-title" style="margin-bottom:12px;">6-Phase Execution Plan</div>
+    <div class="uav-phase-grid" id="uavPhaseGrid"></div>
+
+    <!-- Phase detail -->
+    <div class="sec-title" style="margin-bottom:12px;">Phase Tasks</div>
+    <div id="uavPhaseDetail"></div>
+
+    <!-- Decision Gates -->
+    <div class="sec-title" style="margin-bottom:12px;">Decision Gates</div>
+    <div class="uav-gate-grid" id="uavGateGrid"></div>
+
+    <!-- Regulatory & Master Checklist -->
+    <div class="sec-title" style="margin-bottom:12px;">Regulatory & Compliance Checklist</div>
+    <div class="uav-checklist-grid" id="uavMasterChecklist"></div>
 
   </div>
 
@@ -1640,21 +1754,27 @@ async function sbSyncAll() {
   if (!sbOnline) return;
   try {
     const sq = sqLoad();
+    const uav = loadUAV();
+    const aila = loadAILA();
     await Promise.all([
       SB.upsert('cc_settings', { key:'app_state',  value: JSON.stringify(S),      updated_at: new Date().toISOString() }, '?on_conflict=key'),
       SB.upsert('cc_settings', { key:'sd_data',    value: JSON.stringify(sdData), updated_at: new Date().toISOString() }, '?on_conflict=key'),
       SB.upsert('cc_settings', { key:'sq_journal', value: JSON.stringify(sq),     updated_at: new Date().toISOString() }, '?on_conflict=key'),
+      SB.upsert('cc_settings', { key:'uav_data',   value: JSON.stringify(uav),    updated_at: new Date().toISOString() }, '?on_conflict=key'),
+      SB.upsert('cc_settings', { key:'aila_data',  value: JSON.stringify(aila),   updated_at: new Date().toISOString() }, '?on_conflict=key'),
     ]);
   } catch(e) { console.warn('sbSyncAll:', e.message); }
 }
 async function sbLoadAll() {
   try {
-    const rows = await SB.get('cc_settings', '?key=in.(app_state,sd_data,sq_journal,today_tasks,week_tasks)');
+    const rows = await SB.get('cc_settings', '?key=in.(app_state,sd_data,sq_journal,uav_data,aila_data,today_tasks,week_tasks)');
     _sbSyncing = true;
     let changed = false;
     const appRow = rows.find(r => r.key === 'app_state');
     const sdRow  = rows.find(r => r.key === 'sd_data');
     const sqRow  = rows.find(r => r.key === 'sq_journal');
+    const uavRow = rows.find(r => r.key === 'uav_data');
+    const ailaRow= rows.find(r => r.key === 'aila_data');
     const trRow  = rows.find(r => r.key === 'today_tasks');
     const wrRow  = rows.find(r => r.key === 'week_tasks');
     if (appRow && appRow.value) {
@@ -1692,6 +1812,28 @@ async function sbLoadAll() {
         const localKeys  = Object.keys(sqLoad()).length;
         if (remoteKeys > localKeys) {
           localStorage.setItem(SQ_STORE, sqRow.value);
+          changed = true;
+        }
+      } catch(e) {}
+    }
+    if (uavRow && uavRow.value) {
+      try {
+        const remote = JSON.parse(uavRow.value);
+        const remoteKeys = Object.keys(remote).length;
+        const localKeys  = Object.keys(loadUAV()).length;
+        if (remoteKeys > localKeys) {
+          localStorage.setItem(UAV_LS_KEY, uavRow.value);
+          changed = true;
+        }
+      } catch(e) {}
+    }
+    if (ailaRow && ailaRow.value) {
+      try {
+        const remote = JSON.parse(ailaRow.value);
+        const remoteKeys = Object.keys(remote).length;
+        const localKeys  = Object.keys(loadAILA()).length;
+        if (remoteKeys > localKeys) {
+          localStorage.setItem(AILA_LS_KEY, ailaRow.value);
           changed = true;
         }
       } catch(e) {}
@@ -2880,6 +3022,7 @@ function switchTab(panelId) {
   if(panelId==='week'){renderWeek();renderWeekRhythmQuick();}
   if(panelId==='okrs') renderOKRs();
   if(panelId==='aila') renderAILA();
+  if(panelId==='uav')  renderUAV();
   if(panelId==='plan90') render90Day();
   if(panelId==='schedule'){renderSchedule();renderScorecard();}
 }
@@ -3122,6 +3265,7 @@ function loadAILA() {
 }
 function saveAILA(data) {
   try { localStorage.setItem(AILA_LS_KEY, JSON.stringify(data)); } catch(e) {}
+  sbQueueSync();
 }
 
 function ailaCurrentWeek() {
@@ -3310,6 +3454,377 @@ function ailaToggleChecklist(cat, idx, checked) {
   saveAILA(progress);
   const master = ailaMasterProgress(progress);
   renderAILAChecklist(progress, master);
+}
+
+/* ══════════════════════════════════════════
+   UAV MVP DATA & TRACKER
+   ══════════════════════════════════════════ */
+
+const UAV_PLAN = {
+  start: '2027-01-01',
+  gateOne: '2027-06-30',
+  deadline: '2027-12-31',
+  phases: [
+    {
+      num:1, label:'FOUNDATION', months:'Jan 2027',
+      start:'2027-01-01', end:'2027-01-31',
+      goal:'Legal entity live, regulatory pathway defined.',
+      deliverable:'Legal entity ready + Regulatory roadmap',
+      tasks:[
+        'Board approval & Phase A funds committed (~K590,000)',
+        'Company / division registration — PACRA',
+        'Tax registration — ZRA (TPIN, VAT when due, PAYE)',
+        'Data-protection registration — Office of Data Protection Commissioner',
+        'First meeting with ZCAA — RPAS operator certification pathway confirmed',
+        'Confirm regulatory fees and timelines with each authority',
+        'Dedicated business bank account open'
+      ]
+    },
+    {
+      num:2, label:'TEAM & PARTNER', months:'Feb 2027',
+      start:'2027-02-01', end:'2027-02-28',
+      goal:'Team in place, workspace secured, partner flying under their certificate.',
+      deliverable:'Team in place + Partner agreement signed',
+      tasks:[
+        'Host workspace agreement signed (university / innovation hub, ~50–70 m²)',
+        'UAV systems engineer recruited (full-time, K12,000/month)',
+        'Technician / remote pilot recruited (full-time, K8,000/month)',
+        'AI / software developer contracted (part-time, K5,000/month)',
+        'Partner agreement signed with ZCAA-licensed operator (revenue share basis)',
+        'Battery fire-safe storage and safety procedures in place',
+        'Workshop fully operational with power and internet'
+      ]
+    },
+    {
+      num:3, label:'BUILD & DISCOVER', months:'Mar–Apr 2027',
+      start:'2027-03-01', end:'2027-04-30',
+      goal:'X1 prototypes being built, pilot customer pipeline established.',
+      deliverable:'Workshop running + Pilot customer pipeline (15–20 meetings)',
+      tasks:[
+        'Equipment procured: 2× 3D printers (K40,000)',
+        'Equipment procured: 2× workstations incl GPU workstation (K45,000)',
+        'Basic electronics test gear procured (K25,000)',
+        'Mechanical hand and power tools procured (K15,000)',
+        'X1 components ordered — 3 prototypes + 1 demo aircraft (K100,000)',
+        'Long-lead items ordered from 2 suppliers to manage exchange-rate risk',
+        'Customer discovery: 15–20 meetings — mining, infrastructure, conservancies',
+        'Radio / telemetry equipment approval applied for — ZICTA (Month 4 target)',
+        'RPAS Operator Certificate application process started — ZCAA'
+      ]
+    },
+    {
+      num:4, label:'TEST & FIRST REVENUE', months:'May–Jun 2027',
+      start:'2027-05-01', end:'2027-06-30',
+      goal:'X1 flying to specification. First paid missions via partner. Gate 1 passed.',
+      deliverable:'X1 flying to spec + First revenue [GATE 1]',
+      tasks:[
+        'X1 airframe assembled and structurally tested',
+        'Propulsion and electronics integrated and bench-tested',
+        'First flight test — hover, stability, and manual control',
+        'Payload integration tested (RGB mapping camera, X1-MAP)',
+        'Battery and power system validated in field conditions',
+        'Open-source autopilot and mission-planning software configured',
+        'Third-party liability insurance in place before first flight',
+        'First partner-flown paid service mission delivered',
+        'Remote pilot licensing underway — ZCAA (Month 6 target)',
+        '★ GATE 1: X1 flown to spec AND ≥1 paid mission → release K220,000 Phase B'
+      ]
+    },
+    {
+      num:5, label:'VALIDATE & CERTIFY', months:'Jul–Sep 2027',
+      start:'2027-07-01', end:'2027-09-30',
+      goal:'3 pilot customers signed. ZCAA operator certification obtained.',
+      deliverable:'Pilot agreements + Certified operator',
+      tasks:[
+        'X1 design frozen for pilot-phase builds',
+        'Pilot customer 1 signed — Mining (stockpile volumes / site mapping)',
+        'Pilot customer 2 signed — Infrastructure / construction (progress mapping)',
+        'Pilot customer 3 signed — Environment / conservancy (site / habitat mapping)',
+        'Deposits collected on any X1 orders (30–50%)',
+        'ZCAA RPAS Operator Certificate obtained (Month 9 deadline)',
+        'Aircraft registration completed with ZCAA',
+        'Remote-pilot licences obtained — all operational pilots'
+      ]
+    },
+    {
+      num:6, label:'DELIVER & CONVERT', months:'Oct–Dec 2027',
+      start:'2027-10-01', end:'2027-12-31',
+      goal:'Paying customers. Contracts and first X1 orders. Gate 2 passed.',
+      deliverable:'Paying customers + X1 orders [GATE 2]',
+      tasks:[
+        'Deliver pilot missions with own certified operations (≥8 total paid missions)',
+        'Convert pilot 1 into repeat contract or X1 sale',
+        'Convert pilot 2 into repeat contract or X1 sale',
+        'Convert pilot 3 into repeat contract or X1 sale',
+        'At least 1 training cohort delivered (~K15,000 revenue)',
+        'Build and quality procedures fully documented',
+        'Phase B funding accounted for; financials reconciled',
+        '★ GATE 2: Operator cert + ≥3 pilots + ≥8 missions → scale to full plan'
+      ]
+    }
+  ],
+  gates: {
+    gate1: {
+      id: 'g1', label: 'GATE 1', month: 'Month 6 — Jun 2027', date: '2027-06-30',
+      criteria: [
+        'X1 prototype has flown to specification',
+        '≥1 paid service mission delivered'
+      ],
+      reward: 'Release Phase B funds (~K220,000)'
+    },
+    gate2: {
+      id: 'g2', label: 'GATE 2', month: 'Month 12 — Dec 2027', date: '2027-12-31',
+      criteria: [
+        'ZCAA RPAS Operator Certificate held',
+        '≥3 signed pilot customers',
+        '≥8 paid service missions completed'
+      ],
+      reward: 'Scale to full plan — team of 6, additional X1 variants, Insight AI platform, next funding round'
+    }
+  },
+  regulatoryChecklist: {
+    'Legal & Tax': [
+      'Company / division registration — PACRA',
+      'TPIN registration — ZRA',
+      'VAT registration — ZRA (when due)',
+      'PAYE registration — ZRA',
+      'Data-protection registration — ODC',
+      'Dedicated bank account open'
+    ],
+    'ZCAA Regulatory': [
+      'Initial ZCAA meeting — operator pathway confirmed',
+      'RPAS Operator Certificate application submitted (ZCARs Part 18)',
+      'RPAS Operator Certificate obtained',
+      'Aircraft registration completed',
+      'Remote-pilot licences obtained for all operational pilots'
+    ],
+    'Other Compliance': [
+      'Radio / telemetry equipment approval — ZICTA',
+      'Third-party liability insurance in place',
+      'Battery fire-safety procedures documented',
+      'Basic safety procedures documented',
+      'Protected-area permissions process established (DNPW / NHCC)',
+      'Clear customer data terms drafted and in contracts'
+    ],
+    'Commercial Milestones': [
+      'ZCAA-licensed partner operator agreement signed',
+      'First paid mission delivered via partner',
+      'Payment and invoice system operational',
+      '≥3 pilot customer agreements signed',
+      '≥8 paid missions completed',
+      '≥1 X1 sale or repeat service contract'
+    ]
+  }
+};
+
+const UAV_LS_KEY = 'vs_uav_v1';
+let uavActivePhase = null;
+
+function loadUAV() { try { return JSON.parse(localStorage.getItem(UAV_LS_KEY)||'{}'); } catch(e) { return {}; } }
+function saveUAV(data) { try { localStorage.setItem(UAV_LS_KEY, JSON.stringify(data)); } catch(e) {} sbQueueSync(); }
+
+function uavCurrentPhase() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (const p of UAV_PLAN.phases) {
+    const s = new Date(p.start); const e = new Date(p.end);
+    if (today >= s && today <= e) return p.num;
+  }
+  if (today < new Date(UAV_PLAN.phases[0].start)) return 1;
+  if (today > new Date(UAV_PLAN.deadline)) return 6;
+  for (let i = 0; i < UAV_PLAN.phases.length - 1; i++) {
+    const e = new Date(UAV_PLAN.phases[i].end);
+    const s = new Date(UAV_PLAN.phases[i+1].start);
+    if (today > e && today < s) return UAV_PLAN.phases[i+1].num;
+  }
+  return 1;
+}
+
+function uavDaysLeft() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const end = new Date(UAV_PLAN.deadline);
+  return Math.max(0, Math.ceil((end - now) / 86400000));
+}
+
+function uavPhaseProgress(phaseNum, progress) {
+  const phase = UAV_PLAN.phases[phaseNum - 1];
+  if (!phase) return 0;
+  const done = phase.tasks.filter((_, i) => progress[`p${phaseNum}-${i}`]).length;
+  return Math.round((done / phase.tasks.length) * 100);
+}
+
+function uavMasterProgress(progress) {
+  let total = 0, done = 0;
+  Object.entries(UAV_PLAN.regulatoryChecklist).forEach(([cat, items]) => {
+    items.forEach((_, i) => { total++; if (progress[`rc-${cat}-${i}`]) done++; });
+  });
+  // Also count gate criteria
+  Object.values(UAV_PLAN.gates).forEach(g => {
+    g.criteria.forEach((_, i) => { total++; if (progress[`${g.id}-${i}`]) done++; });
+  });
+  return { total, done, pct: total ? Math.round((done/total)*100) : 0 };
+}
+
+function renderUAV() {
+  const progress = loadUAV();
+  const currentPhase = uavCurrentPhase();
+  const daysLeft = uavDaysLeft();
+  const master = uavMasterProgress(progress);
+
+  const dlEl = document.getElementById('uavDaysLeft');
+  const phEl = document.getElementById('uavPhaseNum');
+  const pctEl = document.getElementById('uavPctDone');
+  if (dlEl) dlEl.textContent = daysLeft > 0 ? daysLeft : '✓';
+  if (phEl) phEl.textContent = currentPhase;
+  if (pctEl) pctEl.textContent = master.pct + '%';
+
+  // Phase grid
+  const grid = document.getElementById('uavPhaseGrid');
+  if (grid) {
+    grid.innerHTML = UAV_PLAN.phases.map(p => {
+      const pct = uavPhaseProgress(p.num, progress);
+      const isCurrent = p.num === currentPhase;
+      const today = new Date(); today.setHours(0,0,0,0);
+      const isPast = new Date(p.end) < today;
+      let cls = 'uav-phase-tile';
+      if (isCurrent) cls += ' current';
+      else if (isPast && pct === 100) cls += ' done';
+      else if (!isPast) cls += ' future';
+      return `<div class="${cls}" onclick="uavShowPhase(${p.num})">
+        <div class="uav-ph-num">Phase ${p.num} ${isCurrent ? '← NOW' : ''}</div>
+        <div class="uav-ph-label">${p.label}</div>
+        <div class="uav-ph-months">${p.months}</div>
+        <div class="uav-ph-bar"><div class="uav-ph-fill" style="width:${pct}%"></div></div>
+        <div class="uav-ph-pct">${pct}% complete</div>
+      </div>`;
+    }).join('');
+  }
+
+  if (!uavActivePhase) uavActivePhase = currentPhase;
+  uavShowPhase(uavActivePhase, false);
+  renderUAVGates(progress);
+  renderUAVChecklist(progress, master);
+}
+
+function uavShowPhase(num, scroll) {
+  uavActivePhase = num;
+  const progress = loadUAV();
+  const phase = UAV_PLAN.phases[num - 1];
+  if (!phase) return;
+  const detail = document.getElementById('uavPhaseDetail');
+  if (!detail) return;
+  const pct = uavPhaseProgress(num, progress);
+  const tasksHTML = phase.tasks.map((task, i) => {
+    const key = `p${num}-${i}`;
+    const done = !!progress[key];
+    const isGate = task.startsWith('★');
+    return `<div class="uav-task-row ${done?'done':''} ${isGate?'gate-item':''}" >
+      <input type="checkbox" ${done?'checked':''} onchange="uavToggleTask(${num},${i},this.checked)">
+      <span class="uav-task-text">${esc(task)}</span>
+    </div>`;
+  }).join('');
+  detail.innerHTML = `<div class="uav-phase-detail">
+    <div class="uav-detail-header">
+      <div>
+        <div class="uav-detail-badge">✈ Phase ${num} — ${esc(phase.label)}</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-top:6px;">${esc(phase.months)}</div>
+        <div class="uav-detail-goal">${esc(phase.goal)}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:28px;font-weight:800;color:var(--uav);">${pct}%</div>
+        <div style="font-size:11px;color:var(--text3);">${phase.tasks.filter((_,i)=>progress[`p${num}-${i}`]).length} / ${phase.tasks.length} tasks</div>
+      </div>
+    </div>
+    <div class="uav-detail-deliverable">📦 Deliverable: ${esc(phase.deliverable)}</div>
+    ${tasksHTML}
+  </div>`;
+  if (scroll !== false) detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function uavToggleTask(phaseNum, taskIdx, checked) {
+  const progress = loadUAV();
+  const key = `p${phaseNum}-${taskIdx}`;
+  if (checked) progress[key] = true; else delete progress[key];
+  saveUAV(progress);
+  uavShowPhase(phaseNum, false);
+  const pct = uavPhaseProgress(phaseNum, progress);
+  const grid = document.getElementById('uavPhaseGrid');
+  if (grid && grid.children[phaseNum-1]) {
+    const fill = grid.children[phaseNum-1].querySelector('.uav-ph-fill');
+    const pctLbl = grid.children[phaseNum-1].querySelector('.uav-ph-pct');
+    if (fill) fill.style.width = pct + '%';
+    if (pctLbl) pctLbl.textContent = pct + '% complete';
+  }
+  const master = uavMasterProgress(progress);
+  const pctEl = document.getElementById('uavPctDone');
+  if (pctEl) pctEl.textContent = master.pct + '%';
+}
+
+function renderUAVGates(progress) {
+  const el = document.getElementById('uavGateGrid');
+  if (!el) return;
+  el.innerHTML = Object.values(UAV_PLAN.gates).map(g => {
+    const passedCount = g.criteria.filter((_, i) => progress[`${g.id}-${i}`]).length;
+    const allPassed = passedCount === g.criteria.length;
+    return `<div class="uav-gate-card ${allPassed?'passed':''}">
+      <div class="uav-gate-title">${g.label} ${allPassed?'✓ PASSED':''}</div>
+      <div class="uav-gate-month">${g.month}</div>
+      ${g.criteria.map((c, i) => {
+        const key = `${g.id}-${i}`;
+        const done = !!progress[key];
+        return `<div class="uav-gate-criterion">
+          <input type="checkbox" id="${esc(key)}" ${done?'checked':''} onchange="uavToggleGate('${esc(g.id)}',${i},this.checked)">
+          <label for="${esc(key)}">${esc(c)}</label>
+        </div>`;
+      }).join('')}
+      <div class="uav-gate-reward">→ ${esc(g.reward)}</div>
+    </div>`;
+  }).join('');
+}
+
+function uavToggleGate(gateId, idx, checked) {
+  const progress = loadUAV();
+  const key = `${gateId}-${idx}`;
+  if (checked) progress[key] = true; else delete progress[key];
+  saveUAV(progress);
+  renderUAVGates(progress);
+  const master = uavMasterProgress(progress);
+  renderUAVChecklist(progress, master);
+}
+
+function renderUAVChecklist(progress, master) {
+  const el = document.getElementById('uavMasterChecklist');
+  if (!el) return;
+  el.innerHTML = Object.entries(UAV_PLAN.regulatoryChecklist).map(([cat, items]) => {
+    const done = items.filter((_, i) => progress[`rc-${cat}-${i}`]).length;
+    const pct = Math.round((done / items.length) * 100);
+    const itemsHTML = items.map((item, i) => {
+      const key = `rc-${cat}-${i}`;
+      const isDone = !!progress[key];
+      return `<div class="uav-mini-task ${isDone?'done':''}">
+        <input type="checkbox" id="${esc(key)}" ${isDone?'checked':''} onchange="uavToggleChecklist('${esc(cat)}',${i},this.checked)">
+        <label for="${esc(key)}">${esc(item)}</label>
+      </div>`;
+    }).join('');
+    return `<div class="uav-cat-card">
+      <div class="uav-cat-header">
+        <span class="uav-cat-name">${esc(cat)}</span>
+        <span class="uav-cat-count">${done}/${items.length}</span>
+      </div>
+      <div class="uav-cat-bar"><div class="uav-cat-fill" style="width:${pct}%"></div></div>
+      ${itemsHTML}
+    </div>`;
+  }).join('');
+  const pctEl = document.getElementById('uavPctDone');
+  if (pctEl) pctEl.textContent = master.pct + '%';
+}
+
+function uavToggleChecklist(cat, idx, checked) {
+  const progress = loadUAV();
+  const key = `rc-${cat}-${idx}`;
+  if (checked) progress[key] = true; else delete progress[key];
+  saveUAV(progress);
+  const master = uavMasterProgress(progress);
+  renderUAVChecklist(progress, master);
 }
 
 /* ══════════════════════════════════════════
