@@ -3999,7 +3999,7 @@ async function callClaudePropose(mode, apiKey) {
     upcomingMs.length ? `COMING NEXT:\n${upcomingMs.map(m=>`  ○ ${m.text} (due ${m.target})`).join('\n')}` : ''
   ].filter(Boolean).join('\n\n') || 'No milestones due this week';
 
-  const prompt = `You are the strategic AI for Victor Simz / Bantuwa Innovate — a multi-pillar African knowledge, culture, and technology enterprise.
+  const prompt = `You are the strategic AI for Victor Simz / Bantuwa Innovate — a multi-pillar African knowledge, culture, and technology enterprise based in ZAMBIA. All work, networks, institutions, contacts, markets, and references are ZAMBIAN unless explicitly stated otherwise. Never reference Tanzania, Zimbabwe, Kenya, or any other country when proposing tasks — geography is always Zambia.
 
 CURRENT CONTEXT:
 - Date: ${now.toDateString()}
@@ -4609,7 +4609,7 @@ async function generateSQ() {
   const weekTargets = (S.week||[]).filter(function(t){return !t.done;}).slice(0,3).map(function(t){return '- '+t.text;}).join('\n');
   const okrTitles = Object.entries(S.okrs||{}).map(function(e){return e[0]+': '+(e[1]&&e[1].title||'not set');}).join('\n');
   const recentQs = Object.entries(journal).sort(function(a,b){return b[0].localeCompare(a[0]);}).slice(0,5).map(function(e){return e[0]+': '+e[1].question;}).join('\n');
-  const prompt = 'You are a strategic thinking coach for a high-performer running 4 major initiatives simultaneously.\n\nCONTEXT:\nToday: '+today+' ('+['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()]+')\n\nCurrent 90-day milestones (incomplete):\n'+(milestones||'None set')+'\n\nThis week\'s active targets:\n'+(weekTargets||'None set')+'\n\nOKR focus areas:\n'+okrTitles+'\n\nRecent strategic questions asked (avoid repetition):\n'+(recentQs||'None yet')+'\n\nGenerate ONE sharp strategic question for this person\'s morning reflection. The question should:\n- Be specific to their actual current context and milestones\n- Force genuine strategic thinking, not just task planning\n- Be uncomfortable enough to require real thought (10–15 min to answer well)\n- Focus on a different area than recent questions\n- Be 1–2 sentences maximum\n\nRespond with ONLY the question, no preamble.';
+  const prompt = 'You are a strategic thinking coach for Victor Simz — a high-performer based in ZAMBIA running 4 major initiatives simultaneously. All context, networks, institutions, and geography are Zambian unless explicitly stated otherwise.\n\nCONTEXT:\nToday: '+today+' ('+['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()]+')\n\nCurrent 90-day milestones (incomplete):\n'+(milestones||'None set')+'\n\nThis week\'s active targets:\n'+(weekTargets||'None set')+'\n\nOKR focus areas:\n'+okrTitles+'\n\nRecent strategic questions asked (avoid repetition):\n'+(recentQs||'None yet')+'\n\nGenerate ONE sharp strategic question for this person\'s morning reflection. The question should:\n- Be specific to their actual current context and milestones\n- Force genuine strategic thinking, not just task planning\n- Be uncomfortable enough to require real thought (10–15 min to answer well)\n- Focus on a different area than recent questions\n- Be 1–2 sentences maximum\n\nRespond with ONLY the question, no preamble.';
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
@@ -4718,7 +4718,7 @@ async function generateWeeklyThinkingReport() {
   const btn = document.getElementById('sqWeekReportBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Analysing…'; }
   const entriesText = weekEntries.map(function(e,i){ return 'Day '+(i+1)+':\nQ: '+e.question+'\nA: '+e.response+(e.depthResponse?'\nDeeper thinking: '+e.depthResponse:''); }).join('\n---\n');
-  const prompt = 'Analyse this week\'s strategic journal entries for a high-performer running 4 major initiatives.\n\nJOURNAL ENTRIES ('+weekEntries.length+' days):\n'+entriesText+'\n\nProvide a brief Strategic Thinking Report with exactly these 4 sections:\n1. DOMINANT THEMES: What topics/concerns dominated this week\'s thinking (2-3 bullet points)\n2. BLIND SPOTS: What important areas appear absent from the thinking (1-2 bullet points)\n3. STRONGEST INSIGHT: The single best piece of strategic thinking this week (1 sentence + why)\n4. PATTERN ALERT: Any concerning patterns (repetition, avoidance, vagueness) — or "None detected"\n\nBe direct and specific. Under 250 words total.';
+  const prompt = 'Analyse this week\'s strategic journal entries for Victor Simz — a high-performer based in ZAMBIA running 4 major initiatives. All context is Zambian.\n\nJOURNAL ENTRIES ('+weekEntries.length+' days):\n'+entriesText+'\n\nProvide a brief Strategic Thinking Report with exactly these 4 sections:\n1. DOMINANT THEMES: What topics/concerns dominated this week\'s thinking (2-3 bullet points)\n2. BLIND SPOTS: What important areas appear absent from the thinking (1-2 bullet points)\n3. STRONGEST INSIGHT: The single best piece of strategic thinking this week (1 sentence + why)\n4. PATTERN ALERT: Any concerning patterns (repetition, avoidance, vagueness) — or "None detected"\n\nBe direct and specific. Under 250 words total.';
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
