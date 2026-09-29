@@ -1628,16 +1628,16 @@ const TAG_CLS = { army:'tag-army', bantuwa:'tag-bantuwa', zhist:'tag-zhist', va:
 const TAG_LBL = { army:'VANGUARD', bantuwa:'Bantuwa', zhist:'Z Hist', va:'Personal', y4pz:'Y4PZ', aila:'AILA', selfdev:'Self-Dev' };
 
 const OKR_SEEDS = {
-  army:    { title:'Establish VANGUARD pilot pathway — Ukraine-validated',
-             krs:['VANGUARD-ARIS concept paper (Sep)','Zambia Army Military Innovation Model (Nov)','Project Vanguard Framework presented to leadership (Dec)'] },
-  zhist:   { title:'Build consistent Z Historian publishing cadence',
-             krs:['12-Month Content Strategy drafted (Oct)','Weekly publishing maintained every Friday Q4'] },
-  y4pz:    { title:'Establish Y4PZ national strategic position',
-             krs:['YPS SENTINEL concept paper submitted to Ministry (Sep)','Y4PZ National Positioning Strategy (Oct)'] },
-  bantuwa: { title:'Complete Bantuwa reset — 2027 strategy ready',
-             krs:['Portfolio Register — all initiatives classified (Sep)','Bantuwa 2027 Strategy finalized (Nov)'] },
-  va:      { title:'Ukraine mission → institutional intelligence',
-             krs:['Ukraine Strategic Mission Report (Oct)','Policy Brief — Lessons from Ukraine (Oct)','PhD proposal refined with Ukraine field research (Dec)'] },
+  army:    { title:'Close VANGUARD Q4 — present to leadership, open 2027 pathway',
+             krs:['Strategic Recommendations presented to leadership (Dec)','2026 year-end review complete — 2027 priorities set (Dec)'] },
+  zhist:   { title:'Build consistent Z Historian publishing cadence — Q4 2026',
+             krs:['1 long-form piece published per month (Oct/Nov/Dec)','2–3 short-form posts per week maintained (repurposed from long-form)'] },
+  y4pz:    { title:'Y4PZ parked Q4 — resume Jan 2027',
+             krs:['No active deliverables this quarter — Idea Vault only'] },
+  bantuwa: { title:'Bantuwa active — AILA Cohort 1 delivered + UAV X1 bench-tested',
+             krs:['AILA Cohort 1 delivered Nov 13–15 (10–20 participants)','UAV X1 v0.1 bench-tested by Dec 31 — Gate 1 passed','AILA v1.1 refined from feedback — Cohort 2 registration open'] },
+  va:      { title:'VANGUARD close-out + PhD reading slot protected',
+             krs:['VANGUARD presentation delivered (Nov/Dec)','Weekly PhD/research reading slot maintained — no deliverable until Q1 2027'] },
   selfdev: { title:'Build the personal excellence system — 12-month programme (Sep 2026)',
              krs:['Month 1 — Discipline: ≥80% habit score across all 10 habits','Monthly challenge completed on time each month (12/12)','Evening AAR average ≥7/10 across all 6 domains by Dec'] },
 };
@@ -4127,9 +4127,9 @@ const ROADMAP = {
         '2026-07': 'Corporate Foundation & Brand — register Bantuwa Innovate, develop brand identity, source craft/herbal suppliers',
         '2026-08': 'Digital Infrastructure — Bantuwa.com live, 9+ social accounts, online store with 10 products, Bantuwa Press setup',
         '2026-09': 'Content Pipeline & First Sales — batch 4 TZH videos, record 4 podcast episodes, first venture sales, manuscripts in production',
-        '2026-10': 'Audience & Revenue Build — aggressive publishing, target 20 TZH videos, newsletter launch, pitch 3 retail partners',
-        '2026-11': 'Audience & Revenue Build — scale online sales, podcast at 12 eps, 1000 newsletter subs, book in final production',
-        '2026-12': 'Phase I Close — first book published, 5K YT subscribers, first Bantuwa AI meeting scheduled, retail partnership confirmed'
+        '2026-10': 'AILA + UAV — test and advertise AILA Cohort 1 (Nov 13–15 target); begin UAV X1 research and design brief for VANGUARD sensor; VANGUARD presentation prep only',
+        '2026-11': 'AILA Cohort 1 delivery (Nov 13–15) — run inaugural 3-day programme, collect feedback; UAV: finalise BOM, order components; Z Historian weekly cadence',
+        '2026-12': 'UAV first assembly — bench-test X1 v0.1, Gate 1 review Dec 31; AILA v1.1 refinement from feedback; year-end review and 2027 priorities set'
       }
     },
     {
@@ -4310,7 +4310,7 @@ ${ms90Summary}
 Monthly KPI Targets:
 ${Object.entries(ROADMAP.weeklyKPIs).map(([k,v])=>`${k}: ${v}`).join('\n')}
 
-AILA SPRINT STATUS (PRIORITY PROJECT — Aug–Sep 2026, pilot Oct 2026):
+AILA STATUS (Q4 2026 — Cohort 1 target: Nov 13–15):
 ${(()=>{
   const wk = ailaCurrentWeek();
   const dl = ailaDaysLeft();
@@ -4319,27 +4319,44 @@ ${(()=>{
   const doneTasks = week ? week.tasks.filter((_,i)=>prog[`w${wk}-${i}`]).length : 0;
   const totalTasks = week ? week.tasks.length : 0;
   const pendingTasks = week ? week.tasks.filter((_,i)=>!prog[`w${wk}-${i}`]).map(t=>t.split('(')[0].trim()).slice(0,4) : [];
-  return `Current AILA Week: ${wk} — ${week?.label||''} (${week?.dates||''})
-Week Goal: ${week?.goal||''}
-Week Deliverable: ${week?.deliverable||''}
-Week Progress: ${doneTasks}/${totalTasks} tasks done
-Days to Sep 30 deadline: ${dl}
-Pending AILA tasks this week: ${pendingTasks.join(' | ')||'All done!'}`;
+  return `Current AILA Phase: Week ${wk} — ${week?.label||''} (${week?.dates||''})
+Phase Goal: ${week?.goal||''}
+Phase Deliverable: ${week?.deliverable||''}
+Progress: ${doneTasks}/${totalTasks} tasks done
+Days to Cohort 1 (Nov 13): ${dl}
+Pending tasks this phase: ${pendingTasks.join(' | ')||'All done!'}`;
+})()}
+
+UAV STATUS (X1 VANGUARD Sensor Platform — slow build Q4):
+${(()=>{
+  const ph = uavCurrentPhase();
+  const phase = UAV_PLAN.phases[ph-1];
+  const prog = loadUAV();
+  const doneTasks = phase ? phase.tasks.filter((_,i)=>prog[`p${ph}-${i}`]).length : 0;
+  const totalTasks = phase ? phase.tasks.length : 0;
+  const pendingTasks = phase ? phase.tasks.filter((_,i)=>!prog[`p${ph}-${i}`]).map(t=>t.split('—')[0].trim()).slice(0,3) : [];
+  return `Current UAV Phase: ${ph} — ${phase?.label||''} (${phase?.months||''})
+Phase Goal: ${phase?.goal||''}
+Progress: ${doneTasks}/${totalTasks} tasks done
+Key pending tasks: ${pendingTasks.join(' | ')||'All done!'}`;
 })()}
 
 PILLARS (use for tag field):
-- bantuwa = Bantuwa Innovate / Bantuwa AI
-- zhist   = The Z Historian
-- va      = Take Command (podcast, lectures, academy, consulting)
-- y4pz    = Bantuwa Ventures (crafts, herbal, lifestyle, café, eco-homes)
-- aila    = AILA Academy (AI Leadership Academy — PRIORITY SPRINT until Sep 30)
-- army    = Army (LTC duties)
+- army    = VANGUARD / Army R&D (closing out Q4 — presentation and year-end review)
+- zhist   = The Z Historian (1 long form/month + 2–3 short posts/week)
+- aila    = AILA Academy (Q4 priority — Cohort 1 delivery Nov 13–15)
+- bantuwa = UAV / Bantuwa Innovate (X1 slow build — VANGUARD sensor platform)
+- va      = Personal development / PhD reading (protected slot, no deliverable Q4)
+- y4pz    = Y4PZ (PARKED this quarter — do not propose Y4PZ tasks)
 
 TASK: Propose ${mode === 'today' ? '3 Top priorities for TODAY specifically' : '4–5 targets for THIS WEEK'}.
 
 Rules:
-- Be SPECIFIC and ACTIONABLE — not vague ("work on AILA") but concrete ("write AILA Problem-Solving Cycle one-pager with all 6 stages defined")
-- AILA is a PRIORITY SPRINT — if there are pending AILA week tasks, at least one proposal should address AILA
+- Be SPECIFIC and ACTIONABLE — not vague ("work on AILA") but concrete ("walk through AILA Day 1 as a student and time every session")
+- AILA Cohort 1 (Nov 13–15) is the Q4 headline event — if AILA has pending phase tasks, prioritise them
+- UAV is a slow background build — include at most 1 UAV task per proposal, only if the current phase has pending actions
+- VANGUARD is closing — only include if a presentation or year-end review is directly due
+- Y4PZ is parked — do not propose any Y4PZ tasks this quarter
 - 90-DAY PLAN — if milestones are due this week or overdue, at least one proposal must move toward completing them
 - Align with today's theme (${weekTheme?.anchor || 'current phase'}) and current month focus
 - Do NOT duplicate tasks already listed above
