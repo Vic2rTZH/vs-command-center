@@ -1276,7 +1276,11 @@ body {
         </div>
         <div class="q4-cd-block">
           <div class="q4-cd-num" id="q4PctDone">--%</div>
-          <div class="q4-cd-lbl">Q4 Done</div>
+          <div class="q4-cd-lbl">Elapsed</div>
+        </div>
+        <div class="q4-cd-block">
+          <div class="q4-cd-num" id="q4TasksDone">--%</div>
+          <div class="q4-cd-lbl">Tasks Done</div>
         </div>
       </div>
     </div>
@@ -4079,9 +4083,24 @@ function renderQ4Focus() {
   const daysLeft = Math.max(0, Math.ceil((Q4_END - now) / 86400000));
   const weeksLeft = Math.max(0, Math.ceil(daysLeft / 7));
 
+  // Task-based progress: AILA weeks 9-12 + UAV phases 1-3
+  const ailaProgress = loadAILA();
+  const uavProgress  = loadUAV();
+  let taskTotal = 0, taskDone = 0;
+  // AILA Q4 weeks (9–12)
+  AILA_SPRINT.weeks.filter(w => w.num >= 9).forEach(w => {
+    w.tasks.forEach((_, i) => { taskTotal++; if (ailaProgress[`w${w.num}-${i}`]) taskDone++; });
+  });
+  // UAV phases 1–3 (Q4 scope)
+  UAV_PLAN.phases.slice(0, 3).forEach(p => {
+    p.tasks.forEach((_, i) => { taskTotal++; if (uavProgress[`p${p.num}-${i}`]) taskDone++; });
+  });
+  const taskPct = taskTotal ? Math.round((taskDone / taskTotal) * 100) : 0;
+
   document.getElementById('q4DaysLeft').textContent = daysLeft;
   document.getElementById('q4WeeksLeft').textContent = weeksLeft;
   document.getElementById('q4PctDone').textContent = pct + '%';
+  document.getElementById('q4TasksDone').textContent = taskPct + '%';
 
   // Determine current month key
   const curKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
