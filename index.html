@@ -561,6 +561,59 @@ body {
 .uav-mini-task label { color: var(--text2); cursor: pointer; line-height: 1.3; }
 .uav-mini-task.done label { text-decoration: line-through; color: var(--text3); }
 
+/* ── Q4 FOCUS ── */
+.q4-banner {
+  background: linear-gradient(135deg, rgba(16,185,129,.12) 0%, rgba(16,185,129,.04) 100%);
+  border: 1px solid rgba(16,185,129,.3);
+  border-radius: 12px; padding: 18px 22px; margin-bottom: 22px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.q4-theme { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #10b981; margin-bottom: 4px; }
+.q4-title { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -.3px; }
+.q4-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.q4-cd { display: flex; gap: 16px; text-align: center; flex-shrink: 0; }
+.q4-cd-block { }
+.q4-cd-num { font-size: 26px; font-weight: 800; color: #10b981; line-height: 1; }
+.q4-cd-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .8px; margin-top: 3px; }
+.q4-month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+@media (max-width: 640px) { .q4-month-grid { grid-template-columns: 1fr; } }
+.q4-month-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+}
+.q4-month-card.current { border-color: #10b981; box-shadow: 0 0 0 1px rgba(16,185,129,.2); }
+.q4-month-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.q4-month-label .now-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; }
+.q4-project-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.q4-project-row:last-child { border-bottom: none; }
+.q4-project-name { color: var(--text2); font-weight: 500; }
+.q4-mode-badge {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px;
+  padding: 2px 7px; border-radius: 10px;
+}
+.q4-mode-build  { background: rgba(16,185,129,.15); color: #10b981; }
+.q4-mode-maintain { background: rgba(232,180,36,.15); color: var(--gold2); }
+.q4-mode-setup  { background: rgba(74,158,255,.15); color: var(--blue); }
+.q4-mode-parked { background: rgba(106,117,144,.1); color: var(--text3); }
+.q4-focus-card {
+  background: rgba(16,185,129,.07); border: 1px solid rgba(16,185,129,.25);
+  border-radius: 10px; padding: 16px 18px; margin-bottom: 22px;
+}
+.q4-focus-card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #10b981; margin-bottom: 10px; }
+.q4-focus-item { display: flex; gap: 10px; align-items: flex-start; padding: 5px 0; font-size: 13px; color: var(--text2); border-bottom: 1px solid rgba(16,185,129,.12); }
+.q4-focus-item:last-child { border-bottom: none; }
+.q4-focus-item-tag { font-size: 10px; font-weight: 700; color: #10b981; background: rgba(16,185,129,.12); padding: 2px 6px; border-radius: 6px; flex-shrink: 0; margin-top: 1px; }
+.q4-park-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (max-width: 560px) { .q4-park-grid { grid-template-columns: 1fr; } }
+.q4-park-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.q4-park-name { font-size: 12px; font-weight: 600; color: var(--text3); margin-bottom: 3px; }
+.q4-park-note { font-size: 11px; color: var(--text3); opacity: .7; }
+.q4-rule-bar {
+  background: rgba(240,96,96,.07); border: 1px solid rgba(240,96,96,.2);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 22px;
+  display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text2);
+}
+.q4-rule-icon { font-size: 18px; flex-shrink: 0; }
+
 /* ── AI PROPOSAL ── */
 .ai-proposal-wrap {
   margin-top: 14px; border: 1px solid rgba(232,180,36,.35);
@@ -692,6 +745,7 @@ body {
     <button class="tab-btn" data-panel="schedule">Rhythm</button>
     <button class="tab-btn" data-panel="aila" style="color:var(--aila)"><span data-ic="sparkles"></span> AILA Sprint</button>
     <button class="tab-btn" data-panel="uav" style="color:var(--uav)">✈ UAV MVP</button>
+    <button class="tab-btn" data-panel="q4focus" style="color:#10b981">◎ Q4 Focus</button>
   </div>
 
   <!-- ═══════════════ TODAY ═══════════════ -->
@@ -1192,6 +1246,58 @@ body {
     <!-- Regulatory & Master Checklist -->
     <div class="sec-title" style="margin-bottom:12px;">Regulatory & Compliance Checklist</div>
     <div class="uav-checklist-grid" id="uavMasterChecklist"></div>
+
+  </div>
+
+  <!-- ═══════════════ Q4 FOCUS ═══════════════ -->
+  <div class="panel" id="panel-q4focus">
+
+    <!-- Hard boundary rule -->
+    <div class="q4-rule-bar">
+      <div class="q4-rule-icon">🔴</div>
+      <div><strong style="color:var(--red);">Hard Stop: 18:00</strong> — No project work after 6 PM. Family and personal time is non-negotiable. The portfolio is too large if Life Margin is consistently zero.</div>
+    </div>
+
+    <!-- Banner -->
+    <div class="q4-banner">
+      <div>
+        <div class="q4-theme">Q4 2026 · From Ideas to Proof</div>
+        <div class="q4-title">Concentrate. Validate. Prove.</div>
+        <div class="q4-sub">Oct – Dec 2026 · One flagship in BUILD mode at a time</div>
+      </div>
+      <div class="q4-cd">
+        <div class="q4-cd-block">
+          <div class="q4-cd-num" id="q4DaysLeft">--</div>
+          <div class="q4-cd-lbl">Days Left</div>
+        </div>
+        <div class="q4-cd-block">
+          <div class="q4-cd-num" id="q4WeeksLeft">--</div>
+          <div class="q4-cd-lbl">Weeks</div>
+        </div>
+        <div class="q4-cd-block">
+          <div class="q4-cd-num" id="q4PctDone">--%</div>
+          <div class="q4-cd-lbl">Q4 Done</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- This month focus -->
+    <div class="sec-title" style="margin-bottom:10px;">This Month's Focus</div>
+    <div class="q4-focus-card" id="q4MonthFocus"></div>
+
+    <!-- Monthly sequence -->
+    <div class="sec-title" style="margin-bottom:12px;">Q4 Sequence — One Speed Per Project</div>
+    <div class="q4-month-grid" id="q4MonthGrid"></div>
+
+    <!-- Parking lot -->
+    <div class="sec-title" style="margin-bottom:10px;">Parking Lot — Not Now (Jan 2027+)</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Good ideas. Not this quarter. Captured so the brain can let go.</div>
+    <div class="q4-park-grid">
+      <div class="q4-park-item"><div class="q4-park-name">Y4PZ / Youth4Peace Zambia</div><div class="q4-park-note">Resume Jan 2027 — no active milestone this quarter</div></div>
+      <div class="q4-park-item"><div class="q4-park-name">Research / PhD Proposal</div><div class="q4-park-note">Weekly reading slot only — no deliverable until Q1 2027</div></div>
+      <div class="q4-park-item"><div class="q4-park-name">New AI Applications</div><div class="q4-park-note">Idea Vault only — Bantuwa Rule applies before any build</div></div>
+      <div class="q4-park-item"><div class="q4-park-name">New Ventures / Concepts</div><div class="q4-park-note">Capture, don't execute — demand must be proven first</div></div>
+    </div>
 
   </div>
 
@@ -3024,6 +3130,7 @@ function switchTab(panelId) {
   if(panelId==='okrs') renderOKRs();
   if(panelId==='aila') renderAILA();
   if(panelId==='uav')  renderUAV();
+  if(panelId==='q4focus') renderQ4Focus();
   if(panelId==='plan90') render90Day();
   if(panelId==='schedule'){renderSchedule();renderScorecard();}
 }
@@ -3826,6 +3933,107 @@ function uavToggleChecklist(cat, idx, checked) {
   saveUAV(progress);
   const master = uavMasterProgress(progress);
   renderUAVChecklist(progress, master);
+}
+
+/* ══════════════════════════════════════════
+   Q4 FOCUS
+   ══════════════════════════════════════════ */
+
+const Q4_START    = new Date('2026-10-01');
+const Q4_END      = new Date('2026-12-31');
+
+const Q4_SEQUENCE = [
+  {
+    month: 'October 2026', key: '2026-10',
+    primary: 'VANGUARD',
+    focus: [
+      { tag: 'VANGUARD', text: 'Complete Ukraine Strategic Mission Report' },
+      { tag: 'VANGUARD', text: 'Draft Policy Brief — Lessons from Ukraine' },
+      { tag: 'Z HISTORIAN', text: 'Weekly output only — 1 major + 2 short pieces' },
+    ],
+    projects: [
+      { name: 'VANGUARD', mode: 'build' },
+      { name: 'Z Historian', mode: 'maintain' },
+      { name: 'AILA', mode: 'parked' },
+      { name: 'UAV MVP', mode: 'parked' },
+      { name: 'Y4PZ', mode: 'parked' },
+    ]
+  },
+  {
+    month: 'November 2026', key: '2026-11',
+    primary: 'VANGUARD',
+    focus: [
+      { tag: 'VANGUARD', text: 'Zambia Army Military Innovation Model — complete' },
+      { tag: 'VANGUARD', text: 'Project VANGUARD Framework — complete' },
+      { tag: 'AILA', text: 'Design Level 1 curriculum — no delivery yet' },
+      { tag: 'Z HISTORIAN', text: 'Weekly output continues' },
+    ],
+    projects: [
+      { name: 'VANGUARD', mode: 'build' },
+      { name: 'Z Historian', mode: 'maintain' },
+      { name: 'AILA', mode: 'setup' },
+      { name: 'UAV MVP', mode: 'parked' },
+      { name: 'Y4PZ', mode: 'parked' },
+    ]
+  },
+  {
+    month: 'December 2026', key: '2026-12',
+    primary: 'VANGUARD → Present',
+    focus: [
+      { tag: 'VANGUARD', text: 'Present Strategic Recommendations to leadership' },
+      { tag: 'VANGUARD', text: '2026 review · 2027 opening priorities set' },
+      { tag: 'AILA', text: 'Pilot cohort design — ready to run Jan 2027' },
+      { tag: 'UAV', text: 'Equipment procurement + workspace setup only' },
+    ],
+    projects: [
+      { name: 'VANGUARD', mode: 'build' },
+      { name: 'Z Historian', mode: 'maintain' },
+      { name: 'AILA', mode: 'setup' },
+      { name: 'UAV MVP', mode: 'setup' },
+      { name: 'Y4PZ', mode: 'parked' },
+    ]
+  }
+];
+
+function renderQ4Focus() {
+  const now = new Date();
+  const total = Q4_END - Q4_START;
+  const elapsed = Math.max(0, now - Q4_START);
+  const pct = Math.min(100, Math.round(elapsed / total * 100));
+  const daysLeft = Math.max(0, Math.ceil((Q4_END - now) / 86400000));
+  const weeksLeft = Math.max(0, Math.ceil(daysLeft / 7));
+
+  document.getElementById('q4DaysLeft').textContent = daysLeft;
+  document.getElementById('q4WeeksLeft').textContent = weeksLeft;
+  document.getElementById('q4PctDone').textContent = pct + '%';
+
+  // Determine current month key
+  const curKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+
+  // Monthly grid
+  const grid = document.getElementById('q4MonthGrid');
+  grid.innerHTML = Q4_SEQUENCE.map(m => {
+    const isCurrent = m.key === curKey;
+    return `<div class="q4-month-card${isCurrent?' current':''}">
+      <div class="q4-month-label">
+        ${m.month.split(' ')[0].toUpperCase()}${isCurrent?'<span class="now-dot"></span>':''}
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.6px;margin-bottom:8px;">${m.month.split(' ')[1]}</div>
+      ${m.projects.map(p=>`<div class="q4-project-row">
+        <span class="q4-project-name">${p.name}</span>
+        <span class="q4-mode-badge q4-mode-${p.mode}">${p.mode}</span>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+
+  // This month focus
+  const thisMonth = Q4_SEQUENCE.find(m => m.key === curKey) || Q4_SEQUENCE[0];
+  const focusEl = document.getElementById('q4MonthFocus');
+  focusEl.innerHTML = `<div class="q4-focus-card-title">▸ ${thisMonth.month} — ${thisMonth.primary} is in BUILD</div>
+    ${thisMonth.focus.map(f=>`<div class="q4-focus-item">
+      <span class="q4-focus-item-tag">${f.tag}</span>
+      <span>${f.text}</span>
+    </div>`).join('')}`;
 }
 
 /* ══════════════════════════════════════════
