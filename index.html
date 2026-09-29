@@ -1171,9 +1171,9 @@ body {
     <!-- Banner / Countdown -->
     <div class="aila-banner">
       <div class="aila-banner-left">
-        <div class="aila-sprint-label">Priority Sprint · Phase 1</div>
+        <div class="aila-sprint-label">Q4 2026 · Cohort 1 Launch</div>
         <div class="aila-sprint-title">AI Leadership Academy (AILA)</div>
-        <div class="aila-sprint-sub">Foundation → Pilot-Ready MVP · Aug – Sep 2026</div>
+        <div class="aila-sprint-sub">Foundation Complete → Test → Advertise → Deliver · Nov 13–15 2026</div>
       </div>
       <div class="aila-countdown-group">
         <div class="aila-cd-block">
@@ -1192,7 +1192,7 @@ body {
     </div>
 
     <!-- 8-week tile grid -->
-    <div class="sec-title" style="margin-bottom:12px;">8-Week Sprint Plan</div>
+    <div class="sec-title" style="margin-bottom:12px;">Foundation (Weeks 1–8) + Q4 Delivery (Weeks 9–12)</div>
     <div class="aila-week-grid" id="ailaWeekGrid"></div>
 
     <!-- Current week detail -->
@@ -1211,9 +1211,9 @@ body {
     <!-- Banner -->
     <div class="uav-banner">
       <div class="uav-banner-left">
-        <div class="uav-label">Bantuwa Autonomous Systems · 12-Month MVP</div>
-        <div class="uav-title">UAV MVP — X1 Drone System</div>
-        <div class="uav-sub">Build · Certify · Fly · Sell · Oct – Dec 2026</div>
+        <div class="uav-label">Bantuwa Autonomous Systems · VANGUARD Sensor Platform</div>
+        <div class="uav-title">UAV Development — X1 Drone System</div>
+        <div class="uav-sub">Research → Build → Fly → Integrate · Q4 2026 – Q1 2027 (slow build)</div>
       </div>
       <div class="uav-cd-group">
         <div class="uav-cd-block">
@@ -3201,8 +3201,8 @@ function clearAllData() {
    ══════════════════════════════════════════ */
 
 const AILA_SPRINT = {
-  deadline: '2026-09-30',
-  pilotStart: '2026-10-01',
+  deadline: '2026-12-31',
+  pilotStart: '2026-11-13',
   weeks: [
     {
       num:1, label:'POSITION', dates:'Aug 1–7',
@@ -3327,6 +3327,75 @@ const AILA_SPRINT = {
         'Version and file all documents',
         'Declare AILA MVP v1.0 complete — check all 45 items on master checklist'
       ]
+    },
+    {
+      num:9, label:'PROGRAMME TEST', dates:'Oct 1–14',
+      start:'2026-10-01', end:'2026-10-14',
+      goal:'Run the entire programme yourself as a student — find and fix every friction point before participants do.',
+      deliverable:'Test-validated programme + Facilitator pack finalised',
+      tasks:[
+        'Walk through the full student journey: registration → onboarding → Day 1 → Day 2 → Day 3 → certificate',
+        'Time every session — confirm 3-day format fits within schedule',
+        'Test every AI demonstration and exercise for clarity and completability',
+        'Revise any module that is unclear or overloaded',
+        'Finalise facilitator guide with timing, transitions and contingency notes',
+        'Confirm technology requirements: devices, internet, screen-sharing, tools',
+        'Prepare participant pre-work brief (what to bring, what to read, problem to identify)',
+        'Print / prepare all physical materials: workbooks, templates, worksheets',
+        'Declare programme test-complete and ready to deliver'
+      ]
+    },
+    {
+      num:10, label:'ADVERTISE & RECRUIT', dates:'Oct 15 – Nov 7',
+      start:'2026-10-15', end:'2026-11-07',
+      goal:'Fill the first cohort with 10–20 participants for mid-November delivery.',
+      deliverable:'Cohort 1 confirmed and fully onboarded',
+      tasks:[
+        'Decide cohort parameters: size (10–20), fee or free pilot, professions, eligibility',
+        'Write cohort 1 invitation / announcement (landing page, social, direct outreach)',
+        'Post on LinkedIn, Z Historian channels, WhatsApp networks, Army/professional contacts',
+        'Direct outreach to 20–30 target individuals (institutional leaders, managers, researchers)',
+        'Confirm venue or online platform for 3-day delivery',
+        'Set cohort 1 dates: 13–15 November 2026',
+        'Collect registrations and confirm participant list',
+        'Send pre-work brief and joining instructions to all confirmed participants',
+        'Conduct brief participant check-in call or message before cohort'
+      ]
+    },
+    {
+      num:11, label:'COHORT 1 — DELIVER', dates:'Nov 13–15',
+      start:'2026-11-13', end:'2026-11-15',
+      goal:'Deliver the inaugural 3-day AILA programme. Collect structured feedback.',
+      deliverable:'Cohort 1 delivered + Feedback report',
+      tasks:[
+        '★ DAY 1: AI and the Changing Workplace · Problem Identification · Problem Decomposition · AI-Assisted Research · Prompting & Context Engineering',
+        '★ DAY 2: Building Solutions · AI Workflows · Agents & Automation · Responsible AI · Implementation Planning',
+        '★ DAY 3: Transformation Leadership · Capstone Presentations · Certificate Ceremony · Network session',
+        'Capture participant feedback after each day (2-minute form)',
+        'Record any sessions where participants consent',
+        'Note every moment of confusion, silence, or friction',
+        'Complete final participant feedback form on Day 3',
+        'Issue certificates to all completing participants',
+        'Take programme photos for content and social proof'
+      ]
+    },
+    {
+      num:12, label:'DEBRIEF & REFINE', dates:'Nov 16 – Dec 31',
+      start:'2026-11-16', end:'2026-12-31',
+      goal:'Turn cohort 1 experience into a stronger programme and a plan for cohort 2.',
+      deliverable:'AILA v1.1 + Cohort 2 plan + Testimonials collected',
+      tasks:[
+        'Compile all feedback into a structured debrief report',
+        'Score every session: what worked, what confused, what to cut, what to add',
+        'Revise programme based on debrief — update materials, timing, facilitation notes',
+        'Collect written testimonials and permission to use from all participants',
+        'Request LinkedIn recommendations from key participants',
+        'Identify 3–5 participants who could become programme advocates or referrers',
+        'Analyse: which participant profile got the most value?',
+        'Plan Cohort 2: dates, pricing, target audience, channel',
+        'Update AILA landing page with testimonials and cohort 2 registration',
+        'Declare AILA v1.1 complete — ready to scale'
+      ]
     }
   ],
   masterChecklist: {
@@ -3383,7 +3452,7 @@ function ailaCurrentWeek() {
     if (today >= s && today <= e) return w.num;
   }
   if (today < new Date(AILA_SPRINT.weeks[0].start)) return 1;
-  if (today > new Date(AILA_SPRINT.deadline)) return 8;
+  if (today > new Date(AILA_SPRINT.deadline)) return AILA_SPRINT.weeks.length;
   // Between weeks (e.g. Aug 29-31)
   for (let i = 0; i < AILA_SPRINT.weeks.length - 1; i++) {
     const e = new Date(AILA_SPRINT.weeks[i].end);
@@ -3570,157 +3639,160 @@ function ailaToggleChecklist(cat, idx, checked) {
 
 const UAV_PLAN = {
   start: '2026-10-01',
-  gateOne: '2026-11-30',
-  deadline: '2026-12-31',
+  gateOne: '2026-12-31',
+  deadline: '2027-03-31',
   phases: [
     {
-      num:1, label:'FOUNDATION', months:'Oct 1–14',
-      start:'2026-10-01', end:'2026-10-14',
-      goal:'Legal entity live, regulatory pathway defined, funds committed.',
-      deliverable:'Legal entity ready + Regulatory roadmap',
+      num:1, label:'RESEARCH & DESIGN', months:'October 2026',
+      start:'2026-10-01', end:'2026-10-31',
+      goal:'Understand the VANGUARD sensor requirements. Define the X1 design brief. Map the regulatory path.',
+      deliverable:'X1-VANGUARD Design Brief + ZCAA Regulatory Roadmap',
       tasks:[
-        'Board approval & Phase A funds committed (~K590,000)',
-        'Company / division registration — PACRA',
-        'Tax registration — ZRA (TPIN, VAT when due, PAYE)',
-        'Data-protection registration — Office of Data Protection Commissioner',
-        'First meeting with ZCAA — RPAS operator certification pathway confirmed',
-        'Confirm regulatory fees and timelines with each authority',
-        'Dedicated business bank account open'
+        'Define exactly what VANGUARD needs from a UAV sensor — payload type, range, data format, integration method',
+        'Research X1 airframe design options (quad-rotor, size, weight) for VANGUARD use case',
+        'Identify required sensors/payloads (optical, thermal, telemetry) for VANGUARD integration',
+        'Research open-source flight controller and autopilot options (ArduPilot, PX4)',
+        'Identify component suppliers — motors, ESCs, flight controller, GPS, frame materials',
+        'Draft X1-VANGUARD Design Brief (1-page spec: airframe, propulsion, payload, data output)',
+        'Initial meeting with ZCAA — understand operator certification pathway and timeline',
+        'Identify workspace options (university lab, innovation hub, R&D facility)',
+        'Identify potential technical advisor or partner with UAV assembly experience'
       ]
     },
     {
-      num:2, label:'TEAM & PARTNER', months:'Oct 15–31',
-      start:'2026-10-15', end:'2026-10-31',
-      goal:'Team in place, workspace secured, partner operator agreement signed.',
-      deliverable:'Team in place + Partner agreement signed',
+      num:2, label:'PROCUREMENT PLAN', months:'November 2026',
+      start:'2026-11-01', end:'2026-11-30',
+      goal:'Finalise the component list and budget. Order long-lead items. Secure a workspace.',
+      deliverable:'Component order placed + Workspace confirmed',
       tasks:[
-        'Host workspace agreement signed (university / innovation hub, ~50–70 m²)',
-        'UAV systems engineer recruited (full-time, K12,000/month)',
-        'Technician / remote pilot recruited (full-time, K8,000/month)',
-        'AI / software developer contracted (part-time, K5,000/month)',
-        'Partner agreement signed with ZCAA-licensed operator (revenue share basis)',
-        'Battery fire-safe storage and safety procedures in place',
-        'Workshop fully operational with power and internet'
+        'Finalise X1 Bill of Materials (BOM) — every component, source, cost in Kwacha',
+        'Identify two suppliers per critical component to manage exchange-rate and availability risk',
+        'Order long-lead components: flight controller, GPS module, motors, ESCs (allow 4–6 weeks shipping)',
+        'Confirm workspace: university engineering lab, innovation hub, or R&D facility with power and internet',
+        'Source or access a 3D printer for airframe prototyping (university partnership or service bureau)',
+        'Identify a UAV systems engineer or technical advisor for part-time guidance',
+        'Confirm data-protection and basic legal requirements for UAV operations research',
+        'Create a simple project logbook — document all design decisions and test results'
       ]
     },
     {
-      num:3, label:'BUILD & DISCOVER', months:'Nov 1–21',
-      start:'2026-11-01', end:'2026-11-21',
-      goal:'X1 prototypes being built, pilot customer pipeline established.',
-      deliverable:'Workshop running + Pilot customer pipeline (15–20 meetings)',
+      num:3, label:'FIRST ASSEMBLY', months:'December 2026',
+      start:'2026-12-01', end:'2026-12-31',
+      goal:'First physical prototype assembled and bench-tested. Gate 1 decision made.',
+      deliverable:'X1 v0.1 bench-tested + Gate 1 review [GATE 1]',
       tasks:[
-        'Equipment procured: 2× 3D printers (K40,000)',
-        'Equipment procured: 2× workstations incl GPU workstation (K45,000)',
-        'Basic electronics test gear procured (K25,000)',
-        'Mechanical hand and power tools procured (K15,000)',
-        'X1 components ordered — 3 prototypes + 1 demo aircraft (K100,000)',
-        'Long-lead items ordered from 2 suppliers to manage exchange-rate risk',
-        'Customer discovery: 15–20 meetings — mining, infrastructure, conservancies',
-        'Radio / telemetry equipment approval applied for — ZICTA',
-        'RPAS Operator Certificate application process started — ZCAA'
+        'Receive and inventory all ordered components',
+        'Print or fabricate first airframe frame (3D print or sourced)',
+        'Mount motors, ESCs and flight controller — bench assembly',
+        'Wire power distribution and battery system',
+        'Configure open-source autopilot firmware (ArduPilot or PX4)',
+        'Bench-test: motor spin, controller response, telemetry link',
+        'Document all assembly steps, issues encountered, and solutions',
+        'Identify what to improve on X1 v0.2 (next iteration, Q1 2027)',
+        '★ GATE 1 (Dec 31): Design complete + components in hand + ZCAA path understood → proceed to Q1 2027 build'
       ]
     },
     {
-      num:4, label:'TEST & FIRST REVENUE', months:'Nov 22 – Dec 5',
-      start:'2026-11-22', end:'2026-12-05',
-      goal:'X1 flying to specification. First paid missions via partner. Gate 1 passed.',
-      deliverable:'X1 flying to spec + First revenue [GATE 1]',
+      num:4, label:'FIRST FLIGHT', months:'Jan – Feb 2027',
+      start:'2027-01-01', end:'2027-02-28',
+      goal:'X1 achieves stable hover and basic autonomous waypoint flight.',
+      deliverable:'X1 flying — hover + basic waypoint mission',
       tasks:[
-        'X1 airframe assembled and structurally tested',
-        'Propulsion and electronics integrated and bench-tested',
-        'First flight test — hover, stability, and manual control',
-        'Payload integration tested (RGB mapping camera, X1-MAP)',
-        'Battery and power system validated in field conditions',
-        'Open-source autopilot and mission-planning software configured',
-        'Third-party liability insurance in place before first flight',
-        'First partner-flown paid service mission delivered',
-        'Remote pilot licensing underway — ZCAA',
-        '★ GATE 1: X1 flown to spec AND ≥1 paid mission → release K220,000 Phase B'
+        'Complete airframe structural testing (stress, vibration, balance)',
+        'Integrate payload mount — sensor bracket designed and fitted',
+        'First tethered hover test in controlled environment',
+        'First free hover — stability and manual control verified',
+        'Configure mission-planning software (QGroundControl or Mission Planner)',
+        'First autonomous waypoint mission (simple pattern, 50m altitude)',
+        'Payload integration: attach sensor, verify data capture',
+        'Document all test results and failure modes',
+        'Plan X1 v0.3 improvements based on flight test data'
       ]
     },
     {
-      num:5, label:'VALIDATE & CERTIFY', months:'Dec 6–20',
-      start:'2026-12-06', end:'2026-12-20',
-      goal:'Pilot customers signed. ZCAA certification in progress. Own ops begin.',
-      deliverable:'Pilot agreements + Certification in progress',
+      num:5, label:'VANGUARD INTEGRATION', months:'March 2027',
+      start:'2027-03-01', end:'2027-03-31',
+      goal:'X1 sensor data successfully feeds into the VANGUARD system.',
+      deliverable:'X1-VANGUARD data integration demonstrated',
       tasks:[
-        'X1 design frozen for pilot-phase builds',
-        'Pilot customer 1 signed — Mining (stockpile volumes / site mapping)',
-        'Pilot customer 2 signed — Infrastructure / construction (progress mapping)',
-        'Pilot customer 3 signed — Environment / conservancy (site / habitat mapping)',
-        'Deposits collected on any X1 orders (30–50%)',
-        'ZCAA RPAS Operator Certificate — application complete, process active',
-        'Aircraft registration submitted to ZCAA',
-        'Remote-pilot licence training underway for all operational pilots'
+        'Define the data handoff protocol between X1 sensor and VANGUARD',
+        'Develop or adapt data processing pipeline (sensor output → VANGUARD input)',
+        'Integration test: fly X1, capture sensor data, process and feed to VANGUARD',
+        'Demonstrate X1-VANGUARD integration to key stakeholder',
+        'Document integration architecture and replication steps',
+        'Identify next sensor payload to develop (thermal, LiDAR, etc.)',
+        '★ GATE 2 (Mar 31 2027): X1 flying + VANGUARD integration proven → scale build + explore commercial applications'
       ]
     },
     {
-      num:6, label:'DELIVER & CONVERT', months:'Dec 21–31',
-      start:'2026-12-21', end:'2026-12-31',
-      goal:'Paying customers. Contracts and first X1 orders. Year-end Gate 2 review.',
-      deliverable:'Paying customers + X1 orders [GATE 2]',
+      num:6, label:'SCALE & COMMERCIALISE', months:'Q2 2027+',
+      start:'2027-04-01', end:'2027-06-30',
+      goal:'Move from prototype to multiple units. Explore first commercial service missions.',
+      deliverable:'Second X1 unit + First commercial service mission',
       tasks:[
-        'Deliver paid missions via partner (≥8 total for year-end gate)',
-        'Convert pilot 1 into repeat contract or X1 sale',
-        'Convert pilot 2 into repeat contract or X1 sale',
-        'Convert pilot 3 into repeat contract or X1 sale',
-        'At least 1 training cohort delivered (~K15,000 revenue)',
-        'Build and quality procedures fully documented',
-        'Phase B funding accounted for; financials reconciled',
-        '★ GATE 2: ≥3 pilots + ≥8 missions + cert in progress → scale to full plan 2027'
+        'Build X1 v1.0 — refined production unit based on all prototype learnings',
+        'Pursue ZCAA RPAS Operator Certificate (Part 18) — apply and begin process',
+        'Identify first commercial customer — mining, infrastructure or conservancy',
+        'Deliver first paid service mission via a ZCAA-licensed partner operator',
+        'Develop pricing model for survey and inspection services',
+        'Explore X1 system sales to other operators',
+        'Build second X1 unit — document repeatability of build process',
+        'Assess feasibility of small-batch production'
       ]
     }
   ],
   gates: {
     gate1: {
-      id: 'g1', label: 'GATE 1', month: 'Week 9 — End Nov 2026', date: '2026-11-30',
+      id: 'g1', label: 'GATE 1', month: 'Year-End — Dec 31 2026', date: '2026-12-31',
       criteria: [
-        'X1 prototype has flown to specification',
-        '≥1 paid service mission delivered via partner'
+        'X1 design brief finalised and documented',
+        'Key components ordered and in hand (or en route)',
+        'First bench assembly complete',
+        'ZCAA regulatory pathway understood'
       ],
-      reward: 'Release Phase B funds (~K220,000)'
+      reward: 'Proceed to Q1 2027 build and first flight phase'
     },
     gate2: {
-      id: 'g2', label: 'GATE 2', month: 'Year-End — Dec 31 2026', date: '2026-12-31',
+      id: 'g2', label: 'GATE 2', month: 'End March 2027', date: '2027-03-31',
       criteria: [
-        '≥3 signed pilot customers',
-        '≥8 paid service missions completed',
-        'ZCAA certification process active (operator cert in progress)'
+        'X1 achieving stable hover and basic autonomous flight',
+        'X1 sensor data successfully integrating with VANGUARD system',
+        'Integration demonstrated to at least one stakeholder'
       ],
-      reward: 'Scale to full plan 2027 — team of 6, additional X1 variants, Insight AI platform, next funding round'
+      reward: 'Scale build · Pursue ZCAA certification · Explore commercial applications'
     }
   },
   regulatoryChecklist: {
-    'Legal & Tax': [
-      'Company / division registration — PACRA',
-      'TPIN registration — ZRA',
-      'VAT registration — ZRA (when due)',
-      'PAYE registration — ZRA',
-      'Data-protection registration — ODC',
-      'Dedicated bank account open'
+    'Q4 2026 — Design & Setup': [
+      'X1-VANGUARD Design Brief completed and documented',
+      'Bill of Materials (BOM) finalised with costs',
+      'Workspace secured (university lab or innovation hub)',
+      'Component suppliers identified — two per critical item',
+      'Long-lead components ordered (flight controller, motors, ESCs, GPS)',
+      'Technical advisor or partner engineer identified'
     ],
-    'ZCAA Regulatory': [
-      'Initial ZCAA meeting — operator pathway confirmed',
-      'RPAS Operator Certificate application submitted (ZCARs Part 18)',
-      'RPAS Operator Certificate obtained',
-      'Aircraft registration completed',
-      'Remote-pilot licences obtained for all operational pilots'
+    'ZCAA Pathway (Start Q4)': [
+      'Initial ZCAA meeting completed — operator pathway confirmed',
+      'RPAS Operator Certificate requirements documented',
+      'Remote-pilot licence requirements understood',
+      'Aircraft registration process understood',
+      'Third-party liability insurance requirements confirmed'
     ],
-    'Other Compliance': [
-      'Radio / telemetry equipment approval — ZICTA',
-      'Third-party liability insurance in place',
-      'Battery fire-safety procedures documented',
-      'Basic safety procedures documented',
-      'Protected-area permissions process established (DNPW / NHCC)',
-      'Clear customer data terms drafted and in contracts'
+    'Q1 2027 — Build & Test': [
+      'First X1 airframe assembled',
+      'Bench test complete — motors, ESCs, flight controller',
+      'First hover test (tethered)',
+      'First free hover — stable',
+      'First autonomous waypoint mission flown',
+      'Sensor payload integrated and data captured'
     ],
-    'Commercial Milestones': [
-      'ZCAA-licensed partner operator agreement signed',
-      'First paid mission delivered via partner',
-      'Payment and invoice system operational',
-      '≥3 pilot customer agreements signed',
-      '≥8 paid missions completed',
-      '≥1 X1 sale or repeat service contract'
+    'VANGUARD Integration': [
+      'Data handoff protocol defined between X1 and VANGUARD',
+      'Sensor data processing pipeline developed',
+      'X1-VANGUARD integration test completed',
+      'Integration demonstrated to stakeholder',
+      'Integration architecture documented',
+      'Next sensor payload identified for development'
     ]
   }
 };
@@ -3945,51 +4017,55 @@ const Q4_END      = new Date('2026-12-31');
 const Q4_SEQUENCE = [
   {
     month: 'October 2026', key: '2026-10',
-    primary: 'VANGUARD',
+    primary: 'AILA + UAV',
     focus: [
-      { tag: 'VANGUARD', text: 'Complete Ukraine Strategic Mission Report' },
-      { tag: 'VANGUARD', text: 'Draft Policy Brief — Lessons from Ukraine' },
-      { tag: 'Z HISTORIAN', text: 'Weekly output only — 1 major + 2 short pieces' },
+      { tag: 'VANGUARD', text: 'Presentation prep only — 1–2 days, then close ✓' },
+      { tag: 'AILA', text: 'Test full programme end-to-end — find and fix friction' },
+      { tag: 'AILA', text: 'Advertise Cohort 1 — recruit 10–20 participants for Nov 13–15' },
+      { tag: 'UAV', text: 'Research: define VANGUARD sensor requirements + X1 design brief' },
+      { tag: 'Z HISTORIAN', text: '1 long form + 2–3 short posts per week (repurposed)' },
     ],
     projects: [
-      { name: 'VANGUARD', mode: 'build' },
+      { name: 'VANGUARD', mode: 'maintain' },
+      { name: 'AILA', mode: 'build' },
+      { name: 'UAV', mode: 'setup' },
       { name: 'Z Historian', mode: 'maintain' },
-      { name: 'AILA', mode: 'parked' },
-      { name: 'UAV MVP', mode: 'parked' },
       { name: 'Y4PZ', mode: 'parked' },
     ]
   },
   {
     month: 'November 2026', key: '2026-11',
-    primary: 'VANGUARD',
+    primary: 'AILA Cohort 1',
     focus: [
-      { tag: 'VANGUARD', text: 'Zambia Army Military Innovation Model — complete' },
-      { tag: 'VANGUARD', text: 'Project VANGUARD Framework — complete' },
-      { tag: 'AILA', text: 'Design Level 1 curriculum — no delivery yet' },
-      { tag: 'Z HISTORIAN', text: 'Weekly output continues' },
+      { tag: 'VANGUARD', text: 'Deliver presentation → VANGUARD complete ✓' },
+      { tag: 'AILA', text: '★ Run 3-day Cohort 1 — Nov 13–15' },
+      { tag: 'AILA', text: 'Collect feedback, testimonials, debrief' },
+      { tag: 'UAV', text: 'Finalise BOM, order long-lead components, confirm workspace' },
+      { tag: 'Z HISTORIAN', text: '1 long form + 2–3 short posts per week' },
     ],
     projects: [
-      { name: 'VANGUARD', mode: 'build' },
+      { name: 'VANGUARD', mode: 'maintain' },
+      { name: 'AILA', mode: 'build' },
+      { name: 'UAV', mode: 'setup' },
       { name: 'Z Historian', mode: 'maintain' },
-      { name: 'AILA', mode: 'setup' },
-      { name: 'UAV MVP', mode: 'parked' },
       { name: 'Y4PZ', mode: 'parked' },
     ]
   },
   {
     month: 'December 2026', key: '2026-12',
-    primary: 'VANGUARD → Present',
+    primary: 'UAV + AILA Refine',
     focus: [
-      { tag: 'VANGUARD', text: 'Present Strategic Recommendations to leadership' },
-      { tag: 'VANGUARD', text: '2026 review · 2027 opening priorities set' },
-      { tag: 'AILA', text: 'Pilot cohort design — ready to run Jan 2027' },
-      { tag: 'UAV', text: 'Equipment procurement + workspace setup only' },
+      { tag: 'UAV', text: 'First assembly — bench test X1 v0.1 → Gate 1 review Dec 31' },
+      { tag: 'AILA', text: 'Refine programme from Cohort 1 feedback — AILA v1.1' },
+      { tag: 'AILA', text: 'Open Cohort 2 registration with testimonials' },
+      { tag: 'VANGUARD', text: '2026 year-end review · 2027 opening priorities set' },
+      { tag: 'Z HISTORIAN', text: '1 long form + 2–3 short posts per week' },
     ],
     projects: [
-      { name: 'VANGUARD', mode: 'build' },
+      { name: 'VANGUARD', mode: 'maintain' },
+      { name: 'AILA', mode: 'maintain' },
+      { name: 'UAV', mode: 'build' },
       { name: 'Z Historian', mode: 'maintain' },
-      { name: 'AILA', mode: 'setup' },
-      { name: 'UAV MVP', mode: 'setup' },
       { name: 'Y4PZ', mode: 'parked' },
     ]
   }
