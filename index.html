@@ -1700,7 +1700,7 @@ async function sbCheckTables() {
 async function sbLoadTasks() {
   try {
     const rows = await SB.get('cc_tasks','?order=created_at.asc');
-    S.today = rows.filter(r=>r.list_key==='today').map(r=>({ id:r.id, text:r.text, tag:r.tag, done:r.done, tcDomain:r.tc_domain }));
+    S.today = rows.filter(r=>r.list_key==='today').map(r=>({ id:r.id, text:r.text, tag:r.tag, done:r.done, tcDomain:r.tc_domain })).slice(0, 3);
     S.week  = rows.filter(r=>r.list_key==='week').map(r=>({ id:r.id, text:r.text, tag:r.tag, done:r.done }));
     saveLS();
   } catch(e) { console.warn('sbLoadTasks:',e.message); }
@@ -2269,6 +2269,7 @@ function pinToTop3(text,domain) {
 function renderToday() {
   const el=document.getElementById('top3List');
   const badge=document.getElementById('top3Badge');
+  if (Array.isArray(S.today) && S.today.length > 3) { S.today = S.today.slice(0, 3); saveLS(); }
   const items=S.today||[];
   const done=items.filter(t=>t.done).length;
   badge.textContent=`${done} / 3`;
