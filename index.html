@@ -746,6 +746,7 @@ body {
     <button class="tab-btn" data-panel="aila" style="color:var(--aila)"><span data-ic="sparkles"></span> AILA Sprint</button>
     <button class="tab-btn" data-panel="uav" style="color:var(--uav)">✈ UAV MVP</button>
     <button class="tab-btn" data-panel="q4focus" style="color:#10b981">◎ Q4 Focus</button>
+    <button class="tab-btn" data-panel="content" style="color:#a78bfa">✦ Content</button>
   </div>
 
   <!-- ═══════════════ TODAY ═══════════════ -->
@@ -1301,6 +1302,114 @@ body {
       <div class="q4-park-item"><div class="q4-park-name">Research / PhD Proposal</div><div class="q4-park-note">Weekly reading slot only — no deliverable until Q1 2027</div></div>
       <div class="q4-park-item"><div class="q4-park-name">New AI Applications</div><div class="q4-park-note">Idea Vault only — Bantuwa Rule applies before any build</div></div>
       <div class="q4-park-item"><div class="q4-park-name">New Ventures / Concepts</div><div class="q4-park-note">Capture, don't execute — demand must be proven first</div></div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════ CONTENT ═══════════════ -->
+  <div class="panel" id="panel-content">
+
+    <!-- Header row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
+      <div>
+        <div class="sec-title" style="margin:0;">✦ Content Engine</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px;">One strong idea → 5–8 pieces across 4 brands</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="contentShowTab('queue')">📅 Queue</button>
+        <button class="btn btn-ghost btn-sm" onclick="contentShowTab('ideas')">💡 Ideas</button>
+        <button class="btn btn-ghost btn-sm" onclick="contentShowTab('draft')">✦ AI Draft</button>
+      </div>
+    </div>
+
+    <!-- ── QUEUE tab ── -->
+    <div id="ct-queue">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="sec-title" style="margin:0;font-size:13px;">This Week's Queue</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="contentPrevWeek()">‹</button>
+          <span id="ctWeekLabel" style="font-size:12px;color:var(--text2);padding:0 4px;align-self:center;"></span>
+          <button class="btn btn-ghost btn-sm" onclick="contentNextWeek()">›</button>
+        </div>
+      </div>
+      <div id="ctQueueList" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div style="margin-top:16px;">
+        <div class="sec-title" style="margin:0 0 10px;font-size:13px;">Upcoming</div>
+        <div id="ctUpcomingList" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+
+    <!-- ── IDEAS tab ── -->
+    <div id="ct-ideas" style="display:none;">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <input id="ctIdeaText" placeholder="Content idea…" style="flex:1;min-width:160px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;" onkeydown="if(event.key==='Enter')addContentIdea()">
+        <select id="ctIdeaPillar" style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+          <option value="leadership">Leadership</option>
+          <option value="ai">AI & Tech</option>
+          <option value="strategy">Strategy</option>
+          <option value="building">Building</option>
+          <option value="history">History</option>
+          <option value="personal">Personal</option>
+        </select>
+        <select id="ctIdeaBrand" style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+          <option value="victor">Victor Simz</option>
+          <option value="zhist">Z Historian</option>
+          <option value="bantuwa">Bantuwa</option>
+          <option value="aila">AILA</option>
+          <option value="all">All Brands</option>
+        </select>
+        <button class="btn btn-gold btn-sm" onclick="addContentIdea()">+ Add</button>
+      </div>
+      <div id="ctIdeasList" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <!-- ── DRAFT tab ── -->
+    <div id="ct-draft" style="display:none;">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-title" style="margin-bottom:12px;">AI Post Generator</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">BRAND</div>
+            <select id="ctDraftBrand" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;" onchange="ctUpdateFormatOptions()">
+              <option value="victor">Victor Simz</option>
+              <option value="zhist">Z Historian</option>
+              <option value="bantuwa">Bantuwa</option>
+              <option value="aila">AILA</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">FORMAT</div>
+            <select id="ctDraftFormat" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+              <option value="linkedin">LinkedIn post</option>
+              <option value="facebook">Facebook post</option>
+              <option value="buildernote">Builder's Note</option>
+              <option value="commandnote">Command Note</option>
+              <option value="youtube">YouTube description</option>
+              <option value="thread">Short thread (3 posts)</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">IDEA / TOPIC</div>
+          <textarea id="ctDraftTopic" rows="3" placeholder="Paste your idea or working title here…" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;"></textarea>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">EXTRA CONTEXT <span style="opacity:.5;">(optional)</span></div>
+          <input id="ctDraftContext" placeholder="e.g. connect to AILA cohort, reference VANGUARD lesson…" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+        </div>
+        <button class="btn btn-gold" onclick="generateContentDraft()" id="ctDraftBtn">✦ Generate Draft</button>
+      </div>
+      <div id="ctDraftResult" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="sec-title" style="margin:0;font-size:13px;">Generated Draft</div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-sm" onclick="ctCopyDraft()">Copy</button>
+            <button class="btn btn-ghost btn-sm" onclick="ctRegenerateDraft()">Regenerate</button>
+          </div>
+        </div>
+        <div id="ctDraftOutput" style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text);"></div>
+        <div id="ctRepurposeRow" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"></div>
+      </div>
     </div>
 
   </div>
@@ -3135,6 +3244,7 @@ function switchTab(panelId) {
   if(panelId==='aila') renderAILA();
   if(panelId==='uav')  renderUAV();
   if(panelId==='q4focus') renderQ4Focus();
+  if(panelId==='content') initContentPanel();
   if(panelId==='plan90') render90Day();
   if(panelId==='schedule'){renderSchedule();renderScorecard();}
 }
@@ -4481,6 +4591,375 @@ Return ONLY valid JSON — no markdown fences, no explanation, just the JSON obj
   const match = text.match(/\{[\s\S]+\}/);
   if (!match) throw new Error('Invalid response from Claude');
   return JSON.parse(match[0]);
+}
+
+// ═══════════════════════════════════════════
+// CONTENT ENGINE
+// ═══════════════════════════════════════════
+
+const CONTENT_LS_KEY = 'vs_content_v1';
+
+const BRAND_PROFILES = {
+  victor: {
+    name: 'Victor Simz',
+    color: '#a78bfa',
+    voice: 'Practitioner-scholar. Thoughtful, direct, honest about tensions and uncertainty. First-person experience used sparingly but with credibility. Original ideas over generic advice. Tone: intellectually confident, not self-promotional. No motivational fluff. Short paragraphs. End with a question or provocation.',
+    audience: 'Broad professional audience — leaders, builders, strategists, Zambians',
+    avoid: 'Generic motivational quotes, certificates as achievements, AI hype, posts designed to signal success'
+  },
+  zhist: {
+    name: 'The Z Historian',
+    color: '#34d47a',
+    voice: 'Historian and storyteller. Rigorous, curious, narrative-driven. Connects Zambian and African history to present-day questions. Scholarly but accessible. Tone: authoritative yet inviting. Surface the underappreciated, forgotten, misunderstood. History as applied knowledge — not nostalgia.',
+    audience: 'General public, historians, Zambians, Africans interested in their history',
+    avoid: 'Presentism, oversimplification, purely celebratory tone without analysis'
+  },
+  bantuwa: {
+    name: 'Bantuwa Innovate',
+    color: '#4a9eff',
+    voice: 'Innovation ecosystem and institutional intelligence. Tone: visionary but grounded, African-centred. Speaks about capability-building, sovereign innovation, knowledge + technology + people. Not a startup diary. Institutional and strategic framing. Third-person references to Bantuwa are fine.',
+    audience: 'Institutions, innovators, potential partners, African technology ecosystem',
+    avoid: 'Startup hype, AI buzzwords without substance, purely technical jargon'
+  },
+  aila: {
+    name: 'AI Leadership Academy',
+    color: '#0ea5e9',
+    voice: 'Education and transformation platform. Tone: teaching, empowering, practical. Helps leaders move from understanding AI to using it. Structured thinking — frameworks, pathways, clear steps. Problem-first, not tool-first. Reference the AILA pathway where relevant: Problem Solver → Solution Builder → AI System Builder → Transformation Leader.',
+    audience: 'Leaders, professionals, organisations navigating AI transformation',
+    avoid: 'Tech-first framing, assuming deep technical knowledge, making AI sound scary or trivially easy'
+  }
+};
+
+const CONTENT_CALENDAR = [
+  // October 2026
+  { date:'2026-10-02', brand:'victor',  platform:'Facebook',  title:'A new chapter', pillar:'personal',  status:'pending' },
+  { date:'2026-10-03', brand:'zhist',   platform:'Facebook',  title:"What Zambia's history teaches us about building institutions", pillar:'history', status:'pending' },
+  { date:'2026-10-06', brand:'victor',  platform:'LinkedIn',  title:'The danger of being good at too many things', pillar:'leadership', status:'pending' },
+  { date:'2026-10-08', brand:'victor',  platform:'Facebook',  title:"Builder's Note #01 — From Practitioner to Builder", pillar:'building', status:'pending' },
+  { date:'2026-10-10', brand:'zhist',   platform:'Facebook',  title:"History isn't about the past", pillar:'history', status:'pending' },
+  { date:'2026-10-13', brand:'victor',  platform:'LinkedIn',  title:'The biggest AI problem in organisations may not be technology', pillar:'ai', status:'pending' },
+  { date:'2026-10-15', brand:'victor',  platform:'Facebook',  title:'What building VANGUARD has taught me about innovation', pillar:'building', status:'pending' },
+  { date:'2026-10-17', brand:'zhist',   platform:'Facebook',  title:'Historical profile — underappreciated Zambian figure', pillar:'history', status:'pending' },
+  { date:'2026-10-20', brand:'victor',  platform:'LinkedIn',  title:'You don\'t need more motivation. You need a system.', pillar:'leadership', status:'pending' },
+  { date:'2026-10-22', brand:'victor',  platform:'YouTube',   title:'From Practitioner to Builder: The Next Chapter', pillar:'personal', status:'pending' },
+  { date:'2026-10-24', brand:'zhist',   platform:'Facebook',  title:'What forgotten history can teach us about leadership', pillar:'history', status:'pending' },
+  { date:'2026-10-27', brand:'victor',  platform:'LinkedIn',  title:'AI literacy is becoming a leadership competency', pillar:'ai', status:'pending' },
+  { date:'2026-10-29', brand:'victor',  platform:'Facebook',  title:"Builder's Note #02 — Why I'm trying to build fewer things", pillar:'building', status:'pending' },
+  { date:'2026-10-31', brand:'victor',  platform:'Facebook',  title:'October Builder Review', pillar:'building', status:'pending' },
+  // November 2026
+  { date:'2026-11-03', brand:'victor',  platform:'LinkedIn',  title:'Ideas are cheap. Tested ideas are different.', pillar:'building', status:'pending' },
+  { date:'2026-11-05', brand:'bantuwa', platform:'Facebook',  title:"Why Bantuwa isn't simply an AI company", pillar:'strategy', status:'pending' },
+  { date:'2026-11-07', brand:'zhist',   platform:'Facebook',  title:'A Zambian example of innovation before the digital age', pillar:'history', status:'pending' },
+  { date:'2026-11-10', brand:'victor',  platform:'LinkedIn',  title:"Leaders don't need to know everything. They need to know what questions to ask.", pillar:'leadership', status:'pending' },
+  { date:'2026-11-12', brand:'victor',  platform:'Facebook',  title:"Builder's Note #03 — What I learned from building AI systems nobody initially asked for", pillar:'building', status:'pending' },
+  { date:'2026-11-14', brand:'zhist',   platform:'Facebook',  title:'Historical misconception — investigating a commonly held belief about Zambia', pillar:'history', status:'pending' },
+  { date:'2026-11-17', brand:'aila',    platform:'Facebook',  title:'The four stages of becoming an AI-enabled leader', pillar:'ai', status:'pending' },
+  { date:'2026-11-19', brand:'victor',  platform:'YouTube',   title:'AI Leadership: Why Leaders Need to Understand AI Without Becoming Programmers', pillar:'ai', status:'pending' },
+  { date:'2026-11-21', brand:'victor',  platform:'LinkedIn',  title:'The uncomfortable side of ambition', pillar:'personal', status:'pending' },
+  { date:'2026-11-24', brand:'victor',  platform:'Facebook',  title:"Africa doesn't need to copy the future. It needs to build its own capacity to shape it.", pillar:'strategy', status:'pending' },
+  { date:'2026-11-26', brand:'bantuwa', platform:'Facebook',  title:'What does sovereign innovation actually mean?', pillar:'strategy', status:'pending' },
+  { date:'2026-11-28', brand:'zhist',   platform:'Facebook',  title:'African agency — historical story', pillar:'history', status:'pending' },
+  { date:'2026-11-30', brand:'victor',  platform:'Facebook',  title:'November Builder Review', pillar:'building', status:'pending' },
+  // December 2026
+  { date:'2026-12-01', brand:'victor',  platform:'Facebook',  title:'What does it mean to reinvent yourself without becoming someone else?', pillar:'personal', status:'pending' },
+  { date:'2026-12-03', brand:'victor',  platform:'LinkedIn',  title:'Your next level may require subtraction, not addition.', pillar:'leadership', status:'pending' },
+  { date:'2026-12-05', brand:'zhist',   platform:'Facebook',  title:"What 2026 taught me about Zambia's history", pillar:'history', status:'pending' },
+  { date:'2026-12-08', brand:'victor',  platform:'LinkedIn',  title:'The future of AI in Africa will not be determined only by technology', pillar:'ai', status:'pending' },
+  { date:'2026-12-10', brand:'victor',  platform:'Facebook',  title:"Builder's Note #04 — The projects I'm carrying into 2027", pillar:'building', status:'pending' },
+  { date:'2026-12-12', brand:'zhist',   platform:'Facebook',  title:'The Zambia we inherited — major long-form historical story', pillar:'history', status:'pending' },
+  { date:'2026-12-15', brand:'aila',    platform:'Facebook',  title:"Leadership in the age of AI isn't about using more tools", pillar:'ai', status:'pending' },
+  { date:'2026-12-17', brand:'victor',  platform:'YouTube',   title:'2026: From Practitioner to Builder', pillar:'personal', status:'pending' },
+  { date:'2026-12-19', brand:'victor',  platform:'LinkedIn',  title:'Things I learned this year that had nothing to do with technology', pillar:'personal', status:'pending' },
+  { date:'2026-12-22', brand:'bantuwa', platform:'Facebook',  title:'2027: Building African capability', pillar:'strategy', status:'pending' },
+  { date:'2026-12-29', brand:'victor',  platform:'Facebook',  title:'My 2027 Operating Principles', pillar:'personal', status:'pending' },
+  { date:'2026-12-31', brand:'victor',  platform:'Facebook',  title:'From Practitioner to Builder — 2027', pillar:'personal', status:'pending' },
+];
+
+// Merge calendar status from localStorage
+function loadContentData() {
+  try {
+    const raw = localStorage.getItem(CONTENT_LS_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    // Merge status overrides
+    if (saved.statuses) {
+      saved.statuses.forEach(s => {
+        const item = CONTENT_CALENDAR.find(c => c.date === s.date && c.brand === s.brand && c.title === s.title);
+        if (item) item.status = s.status;
+      });
+    }
+    // Load user ideas
+    if (saved.ideas) _contentIdeas = saved.ideas;
+  } catch(e) {}
+}
+
+function saveContentData() {
+  const statuses = CONTENT_CALENDAR.map(c => ({ date: c.date, brand: c.brand, title: c.title, status: c.status }));
+  try { localStorage.setItem(CONTENT_LS_KEY, JSON.stringify({ statuses, ideas: _contentIdeas })); } catch(e) {}
+}
+
+let _contentIdeas = [];
+let _ctWeekOffset = 0;
+let _ctActiveTab = 'queue';
+let _lastDraftBrand = 'victor';
+let _lastDraftFormat = 'linkedin';
+let _lastDraftTopic = '';
+
+function contentShowTab(tab) {
+  _ctActiveTab = tab;
+  document.getElementById('ct-queue').style.display  = tab === 'queue'  ? '' : 'none';
+  document.getElementById('ct-ideas').style.display  = tab === 'ideas'  ? '' : 'none';
+  document.getElementById('ct-draft').style.display  = tab === 'draft'  ? '' : 'none';
+}
+
+function ctWeekStart(offset) {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const mon = new Date(now); mon.setDate(now.getDate() - ((day+6)%7) + offset*7);
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+
+function contentPrevWeek() { _ctWeekOffset--; renderContentQueue(); }
+function contentNextWeek() { _ctWeekOffset++; renderContentQueue(); }
+
+const BRAND_COLOR = { victor:'#a78bfa', zhist:'#34d47a', bantuwa:'#4a9eff', aila:'#0ea5e9' };
+const BRAND_LABEL = { victor:'Victor Simz', zhist:'Z Historian', bantuwa:'Bantuwa', aila:'AILA' };
+const PILLAR_LABEL = { leadership:'Leadership', ai:'AI & Tech', strategy:'Strategy', building:'Building', history:'History', personal:'Personal' };
+
+function ctStatusBadge(status) {
+  const map = { pending:'⬜', done:'✅', skipped:'⏭' };
+  return map[status] || '⬜';
+}
+
+function renderContentQueue() {
+  loadContentData();
+  const ws = ctWeekStart(_ctWeekOffset);
+  const we = new Date(ws); we.setDate(ws.getDate() + 6); we.setHours(23,59,59,999);
+  const fmt = d => d.toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
+  document.getElementById('ctWeekLabel').textContent = `${fmt(ws)} – ${fmt(we)}`;
+
+  // This week
+  const thisWeek = CONTENT_CALENDAR.filter(c => {
+    const d = new Date(c.date); return d >= ws && d <= we;
+  });
+  const ql = document.getElementById('ctQueueList');
+  if (thisWeek.length === 0) {
+    ql.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:12px 0;">No posts scheduled this week.</div>`;
+  } else {
+    ql.innerHTML = thisWeek.map((c,i) => {
+      const d = new Date(c.date);
+      const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+      const bc = BRAND_COLOR[c.brand] || '#aaa';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;border-left:3px solid ${bc};">
+        <span style="font-size:16px;cursor:pointer;" onclick="ctCycleStatus('cal',${CONTENT_CALENDAR.indexOf(c)})" title="Click to cycle status">${ctStatusBadge(c.status)}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(c.title)}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:8px;">
+            <span style="color:${bc}">${BRAND_LABEL[c.brand]||c.brand}</span>
+            <span>${c.platform}</span>
+            <span>${dayName} ${d.getDate()}</span>
+            <span>${PILLAR_LABEL[c.pillar]||c.pillar}</span>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="ctDraftFromCalendar(${CONTENT_CALENDAR.indexOf(c)})" style="white-space:nowrap;font-size:11px;">Draft ✦</button>
+      </div>`;
+    }).join('');
+  }
+
+  // Upcoming (next 10 pending beyond this week)
+  const today = new Date(); today.setHours(0,0,0,0);
+  const upcoming = CONTENT_CALENDAR.filter(c => new Date(c.date) > we && c.status === 'pending').slice(0, 8);
+  const ul = document.getElementById('ctUpcomingList');
+  ul.innerHTML = upcoming.map(c => {
+    const d = new Date(c.date);
+    const bc = BRAND_COLOR[c.brand] || '#aaa';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;border-left:3px solid ${bc};">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(c.title)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:8px;">
+          <span style="color:${bc}">${BRAND_LABEL[c.brand]||c.brand}</span>
+          <span>${c.platform}</span>
+          <span>${d.toLocaleDateString('en-ZA',{day:'numeric',month:'short'})}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function ctCycleStatus(src, idx) {
+  const item = CONTENT_CALENDAR[idx];
+  if (!item) return;
+  const cycle = ['pending','done','skipped'];
+  item.status = cycle[(cycle.indexOf(item.status)+1) % cycle.length];
+  saveContentData();
+  renderContentQueue();
+}
+
+function ctDraftFromCalendar(idx) {
+  const item = CONTENT_CALENDAR[idx];
+  if (!item) return;
+  document.getElementById('ctDraftBrand').value = item.brand;
+  document.getElementById('ctDraftTopic').value = item.title;
+  // Pick a sensible default format
+  const fmtMap = { YouTube:'youtube', LinkedIn:'linkedin', Facebook:'facebook' };
+  document.getElementById('ctDraftFormat').value = fmtMap[item.platform] || 'facebook';
+  document.getElementById('ctDraftContext').value = '';
+  document.getElementById('ctDraftResult').style.display = 'none';
+  contentShowTab('draft');
+}
+
+function renderContentIdeas() {
+  const list = document.getElementById('ctIdeasList');
+  if (!_contentIdeas.length) {
+    list.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:12px 0;">No ideas yet — add your first one above.</div>`;
+    return;
+  }
+  list.innerHTML = _contentIdeas.map((idea, i) => {
+    const bc = BRAND_COLOR[idea.brand] || '#aaa';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;border-left:3px solid ${bc};">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;color:var(--text);">${esc(idea.text)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;display:flex;gap:8px;">
+          <span style="color:${bc}">${BRAND_LABEL[idea.brand]||idea.brand}</span>
+          <span>${PILLAR_LABEL[idea.pillar]||idea.pillar}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-sm" onclick="ctDraftFromIdea(${i})" style="font-size:11px;">Draft ✦</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:11px;" onclick="deleteContentIdea(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addContentIdea() {
+  const text = document.getElementById('ctIdeaText').value.trim();
+  if (!text) return;
+  _contentIdeas.unshift({
+    text,
+    pillar: document.getElementById('ctIdeaPillar').value,
+    brand: document.getElementById('ctIdeaBrand').value,
+    added: new Date().toISOString().split('T')[0]
+  });
+  document.getElementById('ctIdeaText').value = '';
+  saveContentData();
+  renderContentIdeas();
+}
+
+function deleteContentIdea(i) {
+  _contentIdeas.splice(i, 1);
+  saveContentData();
+  renderContentIdeas();
+}
+
+function ctDraftFromIdea(i) {
+  const idea = _contentIdeas[i];
+  if (!idea) return;
+  document.getElementById('ctDraftBrand').value = idea.brand === 'all' ? 'victor' : idea.brand;
+  document.getElementById('ctDraftTopic').value = idea.text;
+  document.getElementById('ctDraftFormat').value = 'linkedin';
+  document.getElementById('ctDraftContext').value = '';
+  document.getElementById('ctDraftResult').style.display = 'none';
+  contentShowTab('draft');
+}
+
+function ctUpdateFormatOptions() { /* format options are universal; kept for future customisation */ }
+
+async function generateContentDraft() {
+  const apiKey = getAIKey();
+  if (!apiKey) { toast('No API key — add it in Strategy → Setup'); return; }
+  const brand   = document.getElementById('ctDraftBrand').value;
+  const format  = document.getElementById('ctDraftFormat').value;
+  const topic   = document.getElementById('ctDraftTopic').value.trim();
+  const context = document.getElementById('ctDraftContext').value.trim();
+  if (!topic) { toast('Enter a topic first'); return; }
+
+  _lastDraftBrand  = brand;
+  _lastDraftFormat = format;
+  _lastDraftTopic  = topic;
+
+  const btn = document.getElementById('ctDraftBtn');
+  btn.textContent = '⏳ Generating…'; btn.disabled = true;
+  document.getElementById('ctDraftResult').style.display = 'none';
+
+  const profile = BRAND_PROFILES[brand];
+  const formatGuide = {
+    linkedin:    'A LinkedIn post. 150–250 words. Hook in the first line (no fluff). 3–5 short paragraphs. End with a question or call to reflection. No hashtags unless they add value.',
+    facebook:    'A Facebook post. 100–200 words. Conversational, warm but intelligent. Hook first. Personal and relatable. End with a question or invitation to comment.',
+    buildernote: 'A Builder\'s Note. Use this exact structure:\nProblem: [what I\'m observing]\nInsight: [what I\'m learning]\nExperiment: [what I\'m trying]\nLesson: [what changed in my thinking]\nNext: [what I\'m building or testing next]\n\nKeep each section to 2–4 sentences.',
+    commandnote: 'A Command Note. Leadership, discipline, productivity or the Take Command philosophy. 100–180 words. Structured, direct, actionable. Not motivational fluff — practical wisdom from experience.',
+    youtube:     'A YouTube video description. First 2 sentences are the hook (shown in search). Then a 3–4 sentence summary of what viewers will learn. List 3–5 key questions the video answers. End with a one-line CTA. 150–200 words total.',
+    thread:      'A 3-post social thread. Format as:\nPost 1: [hook — single provocative idea]\nPost 2: [development — evidence, example, or framework]\nPost 3: [insight or resolution + question]\n\nEach post under 200 characters.'
+  }[format] || 'A short social media post.';
+
+  const prompt = `You are a content writer for ${profile.name}.
+
+BRAND VOICE: ${profile.voice}
+
+TARGET AUDIENCE: ${profile.audience}
+
+AVOID: ${profile.avoid}
+
+TOPIC / WORKING TITLE: ${topic}${context ? `\n\nEXTRA CONTEXT: ${context}` : ''}
+
+Write the post now in this format:
+${formatGuide}
+
+Output ONLY the finished post text — no preamble, no explanation, no "here is your post". Just the post itself, ready to publish.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 800, messages: [{ role:'user', content: prompt }] })
+    });
+    if (!resp.ok) throw new Error(`API error ${resp.status}`);
+    const data = await resp.json();
+    const draft = data.content[0].text.trim();
+    document.getElementById('ctDraftOutput').textContent = draft;
+    document.getElementById('ctDraftResult').style.display = '';
+    // Repurpose buttons — other brands
+    const repurposeRow = document.getElementById('ctRepurposeRow');
+    const others = Object.keys(BRAND_PROFILES).filter(b => b !== brand);
+    repurposeRow.innerHTML = `<span style="font-size:11px;color:var(--text3);align-self:center;">Repurpose as:</span>` +
+      others.map(b => `<button class="btn btn-ghost btn-sm" style="color:${BRAND_COLOR[b]};font-size:11px;" onclick="ctRepurpose('${b}')">${BRAND_LABEL[b]}</button>`).join('');
+  } catch(e) {
+    toast('Draft failed: ' + e.message);
+  } finally {
+    btn.textContent = '✦ Generate Draft'; btn.disabled = false;
+  }
+}
+
+async function ctRepurpose(targetBrand) {
+  const currentDraft = document.getElementById('ctDraftOutput').textContent;
+  if (!currentDraft) return;
+  document.getElementById('ctDraftBrand').value = targetBrand;
+  document.getElementById('ctDraftContext').value = 'Repurpose from: ' + BRAND_LABEL[_lastDraftBrand];
+  await generateContentDraft();
+}
+
+async function ctRegenerateDraft() {
+  document.getElementById('ctDraftBrand').value  = _lastDraftBrand;
+  document.getElementById('ctDraftFormat').value = _lastDraftFormat;
+  document.getElementById('ctDraftTopic').value  = _lastDraftTopic;
+  await generateContentDraft();
+}
+
+function ctCopyDraft() {
+  const text = document.getElementById('ctDraftOutput').textContent;
+  navigator.clipboard.writeText(text).then(() => toast('Copied ✓')).catch(() => toast('Copy failed'));
+}
+
+function initContentPanel() {
+  loadContentData();
+  renderContentQueue();
+  renderContentIdeas();
 }
 
 const _aiStore = {};
