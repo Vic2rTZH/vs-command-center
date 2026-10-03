@@ -1640,12 +1640,13 @@ Write the post now. Output ONLY the finished post — no preamble, no explanatio
     if(!resp.ok) throw new Error('API error '+resp.status);
     const data = await resp.json();
     const draft = data.content[0].text.trim();
+    window._ccLastDraft = draft;
     const fmtLabels = {photo:'Historical Photo',didyouknow:'"Did you know?"',beforeafter:'Before/After',map:'Old Map',newspaper:'Newspaper',quote:'Historical Quote',minibio:'Mini Biography',question:'Community Question',anniversary:'Anniversary',timeline:'Timeline'};
     document.getElementById('cc-out').innerHTML = `
       <div class="platform-output">
         <div class="platform-header">
           <div class="platform-name" style="color:var(--gold);">🏛 ${fmtLabels[fmt]||fmt} — Facebook</div>
-          <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(draft)}).then(()=>{ this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',2000); })">Copy</button>
+          <button class="btn btn-ghost btn-sm" id="cc-copy-btn" onclick="navigator.clipboard.writeText(window._ccLastDraft).then(()=>{ this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',2000); })">Copy</button>
         </div>
         <div class="platform-body">${draft.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
       </div>`;
