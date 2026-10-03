@@ -462,8 +462,9 @@ const DB = {
           id: e.id, title: e.title, num: e.num || null,
           stage: e.status === 'published' ? 'published'
                : e.status === 'editing'   ? 'editing'
-               : e.status === 'recording' ? 'recording'
-               : e.status === 'scripted'  ? 'scripted'
+               : e.status === 'filming'   ? 'recording'
+               : e.status === 'scripting' ? 'scripted'
+               : e.status === 'research'  ? 'research'
                : 'research',
           target: e.date || '', actual: e.actual || '', theme: e.theme || ''
         }))
