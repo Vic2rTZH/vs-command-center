@@ -316,9 +316,6 @@ tbody td:first-child{color:var(--text);font-weight:500;}
         <option>Colonial Era (1880s–1960s)</option>
         <option>Independence Era (1960s–1980s)</option>
         <option>Modern Africa (1980s–present)</option>
-        <option>Ancient Civilizations</option>
-        <option>Trans-Atlantic Slave Trade Era</option>
-        <option>Pan-African Movements</option>
         <option>Other</option>
       </select>
     </div>
@@ -815,11 +812,11 @@ function detectPeriod(text) {
 
   // Strong keyword signals
   if(/\b(slave trade|transatlantic|middle passage|enslave|slavery)\b/i.test(t))
-    return 'Trans-Atlantic Slave Trade Era';
+    return 'Colonial Era (1880s–1960s)';
   if(/\b(pan.?african|marcus garvey|négritude|negritude|george padmore|c\.l\.r\. james)\b/i.test(t))
-    return 'Pan-African Movements';
+    return 'Independence Era (1960s–1980s)';
   if(/\b(pharaoh|ancient egypt|nubia|kush|mali empire|songhai|great zimbabwe|carthage|aksum|axum|timbuktu|mansa musa|sundiata)\b/i.test(t))
-    return 'Ancient Civilizations';
+    return 'Pre-Colonial Africa (before 1880s)';
   if(/\b(cold war|apartheid|liberation|uhuru|decoloni|lumumba|kaunda|nyerere|nkrumah|mugabe|freedom fight|independence movement|nationalist)\b/i.test(t))
     return 'Independence Era (1960s–1980s)';
   if(/\b(colonial|coloniali|scramble for africa|berlin conference|protectorate|british south africa|rhodesia|bsac|missionary|livingstone|rhodes|imperial)\b/i.test(t))
@@ -833,7 +830,7 @@ function detectPeriod(text) {
   const years = [...t.matchAll(/\b(1[0-9]{3}|20[0-2][0-9])\b/g)].map(m=>parseInt(m[1]));
   if(years.length) {
     const avg = years.reduce((a,b)=>a+b,0)/years.length;
-    if(avg < 1500)  return 'Ancient Civilizations';
+    if(avg < 1500)  return 'Pre-Colonial Africa (before 1880s)';
     if(avg < 1880)  return 'Pre-Colonial Africa (before 1880s)';
     if(avg < 1960)  return 'Colonial Era (1880s–1960s)';
     if(avg < 1985)  return 'Independence Era (1960s–1980s)';
@@ -979,9 +976,7 @@ function renderStudio(el) {
             <option>Colonial Era (1880s–1960s)</option>
             <option>Independence Era (1960s–1980s)</option>
             <option>Modern Africa (1980s–present)</option>
-            <option>Ancient Civilizations</option>
-            <option>Trans-Atlantic Slave Trade Era</option>
-            <option>Pan-African Movements</option>
+            <option>Other</option>
           </select>
         </div>
         <div class="form-group">
