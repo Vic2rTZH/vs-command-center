@@ -2701,10 +2701,22 @@ function renderWeekRhythmQuick() {
   const el=document.getElementById('weekRhythmQuick'); if(!el) return;
   const day=new Date().getDay();
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  el.innerHTML=(S.schedule.weekly||[]).map(row=>{
-    const isToday=days[day]===row.day;
-    return `<div style="${isToday?'color:var(--gold2);font-weight:600;':''}">${isToday?'▶ ':'  '}<strong>${row.day}:</strong> ${esc(row.am||'—')}</div>`;
-  }).join('');
+  const todayName=days[day];
+  const weekly=S.schedule.weekly||[];
+  const todayRow=weekly.find(r=>r.day===todayName);
+  if(!todayRow){el.innerHTML='<div style="color:var(--text3);font-size:12px;">No rhythm entry for today.</div>';return;}
+  let html=`<div style="margin-bottom:10px;">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gold2);margin-bottom:6px;">${todayName} — ${esc(todayRow.anchor||'')}</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:4px;"><span style="color:var(--text3);font-size:10px;">AM</span> ${esc(todayRow.am||'—')}</div>
+    <div style="font-size:12px;color:var(--text2);"><span style="color:var(--text3);font-size:10px;">PM</span> ${esc(todayRow.pm||'—')}</div>
+  </div>
+  <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;flex-wrap:wrap;gap:4px;">`;
+  weekly.forEach(r=>{
+    const isToday=r.day===todayName;
+    html+=`<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:${isToday?'rgba(212,175,55,.15)':'var(--bg3)'};color:${isToday?'var(--gold2)':'var(--text3)'};border:1px solid ${isToday?'rgba(212,175,55,.4)':'var(--border)'};">${r.day.slice(0,3)}: ${esc(r.anchor||r.day)}</span>`;
+  });
+  html+=`</div>`;
+  el.innerHTML=html;
 }
 function renderWeekOkrWidgets() {
   const el=document.getElementById('weekOkrWidgets'); if(!el) return;
