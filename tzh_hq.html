@@ -287,6 +287,24 @@ tbody td:first-child{color:var(--text);font-weight:500;}
       <input type="text" class="form-input" id="m-topic" placeholder="e.g. Kenneth Kaunda, Battle of Isandlwana...">
     </div>
     <div class="form-group">
+      <label class="form-label">Monthly Theme</label>
+      <select class="form-select" id="m-theme">
+        <option value="">Select theme...</option>
+        <option value="Forgotten People">Oct 2026 — Forgotten People</option>
+        <option value="Places & Cities">Nov 2026 — Places & Cities</option>
+        <option value="Zambia's Institutions">Dec 2026 — Zambia's Institutions</option>
+        <option value="Independence & Nation Building">Jan 2027 — Independence & Nation Building</option>
+        <option value="Military & Security History">Feb 2027 — Military & Security History</option>
+        <option value="Women & Society">Mar 2027 — Women & Society</option>
+        <option value="Industry, Mining & Infrastructure">Apr 2027 — Industry, Mining & Infrastructure</option>
+        <option value="Education & Intellectual History">May 2027 — Education & Intellectual History</option>
+        <option value="Culture, Language & Identity">Jun 2027 — Culture, Language & Identity</option>
+        <option value="Politics & Public Life">Jul 2027 — Politics & Public Life</option>
+        <option value="Zambia's Regional & African Connections">Aug 2027 — Zambia's Regional & African Connections</option>
+        <option value="The Stories We Are Losing">Sep 2027 — The Stories We Are Losing</option>
+      </select>
+    </div>
+    <div class="form-group">
       <label class="form-label">Historical Period</label>
       <select class="form-select" id="m-period">
         <option value="">Select period...</option>
@@ -306,14 +324,40 @@ tbody td:first-child{color:var(--text);font-weight:500;}
         <input type="date" class="form-input" id="m-date">
       </div>
       <div class="form-group">
-        <label class="form-label">YouTube URL</label>
-        <input type="text" class="form-input" id="m-url" placeholder="https://youtu.be/...">
+        <label class="form-label">Actual Publish Date</label>
+        <input type="date" class="form-input" id="m-actual">
       </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">YouTube URL</label>
+      <input type="text" class="form-input" id="m-url" placeholder="https://youtu.be/...">
     </div>
     <div class="form-group">
       <label class="form-label">Notes</label>
       <textarea class="form-textarea" id="m-notes" placeholder="Research notes, ideas, sources..."></textarea>
     </div>
+
+    <!-- Quality Control Checklist — shown when status = published -->
+    <div id="qc-section" style="display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:6px;">
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:10px;">✓ Quality Control — 5 Tests</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Episode must pass at least 4 of 5 before publishing.</div>
+      ${[
+        ['qc-accuracy',    '1. Accuracy', 'Major claims are supported by sources'],
+        ['qc-originality', '2. Originality', 'Adds something beyond Wikipedia / basic internet information'],
+        ['qc-story',       '3. Story', 'There is an actual human narrative, not just facts'],
+        ['qc-visuality',   '4. Visuality', 'Story can be shown, not just told (photographs, maps, documents)'],
+        ['qc-significance','5. Significance', 'Answers "why should someone care today?"']
+      ].map(([id,label,desc]) => `
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
+          <input type="checkbox" id="${id}" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
+          <label for="${id}" style="cursor:pointer;flex:1;">
+            <div style="font-size:12px;font-weight:600;color:var(--text);">${label}</div>
+            <div style="font-size:11px;color:var(--text-muted);">${desc}</div>
+          </label>
+        </div>`).join('')}
+      <div id="qc-score" style="margin-top:10px;font-size:12px;font-weight:600;"></div>
+    </div>
+
     <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:6px;">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveEpisode()">Save Episode</button>
@@ -457,12 +501,28 @@ function renderDashboard(el) {
   const recent = [...eps].filter(e => e.status==='published')
     .sort((a,b) => (b.num||0)-(a.num||0)).slice(0,4);
 
+  // On-time rate
+  const withDates = eps.filter(e => e.status==='published' && e.date && e.actual);
+  const onTime = withDates.filter(e => e.actual <= e.date).length;
+  const onTimePct = withDates.length ? Math.round(onTime/withDates.length*100) : null;
+  const onTimeCol = onTimePct===null ? 'var(--text-muted)' : onTimePct>=80 ? '#7AC97A' : onTimePct>=50 ? 'var(--gold)' : '#E57373';
+
+  // This month's theme
+  const mk = new Date().toISOString().slice(0,7);
+  const THEMES = {'2026-10':'Forgotten People','2026-11':'Places & Cities','2026-12':"Zambia's Institutions",'2027-01':'Independence & Nation Building','2027-02':'Military & Security History','2027-03':'Women & Society','2027-04':'Industry, Mining & Infrastructure','2027-05':'Education & Intellectual History','2027-06':'Culture, Language & Identity','2027-07':'Politics & Public Life','2027-08':"Zambia's Regional & African Connections",'2027-09':'The Stories We Are Losing'};
+  const thisTheme = THEMES[mk] || '—';
+
   el.innerHTML = `
-  <div class="stats-grid">
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;">
     <div class="stat-card"><div class="stat-label">Total Episodes</div><div class="stat-value">${eps.length}</div><div class="stat-sub">All time</div></div>
     <div class="stat-card"><div class="stat-label">Published</div><div class="stat-value" style="color:#7AC97A">${cnt.published}</div><div class="stat-sub">Live on YouTube</div></div>
     <div class="stat-card"><div class="stat-label">In Production</div><div class="stat-value" style="color:var(--gold)">${inProg}</div><div class="stat-sub">Active workflow</div></div>
     <div class="stat-card"><div class="stat-label">Ideas Vault</div><div class="stat-value" style="color:#7A9EC9">${cnt.idea}</div><div class="stat-sub">Waiting to develop</div></div>
+    <div class="stat-card"><div class="stat-label">On-Time Rate</div><div class="stat-value" style="color:${onTimeCol}">${onTimePct!==null?onTimePct+'%':'—'}</div><div class="stat-sub">${withDates.length ? onTime+' of '+withDates.length+' on time' : 'No data yet'}</div></div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--r);padding:10px 16px;margin-bottom:18px;display:flex;align-items:center;gap:12px;">
+    <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);">This Month's Theme</span>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--gold-light);">${thisTheme}</span>
   </div>
 
   <div class="grid-2" style="margin-bottom:18px;">
@@ -595,9 +655,17 @@ function openModal(ep=null) {
   document.getElementById('m-topic').value = ep?.topic||'';
   document.getElementById('m-period').value= ep?.period||'';
   document.getElementById('m-status').value= ep?.status||'idea';
+  document.getElementById('m-theme').value = ep?.theme||'';
   document.getElementById('m-date').value  = ep?.date||'';
+  document.getElementById('m-actual').value= ep?.actual||'';
   document.getElementById('m-url').value   = ep?.url||'';
   document.getElementById('m-notes').value = ep?.notes||'';
+  // QC checkboxes
+  ['accuracy','originality','story','visuality','significance'].forEach(k => {
+    const el = document.getElementById('qc-'+k); if(el) el.checked = !!(ep?.qc?.[k]);
+  });
+  toggleQCSection(ep?.status||'idea');
+  updateQCScore();
   // Reset YouTube extract UI
   document.getElementById('yt-paste-url').value = ep?.url||'';
   document.getElementById('yt-status').style.display = 'none';
@@ -760,18 +828,41 @@ function formatDisplayDate(iso) {
   try { return new Date(iso+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
   catch(e) { return iso; }
 }
+function toggleQCSection(status) {
+  const sec = document.getElementById('qc-section');
+  if(sec) sec.style.display = status === 'published' ? '' : 'none';
+}
+function updateQCScore() {
+  const keys = ['accuracy','originality','story','visuality','significance'];
+  const passed = keys.filter(k => { const el=document.getElementById('qc-'+k); return el&&el.checked; }).length;
+  const el = document.getElementById('qc-score');
+  if(!el) return;
+  const col = passed >= 4 ? '#7AC97A' : passed >= 3 ? 'var(--gold)' : '#E57373';
+  const msg = passed >= 4 ? '✓ Ready to publish' : passed === 3 ? '⚠ Borderline — consider improving weak areas' : '✕ Not ready — at least 4 tests must pass';
+  el.style.color = col;
+  el.textContent = `${passed}/5 passed — ${msg}`;
+}
+// Wire status dropdown to show/hide QC section
+document.addEventListener('change', e => { if(e.target.id==='m-status') toggleQCSection(e.target.value); });
 function closeModal() { document.getElementById('ep-modal').classList.remove('open'); editingId=null; }
 function saveEpisode() {
   const title = document.getElementById('m-title').value.trim();
   if(!title){ alert('Please enter a title.'); return; }
+  const qc = {};
+  ['accuracy','originality','story','visuality','significance'].forEach(k => {
+    const el = document.getElementById('qc-'+k); if(el) qc[k] = el.checked;
+  });
   const ep = {
     id: editingId||uid(), num: parseInt(document.getElementById('m-num').value)||null,
     title, topic: document.getElementById('m-topic').value.trim(),
+    theme: document.getElementById('m-theme').value,
     period: document.getElementById('m-period').value,
     status: document.getElementById('m-status').value,
     date: document.getElementById('m-date').value,
+    actual: document.getElementById('m-actual').value,
     url: document.getElementById('m-url').value.trim(),
     notes: document.getElementById('m-notes').value.trim(),
+    qc,
     createdAt: editingId ? undefined : new Date().toISOString()
   };
   if(editingId) { const i = DB.d.episodes.findIndex(e=>e.id===editingId); if(i>=0) DB.d.episodes[i]={...DB.d.episodes[i],...ep}; }
@@ -1336,6 +1427,13 @@ const _socContents = {};
 function renderSocial(el) {
   const eps = DB.d.episodes.filter(e => e.status==='published'||e.status==='editing');
   el.innerHTML = `
+  <div class="tabs" style="margin-bottom:18px;">
+    <button class="tab-btn active" onclick="socTab('promote',this)">📢 Episode Promotion</button>
+    <button class="tab-btn" onclick="socTab('community',this)">🏛 Community Content</button>
+  </div>
+
+  <!-- EPISODE PROMOTION tab -->
+  <div id="soc-promote" class="tab-panel active">
   <div class="grid-2">
     <div class="card">
       <div class="card-header"><div class="card-title">Episode Details</div></div>
@@ -1376,6 +1474,50 @@ function renderSocial(el) {
         <div style="color:var(--text-muted);font-size:13px;">Fill in episode details and click Generate.</div>
       </div>
     </div>
+  </div>
+  </div>
+
+  <!-- COMMUNITY CONTENT tab -->
+  <div id="soc-community" class="tab-panel">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Community Post Generator</div></div>
+      <div class="form-group">
+        <label class="form-label">Format</label>
+        <select class="form-select" id="cc-format" onchange="updateCCPlaceholder()">
+          <option value="photo">📷 Historical photograph caption</option>
+          <option value="didyouknow">💡 "Did you know?"</option>
+          <option value="beforeafter">🔄 Before/after photographs</option>
+          <option value="map">🗺 Old map post</option>
+          <option value="newspaper">📰 Newspaper excerpt intro</option>
+          <option value="quote">💬 Historical quotation</option>
+          <option value="minibio">👤 Mini biography</option>
+          <option value="question">❓ Community question ("Do you remember?")</option>
+          <option value="anniversary">📅 Anniversary post</option>
+          <option value="timeline">📊 Historical timeline post</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject / Topic</label>
+        <input class="form-input" id="cc-subject" placeholder="e.g. Lusaka's Cairo Road, 1968...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Key Detail or Fact</label>
+        <textarea class="form-textarea" id="cc-detail" placeholder="The key fact, quote, date, or description to build the post around..." style="min-height:70px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Connection to Today <span style="font-weight:400;color:var(--text-dim);font-size:10px;">(optional)</span></label>
+        <input class="form-input" id="cc-today" placeholder="e.g. This building still stands today as...">
+      </div>
+      <button class="btn btn-primary" onclick="generateCommunityPost()" style="width:100%;">⚡ Generate Post</button>
+    </div>
+    <div id="cc-out">
+      <div class="card" style="text-align:center;padding:60px 20px;">
+        <div style="font-size:34px;margin-bottom:12px;opacity:.25;">🏛</div>
+        <div style="color:var(--text-muted);font-size:13px;">Select a format and fill in the details.</div>
+      </div>
+    </div>
+  </div>
   </div>`;
 }
 
@@ -1426,6 +1568,92 @@ function copyPlatform(name) {
       }
     });
   }).catch(()=> alert('Copy failed — please select and copy manually.'));
+}
+
+function socTab(tab, btn) {
+  document.querySelectorAll('#soc-promote,#soc-community').forEach(el => el.classList.remove('active'));
+  document.getElementById('soc-'+tab).classList.add('active');
+  btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+const CC_PLACEHOLDERS = {
+  photo:      'e.g. Lusaka city centre, 1965 — describe what\'s visible and its significance',
+  didyouknow: 'e.g. In 1953, Zambia produced 20% of the world\'s copper output',
+  beforeafter:'e.g. Independence Avenue, Lusaka — then and now',
+  map:        'e.g. Northern Rhodesia 1924 administrative map showing district boundaries',
+  newspaper:  'e.g. Central African Post, March 1964 — headline and key quotes',
+  quote:      'e.g. Kenneth Kaunda, 1964 independence speech — the exact quote',
+  minibio:    'e.g. Simon Mwansa Kapwepwe — freedom fighter, 1922–1980',
+  question:   'e.g. The old Lusaka market that was demolished in the 1970s',
+  anniversary:'e.g. October 24, 1964 — Zambian independence day, 62 years ago',
+  timeline:   'e.g. Key events in the Copperbelt labour strikes 1935–1956'
+};
+
+function updateCCPlaceholder() {
+  const fmt = document.getElementById('cc-format').value;
+  document.getElementById('cc-detail').placeholder = CC_PLACEHOLDERS[fmt] || 'Key fact or detail...';
+}
+
+async function generateCommunityPost() {
+  const apiKey = (()=>{ try{ return localStorage.getItem('tc_apiKey')||''; }catch(e){return '';} })();
+  if(!apiKey){ alert('No Claude API key set. Add it in the Command Center → Strategy → Setup.'); return; }
+  const fmt     = document.getElementById('cc-format').value;
+  const subject = document.getElementById('cc-subject').value.trim();
+  const detail  = document.getElementById('cc-detail').value.trim();
+  const today   = document.getElementById('cc-today').value.trim();
+  if(!subject||!detail){ alert('Enter a subject and key detail.'); return; }
+
+  const FORMAT_GUIDE = {
+    photo:      'A Facebook post introducing a historical photograph. Describe what the image shows, its historical context, why it matters. End with a question inviting the audience to share memories or knowledge. 80–120 words.',
+    didyouknow: 'A "Did you know?" Facebook post. Open with "Did you know that…" State the surprising fact. Give 2–3 sentences of context. End with a reflection or question. 60–100 words.',
+    beforeafter:'A before/after photograph Facebook post. Describe both images and what changed. Connect past to present. Invite the audience to reflect. 80–120 words.',
+    map:        'A Facebook post introducing a historical map. Describe what the map shows, what it reveals about the period, what has changed since. Ask the audience what they notice. 80–120 words.',
+    newspaper:  'A Facebook post introducing a historical newspaper excerpt. Set the scene — the date, publication, context. Quote the key line. Explain why this moment mattered. 80–120 words.',
+    quote:      'A historical quotation post for Facebook. Present the quote in full. Attribute it precisely. Give 2–3 sentences of context about who said it and why it matters today. 60–100 words.',
+    minibio:    'A mini biography post for Facebook. 150–200 words. Who were they, what did they do, why have they been forgotten or overlooked, what should we remember them for. Tone: respectful, historically grounded, not hagiographic.',
+    question:   'A community memory post for Facebook using "Do you remember?" or "What happened here?" Open with the question. Give brief historical context. Invite the audience to share memories, photographs or knowledge. Warm, participatory tone. 60–100 words.',
+    anniversary:'An anniversary post for Facebook marking a historical date. State the date and event. Brief historical context. Why it still matters. 80–120 words.',
+    timeline:   'A historical timeline post for Facebook. Present 4–6 key dates and events as a structured list. Brief heading per entry. End with a reflection on what the sequence reveals. 150–200 words.'
+  };
+
+  const btn = document.querySelector('#soc-community .btn-primary');
+  const orig = btn.textContent; btn.textContent = '⏳ Generating…'; btn.disabled = true;
+
+  const prompt = `You are a writer for The Z Historian — a specialist platform for discovering, documenting and interpreting Zambia's history.
+
+VOICE: Historian and storyteller. Rigorous, curious, narrative-driven. Connects Zambian and African history to present-day questions. Scholarly but accessible. Surface the underappreciated and forgotten. History as applied knowledge, not nostalgia.
+
+FORMAT: ${FORMAT_GUIDE[fmt]}
+
+SUBJECT: ${subject}
+KEY DETAIL: ${detail}${today ? '\nCONNECTION TO TODAY: '+today : ''}
+
+Write the post now. Output ONLY the finished post — no preamble, no explanation. Ready to copy and paste to Facebook.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:prompt}]})
+    });
+    if(!resp.ok) throw new Error('API error '+resp.status);
+    const data = await resp.json();
+    const draft = data.content[0].text.trim();
+    const fmtLabels = {photo:'Historical Photo',didyouknow:'"Did you know?"',beforeafter:'Before/After',map:'Old Map',newspaper:'Newspaper',quote:'Historical Quote',minibio:'Mini Biography',question:'Community Question',anniversary:'Anniversary',timeline:'Timeline'};
+    document.getElementById('cc-out').innerHTML = `
+      <div class="platform-output">
+        <div class="platform-header">
+          <div class="platform-name" style="color:var(--gold);">🏛 ${fmtLabels[fmt]||fmt} — Facebook</div>
+          <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(draft)}).then(()=>{ this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',2000); })">Copy</button>
+        </div>
+        <div class="platform-body">${draft.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      </div>`;
+  } catch(e) {
+    alert('Generation failed: '+e.message);
+  } finally {
+    btn.textContent = orig; btn.disabled = false;
+  }
 }
 
 function genYT(title,ep,facts,sum,url) {
