@@ -1509,6 +1509,11 @@ function renderSocial(el) {
         <label class="form-label">Connection to Today <span style="font-weight:400;color:var(--text-dim);font-size:10px;">(optional)</span></label>
         <input class="form-input" id="cc-today" placeholder="e.g. This building still stands today as...">
       </div>
+      <div class="form-group">
+        <label class="form-label">Source URL <span style="font-weight:400;color:var(--text-dim);font-size:10px;">(optional — paste a link to fetch facts from)</span></label>
+        <input class="form-input" id="cc-url" placeholder="https://..." type="url">
+        <div id="cc-url-status" style="font-size:11px;margin-top:4px;color:var(--text-dim);min-height:14px;"></div>
+      </div>
       <button class="btn btn-primary" onclick="generateCommunityPost()" style="width:100%;">⚡ Generate Post</button>
     </div>
     <div id="cc-out">
@@ -1617,6 +1622,36 @@ async function generateCommunityPost() {
     timeline:   'A historical timeline post for Facebook. Present 4–6 key dates and events as a structured list. Brief heading per entry. End with a reflection on what the sequence reveals. 150–200 words.'
   };
 
+  const sourceUrl = document.getElementById('cc-url').value.trim();
+  const statusEl  = document.getElementById('cc-url-status');
+  let sourceMaterial = '';
+
+  if(sourceUrl) {
+    statusEl.textContent = '⏳ Fetching source…';
+    try {
+      const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(sourceUrl)}`;
+      const r = await fetch(proxy);
+      if(!r.ok) throw new Error('Proxy error '+r.status);
+      const j = await r.json();
+      const raw = j.contents || '';
+      // Strip HTML tags, collapse whitespace, limit to 3000 chars
+      const text = raw.replace(/<style[\s\S]*?<\/style>/gi,'')
+                      .replace(/<script[\s\S]*?<\/script>/gi,'')
+                      .replace(/<[^>]+>/g,' ')
+                      .replace(/\s+/g,' ')
+                      .trim()
+                      .slice(0,3000);
+      sourceMaterial = text;
+      statusEl.style.color = '#7AC97A';
+      statusEl.textContent = `✓ Fetched ${text.length} characters from source`;
+    } catch(e) {
+      statusEl.style.color = '#E57373';
+      statusEl.textContent = `⚠ Could not fetch source: ${e.message}. Generating without it.`;
+    }
+  } else {
+    statusEl.textContent = '';
+  }
+
   const btn = document.querySelector('#soc-community .btn-primary');
   const orig = btn.textContent; btn.textContent = '⏳ Generating…'; btn.disabled = true;
 
@@ -1627,7 +1662,7 @@ VOICE: Historian and storyteller. Rigorous, curious, narrative-driven. Connects 
 FORMAT: ${FORMAT_GUIDE[fmt]}
 
 SUBJECT: ${subject}
-KEY DETAIL: ${detail}${today ? '\nCONNECTION TO TODAY: '+today : ''}
+KEY DETAIL: ${detail}${today ? '\nCONNECTION TO TODAY: '+today : ''}${sourceMaterial ? '\n\nSOURCE MATERIAL (use facts and details from this to enrich the post — do not copy verbatim):\n'+sourceMaterial : ''}
 
 Write the post now. Output ONLY the finished post — no preamble, no explanation. Ready to copy and paste to Facebook.`;
 
