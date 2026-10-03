@@ -342,20 +342,41 @@ tbody td:first-child{color:var(--text);font-weight:500;}
     <div id="qc-section" style="display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:6px;">
       <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:10px;">✓ Quality Control — 5 Tests</div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Episode must pass at least 4 of 5 before publishing.</div>
-      ${[
-        ['qc-accuracy',    '1. Accuracy', 'Major claims are supported by sources'],
-        ['qc-originality', '2. Originality', 'Adds something beyond Wikipedia / basic internet information'],
-        ['qc-story',       '3. Story', 'There is an actual human narrative, not just facts'],
-        ['qc-visuality',   '4. Visuality', 'Story can be shown, not just told (photographs, maps, documents)'],
-        ['qc-significance','5. Significance', 'Answers "why should someone care today?"']
-      ].map(([id,label,desc]) => `
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
-          <input type="checkbox" id="${id}" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
-          <label for="${id}" style="cursor:pointer;flex:1;">
-            <div style="font-size:12px;font-weight:600;color:var(--text);">${label}</div>
-            <div style="font-size:11px;color:var(--text-muted);">${desc}</div>
-          </label>
-        </div>`).join('')}
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
+        <input type="checkbox" id="qc-accuracy" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
+        <label for="qc-accuracy" style="cursor:pointer;flex:1;">
+          <div style="font-size:12px;font-weight:600;color:var(--text);">1. Accuracy</div>
+          <div style="font-size:11px;color:var(--text-muted);">Major claims are supported by sources</div>
+        </label>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
+        <input type="checkbox" id="qc-originality" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
+        <label for="qc-originality" style="cursor:pointer;flex:1;">
+          <div style="font-size:12px;font-weight:600;color:var(--text);">2. Originality</div>
+          <div style="font-size:11px;color:var(--text-muted);">Adds something beyond Wikipedia / basic internet information</div>
+        </label>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
+        <input type="checkbox" id="qc-story" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
+        <label for="qc-story" style="cursor:pointer;flex:1;">
+          <div style="font-size:12px;font-weight:600;color:var(--text);">3. Story</div>
+          <div style="font-size:11px;color:var(--text-muted);">There is an actual human narrative, not just facts</div>
+        </label>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
+        <input type="checkbox" id="qc-visuality" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
+        <label for="qc-visuality" style="cursor:pointer;flex:1;">
+          <div style="font-size:12px;font-weight:600;color:var(--text);">4. Visuality</div>
+          <div style="font-size:11px;color:var(--text-muted);">Story can be shown, not just told (photographs, maps, documents)</div>
+        </label>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
+        <input type="checkbox" id="qc-significance" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
+        <label for="qc-significance" style="cursor:pointer;flex:1;">
+          <div style="font-size:12px;font-weight:600;color:var(--text);">5. Significance</div>
+          <div style="font-size:11px;color:var(--text-muted);">Answers "why should someone care today?"</div>
+        </label>
+      </div>
       <div id="qc-score" style="margin-top:10px;font-size:12px;font-weight:600;"></div>
     </div>
 
