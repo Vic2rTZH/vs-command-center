@@ -747,6 +747,7 @@ body {
     <button class="tab-btn" data-panel="uav" style="color:var(--uav)">✈ UAV MVP</button>
     <button class="tab-btn" data-panel="q4focus" style="color:#10b981">◎ Q4 Focus</button>
     <button class="tab-btn" data-panel="content" style="color:#a78bfa">✦ Content</button>
+    <button class="tab-btn" data-panel="tzh" style="color:var(--zhist)">📜 Z Historian</button>
   </div>
 
   <!-- ═══════════════ TODAY ═══════════════ -->
@@ -1163,6 +1164,91 @@ body {
         </div>
       </details>
     </details>
+
+  </div>
+
+  <!-- ═══════════════ Z HISTORIAN ═══════════════ -->
+  <div class="panel" id="panel-tzh">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
+      <div>
+        <div class="sec-title" style="margin:0;color:var(--zhist);">📜 The Z Historian</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px;">Research once. Tell the story well. Build the archive.</div>
+      </div>
+      <div id="tzhOnTimeRate" style="text-align:right;">
+        <div style="font-size:22px;font-weight:700;color:var(--zhist);" id="tzhOnTimePct">—</div>
+        <div style="font-size:11px;color:var(--text3);">On-time rate</div>
+      </div>
+    </div>
+
+    <!-- Current episode -->
+    <div class="card" style="margin-bottom:14px;border-left:3px solid var(--zhist);">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <div class="card-title" style="margin:0;">Current Episode</div>
+        <button class="btn btn-gold btn-sm" onclick="tzhAddEpisode()">+ New Episode</button>
+      </div>
+      <div id="tzhCurrentEpisode"></div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title" style="margin-bottom:12px;">Pipeline <span style="font-size:11px;font-weight:400;color:var(--text3);">— next 2 in research</span></div>
+      <div id="tzhPipeline"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="tzhAddPipeline()">+ Add to pipeline</button>
+    </div>
+
+    <!-- Episode log -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px;">Episode Log <span style="font-size:11px;font-weight:400;color:var(--text3);">— published history</span></div>
+      <div id="tzhEpisodeLog"></div>
+      <div id="tzhEmptyLog" style="font-size:13px;color:var(--text3);display:none;">No published episodes yet.</div>
+    </div>
+
+    <!-- Add/Edit modal -->
+    <div id="tzhModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;">
+      <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;width:min(480px,92vw);max-height:90vh;overflow-y:auto;">
+        <div class="sec-title" id="tzhModalTitle" style="margin-bottom:16px;">Add Episode</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">EPISODE TITLE</div>
+            <input id="tzhMTitle" placeholder="e.g. The Forgotten Story of…" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">MONTHLY THEME</div>
+            <input id="tzhMTheme" placeholder="e.g. Forgotten People" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">TARGET PUBLISH DATE</div>
+              <input type="date" id="tzhMTarget" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">STAGE</div>
+              <select id="tzhMStage" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+                <option value="research">Research</option>
+                <option value="scripted">Scripted</option>
+                <option value="recording">Recording</option>
+                <option value="editing">Editing</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">ACTUAL PUBLISH DATE <span style="opacity:.5;">(fill when published)</span></div>
+            <input type="date" id="tzhMActual" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">NOTES</div>
+            <input id="tzhMNotes" placeholder="Optional notes" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;">
+          <button class="btn btn-ghost btn-sm" onclick="tzhCloseModal()">Cancel</button>
+          <button class="btn btn-gold btn-sm" onclick="tzhSaveModal()">Save</button>
+        </div>
+      </div>
+    </div>
 
   </div>
 
@@ -3245,6 +3331,7 @@ function switchTab(panelId) {
   if(panelId==='uav')  renderUAV();
   if(panelId==='q4focus') renderQ4Focus();
   if(panelId==='content') initContentPanel();
+  if(panelId==='tzh') renderTZH();
   if(panelId==='plan90') render90Day();
   if(panelId==='schedule'){renderSchedule();renderScorecard();}
 }
@@ -4596,6 +4683,246 @@ Return ONLY valid JSON — no markdown fences, no explanation, just the JSON obj
 // ═══════════════════════════════════════════
 // CONTENT ENGINE
 // ═══════════════════════════════════════════
+
+// ═══════════════════════════════════════════
+// Z HISTORIAN PRODUCTION TRACKER
+// ═══════════════════════════════════════════
+
+const TZH_LS_KEY = 'vs_tzh_v1';
+
+const TZH_STAGES = ['research','scripted','recording','editing','published'];
+const TZH_STAGE_LABEL = { research:'Research', scripted:'Scripted', recording:'Recording', editing:'Editing', published:'Published ✓' };
+const TZH_STAGE_COLOR = { research:'#6a7590', scripted:'#4a9eff', recording:'#f97316', editing:'#e8b424', published:'#34d47a' };
+
+const TZH_MONTHLY_THEMES = {
+  '2026-10':'Forgotten People', '2026-11':'Places & Cities', '2026-12':'Zambia\'s Institutions',
+  '2027-01':'Independence & Nation Building', '2027-02':'Military & Security History',
+  '2027-03':'Women & Society', '2027-04':'Industry, Mining & Infrastructure',
+  '2027-05':'Education & Intellectual History', '2027-06':'Culture, Language & Identity',
+  '2027-07':'Politics & Public Life', '2027-08':'Zambia\'s Regional & African Connections',
+  '2027-09':'The Stories We Are Losing'
+};
+
+let _tzhEpisodes = [];
+let _tzhEditIdx = null;
+let _tzhModalMode = 'current'; // 'current' | 'pipeline'
+
+function loadTZH() {
+  try {
+    const raw = localStorage.getItem(TZH_LS_KEY);
+    if (raw) _tzhEpisodes = JSON.parse(raw);
+  } catch(e) { _tzhEpisodes = []; }
+  // Seed October episode if empty
+  if (!_tzhEpisodes.length) {
+    _tzhEpisodes = [{
+      id: Date.now(),
+      title: 'October Flagship Episode',
+      theme: 'Forgotten People',
+      target: '2026-10-31',
+      actual: '',
+      stage: 'scripted',
+      pipeline: false,
+      notes: 'Script complete — record, edit and publish by end of October'
+    }];
+    saveTZH();
+  }
+}
+
+function saveTZH() {
+  try { localStorage.setItem(TZH_LS_KEY, JSON.stringify(_tzhEpisodes)); } catch(e) {}
+}
+
+function renderTZH() {
+  loadTZH();
+  renderTZHOnTime();
+  renderTZHCurrent();
+  renderTZHPipeline();
+  renderTZHLog();
+}
+
+function renderTZHOnTime() {
+  const published = _tzhEpisodes.filter(e => e.stage === 'published' && e.target && e.actual);
+  if (!published.length) { document.getElementById('tzhOnTimePct').textContent = '—'; return; }
+  const onTime = published.filter(e => e.actual <= e.target).length;
+  const pct = Math.round(onTime / published.length * 100);
+  const el = document.getElementById('tzhOnTimePct');
+  el.textContent = pct + '%';
+  el.style.color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--gold)' : 'var(--red)';
+  document.getElementById('tzhOnTimeRate').title = `${onTime} of ${published.length} episodes published on time`;
+}
+
+function renderTZHCurrent() {
+  const el = document.getElementById('tzhCurrentEpisode');
+  const active = _tzhEpisodes.filter(e => !e.pipeline && e.stage !== 'published');
+  if (!active.length) {
+    el.innerHTML = `<div style="font-size:13px;color:var(--text3);">No active episode — add one above.</div>`;
+    return;
+  }
+  el.innerHTML = active.map((ep, i) => tzhEpisodeCard(ep, _tzhEpisodes.indexOf(ep))).join('');
+}
+
+function renderTZHPipeline() {
+  const el = document.getElementById('tzhPipeline');
+  const pipe = _tzhEpisodes.filter(e => e.pipeline && e.stage !== 'published');
+  if (!pipe.length) {
+    el.innerHTML = `<div style="font-size:13px;color:var(--text3);">No episodes in pipeline yet.</div>`;
+    return;
+  }
+  el.innerHTML = pipe.map(ep => tzhEpisodeCard(ep, _tzhEpisodes.indexOf(ep))).join('');
+}
+
+function renderTZHLog() {
+  const el = document.getElementById('tzhEpisodeLog');
+  const empty = document.getElementById('tzhEmptyLog');
+  const published = _tzhEpisodes.filter(e => e.stage === 'published').sort((a,b) => b.actual.localeCompare(a.actual));
+  if (!published.length) { el.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  el.innerHTML = published.map(ep => {
+    const onTime = ep.actual && ep.target ? ep.actual <= ep.target : null;
+    const badge = onTime === null ? '' : onTime
+      ? `<span style="color:var(--green);font-size:11px;">✓ On time</span>`
+      : `<span style="color:var(--red);font-size:11px;">⚠ Late</span>`;
+    const daysLate = (onTime === false && ep.actual && ep.target)
+      ? Math.round((new Date(ep.actual) - new Date(ep.target)) / 86400000)
+      : 0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;border-left:3px solid var(--zhist);margin-bottom:6px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);">${esc(ep.title)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;">
+          ${ep.theme ? `<span style="color:var(--zhist)">${esc(ep.theme)}</span>` : ''}
+          ${ep.actual ? `<span>Published ${ep.actual}</span>` : ''}
+          ${ep.target ? `<span>Target ${ep.target}</span>` : ''}
+          ${daysLate > 0 ? `<span style="color:var(--red)">${daysLate}d late</span>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        ${badge}
+        <button class="btn btn-ghost btn-sm" style="font-size:11px;" onclick="tzhEdit(${_tzhEpisodes.indexOf(ep)})">Edit</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function tzhEpisodeCard(ep, idx) {
+  const sc = TZH_STAGE_COLOR[ep.stage] || '#aaa';
+  const now = new Date().toISOString().split('T')[0];
+  const overdue = ep.target && ep.stage !== 'published' && ep.target < now;
+  const daysLeft = ep.target ? Math.ceil((new Date(ep.target) - new Date()) / 86400000) : null;
+
+  const stagesHTML = TZH_STAGES.map(s => {
+    const active = s === ep.stage;
+    const done = TZH_STAGES.indexOf(s) < TZH_STAGES.indexOf(ep.stage);
+    const col = done ? 'var(--zhist)' : active ? sc : 'var(--bg4)';
+    const tcol = done || active ? 'var(--text)' : 'var(--text3)';
+    return `<span onclick="tzhSetStage(${idx},'${s}')" title="${TZH_STAGE_LABEL[s]}"
+      style="cursor:pointer;padding:3px 8px;border-radius:20px;font-size:11px;background:${col};color:${tcol};white-space:nowrap;border:1px solid ${active?sc:'transparent'};"
+    >${TZH_STAGE_LABEL[s]}</span>`;
+  }).join('');
+
+  return `<div style="padding:12px;background:var(--bg2);border:1px solid ${overdue?'var(--red)':'var(--border)'};border-radius:10px;border-left:3px solid var(--zhist);">
+    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);">${esc(ep.title)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;">
+          ${ep.theme ? `<span style="color:var(--zhist)">${esc(ep.theme)}</span>` : ''}
+          ${ep.target ? `<span ${overdue?'style="color:var(--red)"':''}>Target: ${ep.target}${daysLeft !== null ? ` (${daysLeft > 0 ? daysLeft+'d left' : daysLeft === 0 ? 'today' : Math.abs(daysLeft)+'d overdue'})` : ''}</span>` : ''}
+        </div>
+        ${ep.notes ? `<div style="font-size:12px;color:var(--text2);margin-top:4px;">${esc(ep.notes)}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn btn-ghost btn-sm" style="font-size:11px;" onclick="tzhEdit(${idx})">Edit</button>
+        <button class="btn btn-ghost btn-sm" style="font-size:11px;color:var(--red);" onclick="tzhDelete(${idx})">✕</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">${stagesHTML}</div>
+  </div>`;
+}
+
+function tzhSetStage(idx, stage) {
+  _tzhEpisodes[idx].stage = stage;
+  // Auto-fill actual date when marked published
+  if (stage === 'published' && !_tzhEpisodes[idx].actual) {
+    _tzhEpisodes[idx].actual = new Date().toISOString().split('T')[0];
+  }
+  // Promote from pipeline when moved past research
+  if (stage !== 'research' && _tzhEpisodes[idx].pipeline) {
+    _tzhEpisodes[idx].pipeline = false;
+  }
+  saveTZH(); renderTZH();
+}
+
+function tzhEdit(idx) {
+  _tzhEditIdx = idx;
+  const ep = _tzhEpisodes[idx];
+  document.getElementById('tzhModalTitle').textContent = 'Edit Episode';
+  document.getElementById('tzhMTitle').value  = ep.title || '';
+  document.getElementById('tzhMTheme').value  = ep.theme || '';
+  document.getElementById('tzhMTarget').value = ep.target || '';
+  document.getElementById('tzhMActual').value = ep.actual || '';
+  document.getElementById('tzhMStage').value  = ep.stage || 'research';
+  document.getElementById('tzhMNotes').value  = ep.notes || '';
+  document.getElementById('tzhModal').style.display = 'flex';
+}
+
+function tzhDelete(idx) {
+  if (!confirm('Delete this episode?')) return;
+  _tzhEpisodes.splice(idx, 1);
+  saveTZH(); renderTZH();
+}
+
+function tzhAddEpisode() {
+  _tzhEditIdx = null;
+  _tzhModalMode = 'current';
+  document.getElementById('tzhModalTitle').textContent = 'Add Episode';
+  document.getElementById('tzhMTitle').value  = '';
+  document.getElementById('tzhMTheme').value  = '';
+  document.getElementById('tzhMTarget').value = '';
+  document.getElementById('tzhMActual').value = '';
+  document.getElementById('tzhMStage').value  = 'research';
+  document.getElementById('tzhMNotes').value  = '';
+  // Suggest theme for current month
+  const mk = new Date().toISOString().slice(0,7);
+  const theme = TZH_MONTHLY_THEMES[mk] || '';
+  document.getElementById('tzhMTheme').value = theme;
+  document.getElementById('tzhModal').style.display = 'flex';
+}
+
+function tzhAddPipeline() {
+  _tzhEditIdx = null;
+  _tzhModalMode = 'pipeline';
+  document.getElementById('tzhModalTitle').textContent = 'Add to Pipeline';
+  document.getElementById('tzhMTitle').value  = '';
+  document.getElementById('tzhMTheme').value  = '';
+  document.getElementById('tzhMTarget').value = '';
+  document.getElementById('tzhMActual').value = '';
+  document.getElementById('tzhMStage').value  = 'research';
+  document.getElementById('tzhMNotes').value  = '';
+  document.getElementById('tzhModal').style.display = 'flex';
+}
+
+function tzhCloseModal() {
+  document.getElementById('tzhModal').style.display = 'none';
+}
+
+function tzhSaveModal() {
+  const title = document.getElementById('tzhMTitle').value.trim();
+  if (!title) { toast('Enter a title'); return; }
+  const ep = {
+    id: _tzhEditIdx !== null ? _tzhEpisodes[_tzhEditIdx].id : Date.now(),
+    title,
+    theme:    document.getElementById('tzhMTheme').value.trim(),
+    target:   document.getElementById('tzhMTarget').value,
+    actual:   document.getElementById('tzhMActual').value,
+    stage:    document.getElementById('tzhMStage').value,
+    notes:    document.getElementById('tzhMNotes').value.trim(),
+    pipeline: _tzhEditIdx !== null ? _tzhEpisodes[_tzhEditIdx].pipeline : (_tzhModalMode === 'pipeline')
+  };
+  if (_tzhEditIdx !== null) { _tzhEpisodes[_tzhEditIdx] = ep; }
+  else { _tzhEpisodes.push(ep); }
+  saveTZH();
+  tzhCloseModal();
+  renderTZH();
+}
 
 const CONTENT_LS_KEY = 'vs_content_v1';
 
