@@ -5132,8 +5132,8 @@ function renderBatchWeek() {
       </div>
       ${draft ? `
       <div style="border-top:1px solid var(--border);padding:12px 14px;background:var(--bg3);">
-        <div style="white-space:pre-wrap;font-size:12px;line-height:1.7;color:var(--text);margin-bottom:10px;">${esc(draft)}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <textarea id="batch-text-${i}" style="width:100%;font-size:12px;line-height:1.7;color:var(--text);background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;resize:vertical;min-height:120px;font-family:inherit;box-sizing:border-box;" oninput="window._batchDrafts[${i}]=this.value">${esc(draft)}</textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
           <button class="btn btn-ghost btn-sm" id="batch-copy-${i}" onclick="navigator.clipboard.writeText(window._batchDrafts[${i}]).then(()=>{const b=document.getElementById('batch-copy-${i}');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',2000)})">Copy</button>
           <span style="font-size:10px;color:var(--text3);align-self:center;">→ paste into Buffer / Meta Business Suite → schedule for ${dayName} ${d.getDate()}</span>
         </div>
