@@ -4093,19 +4093,12 @@ function loadUAV() { try { return JSON.parse(localStorage.getItem(UAV_LS_KEY)||'
 function saveUAV(data) { try { localStorage.setItem(UAV_LS_KEY, JSON.stringify(data)); } catch(e) {} sbQueueSync(); }
 
 function uavCurrentPhase() {
-  const today = new Date(); today.setHours(0,0,0,0);
+  const progress = loadUAV();
   for (const p of UAV_PLAN.phases) {
-    const s = new Date(p.start); const e = new Date(p.end);
-    if (today >= s && today <= e) return p.num;
+    const allDone = p.tasks.every((_, i) => progress[`p${p.num}-${i}`]);
+    if (!allDone) return p.num;
   }
-  if (today < new Date(UAV_PLAN.phases[0].start)) return 1;
-  if (today > new Date(UAV_PLAN.deadline)) return 5;
-  for (let i = 0; i < UAV_PLAN.phases.length - 1; i++) {
-    const e = new Date(UAV_PLAN.phases[i].end);
-    const s = new Date(UAV_PLAN.phases[i+1].start);
-    if (today > e && today < s) return UAV_PLAN.phases[i+1].num;
-  }
-  return 1;
+  return UAV_PLAN.phases[UAV_PLAN.phases.length - 1].num;
 }
 
 function uavDaysLeft() {
