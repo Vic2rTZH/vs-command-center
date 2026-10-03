@@ -220,9 +220,13 @@ tbody td:first-child{color:var(--text);font-weight:500;}
     </div>
     <div class="progress-bar"><div class="progress-fill" id="sb-progress" style="width:0%"></div></div>
     <div style="margin-top:8px;font-size:10px;color:var(--text-dim);">thezhistorian.com</div>
-    <button onclick="exportStatusJSON()" style="margin-top:12px;width:100%;background:rgba(21,128,61,0.15);border:1px solid rgba(21,128,61,0.4);color:#22c55e;padding:7px 10px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.4px;">
-      ↑ Export Status for Command Center
-    </button>
+    <div style="margin-top:12px;background:rgba(21,128,61,0.1);border:1px solid rgba(21,128,61,0.3);border-radius:7px;padding:7px 10px;display:flex;align-items:center;gap:7px;">
+      <span style="color:#22c55e;font-size:13px;">⟳</span>
+      <div>
+        <div style="color:#22c55e;font-size:10px;font-weight:600;letter-spacing:.4px;">LIVE SYNC ACTIVE</div>
+        <div id="sb-sync-time" style="color:var(--text-dim);font-size:9px;">Syncs on every save</div>
+      </div>
+    </div>
   </div>
 </aside>
 
@@ -433,11 +437,27 @@ const DB = {
   syncToCommandCenter() {
     try {
       const eps = this.d.episodes || [];
+      const synced = new Date().toISOString();
+      // Write full episode data to vs_tzh_v1 so Command Center tracker stays live
+      localStorage.setItem('vs_tzh_v1', JSON.stringify(
+        eps.map(e => ({
+          id: e.id, title: e.title, num: e.num || null,
+          stage: e.status === 'published' ? 'published'
+               : e.status === 'editing'   ? 'editing'
+               : e.status === 'recording' ? 'recording'
+               : e.status === 'scripted'  ? 'scripted'
+               : 'research',
+          target: e.date || '', actual: e.actual || '', theme: e.theme || ''
+        }))
+      ));
+      // Also write summary to vs_sync_tzh for the briefing widget
       localStorage.setItem('vs_sync_tzh', JSON.stringify({
-        app: 'The Z Historian HQ',
-        exported: new Date().toISOString(),
+        app: 'The Z Historian HQ', exported: synced,
         episodes: eps.map(e => ({ title: e.title, status: e.status, topic: e.topic || '' }))
       }));
+      // Update sync timestamp in UI if visible
+      const el = document.getElementById('sb-sync-time');
+      if (el) el.textContent = 'Synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
     } catch(e) {}
   },
   updateSidebar() {
