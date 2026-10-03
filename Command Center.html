@@ -4727,8 +4727,8 @@ function loadTZH() {
           existing.actual = hqEp.actual || existing.actual;
           existing.theme  = hqEp.theme  || existing.theme;
           existing.title  = hqEp.title  || existing.title;
-          // Promote out of pipeline if stage has advanced beyond research
-          if (existing.pipeline && existing.stage !== 'research') existing.pipeline = false;
+          // Keep pipeline flag in sync with stage
+          existing.pipeline = existing.stage === 'research';
         } else {
           _tzhEpisodes.push({ ...hqEp, pipeline: hqEp.stage === 'research', notes: '' });
         }
