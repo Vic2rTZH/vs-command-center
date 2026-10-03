@@ -4727,8 +4727,10 @@ function loadTZH() {
           existing.actual = hqEp.actual || existing.actual;
           existing.theme  = hqEp.theme  || existing.theme;
           existing.title  = hqEp.title  || existing.title;
+          // Promote out of pipeline if stage has advanced beyond research
+          if (existing.pipeline && existing.stage !== 'research') existing.pipeline = false;
         } else {
-          _tzhEpisodes.push({ ...hqEp, pipeline: true, notes: '' });
+          _tzhEpisodes.push({ ...hqEp, pipeline: hqEp.stage === 'research', notes: '' });
         }
       });
       saveTZH();
