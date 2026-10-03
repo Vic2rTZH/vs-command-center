@@ -1403,6 +1403,7 @@ body {
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-ghost btn-sm" onclick="contentShowTab('queue')">📅 Queue</button>
+        <button class="btn btn-ghost btn-sm" onclick="contentShowTab('batch')">⚡ Batch Week</button>
         <button class="btn btn-ghost btn-sm" onclick="contentShowTab('ideas')">💡 Ideas</button>
         <button class="btn btn-ghost btn-sm" onclick="contentShowTab('draft')">✦ AI Draft</button>
       </div>
@@ -1447,6 +1448,23 @@ body {
         <button class="btn btn-gold btn-sm" onclick="addContentIdea()">+ Add</button>
       </div>
       <div id="ctIdeasList" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <!-- ── BATCH tab ── -->
+    <div id="ct-batch" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div class="sec-title" style="margin:0;font-size:13px;">Weekly Batch Session</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">Generate all drafts for the week — copy each to Buffer or Meta Business Suite</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="ctBatchNav(-1)">‹</button>
+          <span id="ct-batch-range" style="font-size:12px;color:var(--text2);min-width:130px;text-align:center;"></span>
+          <button class="btn btn-ghost btn-sm" onclick="ctBatchNav(1)">›</button>
+          <button class="btn btn-gold btn-sm" id="ctBatchAllBtn" onclick="ctBatchGenerateAll()" style="margin-left:6px;">⚡ Generate All</button>
+        </div>
+      </div>
+      <div id="ct-batch-list"></div>
     </div>
 
     <!-- ── DRAFT tab ── -->
@@ -5064,6 +5082,110 @@ function contentShowTab(tab) {
   document.getElementById('ct-queue').style.display  = tab === 'queue'  ? '' : 'none';
   document.getElementById('ct-ideas').style.display  = tab === 'ideas'  ? '' : 'none';
   document.getElementById('ct-draft').style.display  = tab === 'draft'  ? '' : 'none';
+  document.getElementById('ct-batch').style.display  = tab === 'batch'  ? '' : 'none';
+  if (tab === 'batch') renderBatchWeek();
+}
+
+// ── BATCH WEEK ──────────────────────────────────────────
+let _batchWeekOffset = 0;
+const _batchDrafts = {}; // key: calendar index → draft text
+
+function ctBatchNav(dir) { _batchWeekOffset += dir; renderBatchWeek(); }
+
+function renderBatchWeek() {
+  const ws = ctWeekStart(_batchWeekOffset);
+  const we = new Date(ws); we.setDate(ws.getDate() + 6); we.setHours(23,59,59,999);
+  const fmt = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  document.getElementById('ct-batch-range').textContent = fmt(ws) + ' – ' + fmt(we);
+
+  const posts = CONTENT_CALENDAR.map((c,i) => ({c, i}))
+    .filter(({c}) => { const d = new Date(c.date); return d >= ws && d <= we; });
+
+  const list = document.getElementById('ct-batch-list');
+  if (!posts.length) {
+    list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3);font-size:13px;">No posts scheduled this week.</div>`;
+    return;
+  }
+
+  const formatLabels = { photo:'Historical Photo', didyouknow:'"Did you know?"', beforeafter:'Before/After', map:'Old Map', newspaper:'Newspaper', quote:'Historical Quote', minibio:'Mini Bio', question:'Community Question', anniversary:'Anniversary', timeline:'Timeline' };
+
+  list.innerHTML = posts.map(({c, i}) => {
+    const d = new Date(c.date);
+    const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+    const bc = BRAND_COLOR[c.brand] || '#aaa';
+    const draft = _batchDrafts[i];
+    const statusBadge = c.status === 'done' ? '✅' : c.status === 'skipped' ? '⊘' : '○';
+    return `<div id="batch-card-${i}" style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid ${bc};border-radius:10px;margin-bottom:12px;overflow:hidden;">
+      <div style="padding:12px 14px;display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:15px;margin-top:1px;cursor:pointer;" onclick="ctCycleStatus('cal',${i});renderBatchWeek();" title="Cycle status">${statusBadge}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);">${esc(c.title)}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;">
+            <span style="color:${bc}">${BRAND_LABEL[c.brand]||c.brand}</span>
+            <span>${c.platform}</span>
+            <span>${dayName} ${d.getDate()}</span>
+            ${c.format ? `<span style="color:var(--gold);font-size:10px;background:rgba(232,180,36,.1);padding:1px 6px;border-radius:4px;">${formatLabels[c.format]||c.format}</span>` : ''}
+          </div>
+          ${c.action ? `<div style="font-size:11px;color:var(--text2);margin-top:5px;line-height:1.5;">${esc(c.action)}</div>` : ''}
+        </div>
+        <button class="btn btn-ghost btn-sm" id="batch-gen-btn-${i}" onclick="ctBatchGenerateOne(${i})" style="white-space:nowrap;font-size:11px;flex-shrink:0;">${draft ? '↻ Re-draft' : '⚡ Draft'}</button>
+      </div>
+      ${draft ? `
+      <div style="border-top:1px solid var(--border);padding:12px 14px;background:var(--bg3);">
+        <div style="white-space:pre-wrap;font-size:12px;line-height:1.7;color:var(--text);margin-bottom:10px;">${esc(draft)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" id="batch-copy-${i}" onclick="navigator.clipboard.writeText(window._batchDrafts[${i}]).then(()=>{const b=document.getElementById('batch-copy-${i}');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',2000)})">Copy</button>
+          <span style="font-size:10px;color:var(--text3);align-self:center;">→ paste into Buffer / Meta Business Suite → schedule for ${dayName} ${d.getDate()}</span>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  // expose drafts to window for copy buttons
+  window._batchDrafts = _batchDrafts;
+}
+
+async function ctBatchGenerateOne(calIdx) {
+  const item = CONTENT_CALENDAR[calIdx];
+  if (!item) return;
+  const apiKey = (()=>{ try{ return localStorage.getItem('tc_apiKey')||''; }catch(e){return '';} })();
+  if (!apiKey) { alert('No Claude API key set. Add it in Strategy → Setup.'); return; }
+
+  const btn = document.getElementById(`batch-gen-btn-${calIdx}`);
+  if (btn) { btn.textContent = '⏳…'; btn.disabled = true; }
+
+  const profile = BRAND_PROFILES[item.brand] || BRAND_PROFILES.victor;
+  const fmtGuide = { linkedin:'LinkedIn post, 150–250 words, no hashtags, professional and direct', facebook:'Facebook post, 120–200 words, warm and engaging', youtube:'YouTube video description, 100–150 words', buildernote:"Builder's Note: first-person reflection, 200–300 words", commandnote:'Short leadership insight, under 120 words', thread:'3-post Twitter/X thread, each under 280 characters' };
+  const formatLabels = { photo:'Historical Photo caption (80–120 words, describe image, historical context, end with a question)', didyouknow:'"Did you know?" post (open with "Did you know that…", 60–100 words)', beforeafter:'Before/After post (80–120 words, describe both images, connect past to present)', map:'Old Map post (80–120 words, describe map, what it reveals, what changed)', newspaper:'Historical Newspaper post (80–120 words, set the scene, quote key line, explain why it mattered)', quote:'Historical Quote post (60–100 words, present quote, attribute, give context)', minibio:'Mini Biography (150–200 words, who, what, why forgotten, what to remember)', question:'Community Question post (60–100 words, open with "Do you remember…", invite responses)', anniversary:'Anniversary post (80–120 words, state date and event, context, why it still matters)', timeline:'Historical Timeline post (150–200 words, 4–6 key dates as structured list, end with reflection)' };
+  const platformFmt = { YouTube:'youtube', LinkedIn:'linkedin', Facebook:'facebook' };
+  const fmt = item.format ? formatLabels[item.format] : (fmtGuide[platformFmt[item.platform]] || fmtGuide.facebook);
+
+  const prompt = `You are writing for ${profile.name}.\n\nVOICE: ${profile.voice}\nAUDIENCE: ${profile.audience}\nAVOID: ${profile.avoid}\n\nFORMAT: ${fmt}\n\nTOPIC: ${item.title}\nACTION BRIEF: ${item.action||''}\n\nWrite the post now. Output ONLY the finished post — no preamble, no explanation.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:prompt}]})
+    });
+    if (!resp.ok) throw new Error('API error '+resp.status);
+    const data = await resp.json();
+    _batchDrafts[calIdx] = data.content[0].text.trim();
+  } catch(e) {
+    _batchDrafts[calIdx] = '⚠ Generation failed: ' + e.message;
+  } finally {
+    renderBatchWeek();
+  }
+}
+
+async function ctBatchGenerateAll() {
+  const ws = ctWeekStart(_batchWeekOffset);
+  const we = new Date(ws); we.setDate(ws.getDate() + 6); we.setHours(23,59,59,999);
+  const posts = CONTENT_CALENDAR.map((c,i) => ({c,i})).filter(({c}) => { const d = new Date(c.date); return d >= ws && d <= we; });
+  const btn = document.getElementById('ctBatchAllBtn');
+  if (btn) { btn.textContent = '⏳ Generating…'; btn.disabled = true; }
+  for (const {i} of posts) { await ctBatchGenerateOne(i); }
+  if (btn) { btn.textContent = '⚡ Generate All'; btn.disabled = false; }
 }
 
 function ctWeekStart(offset) {
