@@ -3937,7 +3937,7 @@ function ailaToggleChecklist(cat, idx, checked) {
 const UAV_PLAN = {
   start: '2026-10-01',
   gateOne: '2026-12-31',
-  deadline: '2027-03-31',
+  deadline: '2027-02-28',
   phases: [
     {
       num:1, label:'RESEARCH & DESIGN', months:'October 2026',
@@ -3973,8 +3973,8 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:3, label:'FIRST ASSEMBLY', months:'December 2026',
-      start:'2026-12-01', end:'2026-12-31',
+      num:3, label:'FIRST ASSEMBLY', months:'October 2026',
+      start:'2026-10-01', end:'2026-10-31',
       goal:'First physical prototype assembled and bench-tested. Gate 1 decision made.',
       deliverable:'X1 v0.1 bench-tested + Gate 1 review [GATE 1]',
       tasks:[
@@ -3990,8 +3990,8 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:4, label:'FIRST FLIGHT', months:'Jan – Feb 2027',
-      start:'2027-01-01', end:'2027-02-28',
+      num:4, label:'FIRST FLIGHT', months:'November 2026',
+      start:'2026-11-01', end:'2026-11-30',
       goal:'X1 achieves stable hover and basic autonomous waypoint flight.',
       deliverable:'X1 flying — hover + basic waypoint mission',
       tasks:[
@@ -4007,8 +4007,8 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:5, label:'VANGUARD INTEGRATION', months:'March 2027',
-      start:'2027-03-01', end:'2027-03-31',
+      num:5, label:'VANGUARD INTEGRATION', months:'Jan – Feb 2027',
+      start:'2027-01-01', end:'2027-02-28',
       goal:'X1 sensor data successfully feeds into the VANGUARD system.',
       deliverable:'X1-VANGUARD data integration demonstrated',
       tasks:[
@@ -4018,7 +4018,7 @@ const UAV_PLAN = {
         'Demonstrate X1-VANGUARD integration to key stakeholder',
         'Document integration architecture and replication steps',
         'Identify next sensor payload to develop (thermal, LiDAR, etc.)',
-        '★ GATE 2 (Mar 31 2027): X1 flying + VANGUARD integration proven → scale build + explore commercial applications'
+        '★ GATE 2 (Feb 28 2027): X1 flying + VANGUARD integration proven → scale build + explore commercial applications'
       ]
     },
     {
@@ -4050,7 +4050,7 @@ const UAV_PLAN = {
       reward: 'Proceed to Q1 2027 build and first flight phase'
     },
     gate2: {
-      id: 'g2', label: 'GATE 2', month: 'End March 2027', date: '2027-03-31',
+      id: 'g2', label: 'GATE 2', month: 'End February 2027', date: '2027-02-28',
       criteria: [
         'X1 achieving stable hover and basic autonomous flight',
         'X1 sensor data successfully integrating with VANGUARD system',
