@@ -3957,10 +3957,10 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:2, label:'PROCUREMENT PLAN', months:'November 2026',
-      start:'2026-11-01', end:'2026-11-30',
-      goal:'Finalise the component list and budget. Order long-lead items. Secure a workspace.',
-      deliverable:'Component order placed + Workspace confirmed',
+      num:2, label:'PROCUREMENT & ASSEMBLY', months:'Oct – Nov 2026',
+      start:'2026-10-01', end:'2026-11-30',
+      goal:'Procure all components, secure workspace, assemble and bench-test the first prototype. Gate 1 decision made.',
+      deliverable:'X1 v0.1 bench-tested + Gate 1 review [GATE 1]',
       tasks:[
         'Finalise X1 Bill of Materials (BOM) — every component, source, cost in Kwacha',
         'Identify two suppliers per critical component to manage exchange-rate and availability risk',
@@ -3969,15 +3969,7 @@ const UAV_PLAN = {
         'Source or access a 3D printer for airframe prototyping (university partnership or service bureau)',
         'Identify a UAV systems engineer or technical advisor for part-time guidance',
         'Confirm data-protection and basic legal requirements for UAV operations research',
-        'Create a simple project logbook — document all design decisions and test results'
-      ]
-    },
-    {
-      num:3, label:'FIRST ASSEMBLY', months:'October 2026',
-      start:'2026-10-01', end:'2026-10-31',
-      goal:'First physical prototype assembled and bench-tested. Gate 1 decision made.',
-      deliverable:'X1 v0.1 bench-tested + Gate 1 review [GATE 1]',
-      tasks:[
+        'Create a simple project logbook — document all design decisions and test results',
         'Receive and inventory all ordered components',
         'Print or fabricate first airframe frame (3D print or sourced)',
         'Mount motors, ESCs and flight controller — bench assembly',
@@ -3985,12 +3977,12 @@ const UAV_PLAN = {
         'Configure open-source autopilot firmware (ArduPilot or PX4)',
         'Bench-test: motor spin, controller response, telemetry link',
         'Document all assembly steps, issues encountered, and solutions',
-        'Identify what to improve on X1 v0.2 (next iteration, Q1 2027)',
-        '★ GATE 1 (Dec 31): Design complete + components in hand + ZCAA path understood → proceed to Q1 2027 build'
+        'Identify what to improve on X1 v0.2 (next iteration)',
+        '★ GATE 1 (Dec 31): Design complete + components in hand + ZCAA path understood → proceed to First Flight'
       ]
     },
     {
-      num:4, label:'FIRST FLIGHT', months:'November 2026',
+      num:3, label:'FIRST FLIGHT', months:'November 2026',
       start:'2026-11-01', end:'2026-11-30',
       goal:'X1 achieves stable hover and basic autonomous waypoint flight.',
       deliverable:'X1 flying — hover + basic waypoint mission',
@@ -4007,7 +3999,7 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:5, label:'VANGUARD INTEGRATION', months:'Jan – Feb 2027',
+      num:4, label:'VANGUARD INTEGRATION', months:'Jan – Feb 2027',
       start:'2027-01-01', end:'2027-02-28',
       goal:'X1 sensor data successfully feeds into the VANGUARD system.',
       deliverable:'X1-VANGUARD data integration demonstrated',
@@ -4022,7 +4014,7 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:6, label:'SCALE & COMMERCIALISE', months:'Q2 2027+',
+      num:5, label:'SCALE & COMMERCIALISE', months:'Q2 2027+',
       start:'2027-04-01', end:'2027-06-30',
       goal:'Move from prototype to multiple units. Explore first commercial service missions.',
       deliverable:'Second X1 unit + First commercial service mission',
@@ -4107,7 +4099,7 @@ function uavCurrentPhase() {
     if (today >= s && today <= e) return p.num;
   }
   if (today < new Date(UAV_PLAN.phases[0].start)) return 1;
-  if (today > new Date(UAV_PLAN.deadline)) return 6;
+  if (today > new Date(UAV_PLAN.deadline)) return 5;
   for (let i = 0; i < UAV_PLAN.phases.length - 1; i++) {
     const e = new Date(UAV_PLAN.phases[i].end);
     const s = new Date(UAV_PLAN.phases[i+1].start);
