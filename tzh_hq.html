@@ -161,6 +161,30 @@ tbody td:first-child{color:var(--text);font-weight:500;}
 .section-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;letter-spacing:.03em;}
 .gold-text{color:var(--gold);}
 .tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:3px;background:var(--surface2);border:1px solid var(--border2);color:var(--text-muted);margin:2px;}
+
+@media (max-width: 640px) {
+  body { flex-direction: column; overflow: auto; }
+  .sidebar { width: 100%; height: auto; flex-direction: column; border-right: none; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { padding: 12px 14px 10px; display: flex; align-items: center; gap: 10px; }
+  .logo-sub { display: none; }
+  .nav { padding: 0 8px 8px; display: flex; flex-direction: row; overflow-x: auto; gap: 2px; -webkit-overflow-scrolling: touch; }
+  .nav-section-label { display: none; }
+  .nav-item { white-space: nowrap; flex-shrink: 0; padding: 6px 10px; font-size: 12px; margin-bottom: 0; }
+  .nav-badge { display: none; }
+  .sidebar-footer { display: none; }
+  .main { height: auto; overflow: visible; }
+  .topbar { padding: 0 14px; height: 44px; }
+  .page-title { font-size: 16px; }
+  .topbar-right { font-size: 10px; gap: 6px; }
+  #sb-status { display: none; }
+  .content { padding: 14px; }
+  .grid-2 { grid-template-columns: 1fr !important; }
+  .grid-3 { grid-template-columns: 1fr !important; }
+  .grid-4 { grid-template-columns: repeat(2,1fr) !important; }
+  .card { padding: 14px !important; }
+  .section-header { flex-wrap: wrap; gap: 6px; }
+  .btn { font-size: 12px; padding: 6px 11px; }
+}
 </style>
 </head>
 <body>
@@ -203,7 +227,7 @@ tbody td:first-child{color:var(--text);font-weight:500;}
       <span class="nav-icon">📚</span> Research Hub
     </div>
     <div class="nav-item" data-page="thumbnails" onclick="navigate('thumbnails')">
-      <span class="nav-icon">🖼️</span> Thumbnail Notes
+      <span class="nav-icon">🖼</span> Thumbnail Notes
     </div>
     <div class="nav-item" data-page="analytics" onclick="navigate('analytics')">
       <span class="nav-icon">📈</span> Analytics Log
@@ -220,13 +244,6 @@ tbody td:first-child{color:var(--text);font-weight:500;}
     </div>
     <div class="progress-bar"><div class="progress-fill" id="sb-progress" style="width:0%"></div></div>
     <div style="margin-top:8px;font-size:10px;color:var(--text-dim);">thezhistorian.com</div>
-    <div style="margin-top:12px;background:rgba(21,128,61,0.1);border:1px solid rgba(21,128,61,0.3);border-radius:7px;padding:7px 10px;display:flex;align-items:center;gap:7px;">
-      <span style="color:#22c55e;font-size:13px;">⟳</span>
-      <div>
-        <div style="color:#22c55e;font-size:10px;font-weight:600;letter-spacing:.4px;">LIVE SYNC ACTIVE</div>
-        <div id="sb-sync-time" style="color:var(--text-dim);font-size:9px;">Syncs on every save</div>
-      </div>
-    </div>
   </div>
 </aside>
 
@@ -235,6 +252,7 @@ tbody td:first-child{color:var(--text);font-weight:500;}
   <div class="topbar">
     <div class="page-title" id="page-title">Dashboard</div>
     <div class="topbar-right" id="topbar-right">
+      <span id="sb-status" style="font-size:11px;color:#888;margin-right:8px;">○ Local only</span>
       <span>Experience the Past</span>
     </div>
   </div>
@@ -291,24 +309,6 @@ tbody td:first-child{color:var(--text);font-weight:500;}
       <input type="text" class="form-input" id="m-topic" placeholder="e.g. Kenneth Kaunda, Battle of Isandlwana...">
     </div>
     <div class="form-group">
-      <label class="form-label">Monthly Theme</label>
-      <select class="form-select" id="m-theme">
-        <option value="">Select theme...</option>
-        <option value="Forgotten People">Oct 2026 — Forgotten People</option>
-        <option value="Places & Cities">Nov 2026 — Places & Cities</option>
-        <option value="Zambia's Institutions">Dec 2026 — Zambia's Institutions</option>
-        <option value="Independence & Nation Building">Jan 2027 — Independence & Nation Building</option>
-        <option value="Military & Security History">Feb 2027 — Military & Security History</option>
-        <option value="Women & Society">Mar 2027 — Women & Society</option>
-        <option value="Industry, Mining & Infrastructure">Apr 2027 — Industry, Mining & Infrastructure</option>
-        <option value="Education & Intellectual History">May 2027 — Education & Intellectual History</option>
-        <option value="Culture, Language & Identity">Jun 2027 — Culture, Language & Identity</option>
-        <option value="Politics & Public Life">Jul 2027 — Politics & Public Life</option>
-        <option value="Zambia's Regional & African Connections">Aug 2027 — Zambia's Regional & African Connections</option>
-        <option value="The Stories We Are Losing">Sep 2027 — The Stories We Are Losing</option>
-      </select>
-    </div>
-    <div class="form-group">
       <label class="form-label">Historical Period</label>
       <select class="form-select" id="m-period">
         <option value="">Select period...</option>
@@ -316,6 +316,9 @@ tbody td:first-child{color:var(--text);font-weight:500;}
         <option>Colonial Era (1880s–1960s)</option>
         <option>Independence Era (1960s–1980s)</option>
         <option>Modern Africa (1980s–present)</option>
+        <option>Ancient Civilizations</option>
+        <option>Trans-Atlantic Slave Trade Era</option>
+        <option>Pan-African Movements</option>
         <option>Other</option>
       </select>
     </div>
@@ -325,61 +328,14 @@ tbody td:first-child{color:var(--text);font-weight:500;}
         <input type="date" class="form-input" id="m-date">
       </div>
       <div class="form-group">
-        <label class="form-label">Actual Publish Date</label>
-        <input type="date" class="form-input" id="m-actual">
+        <label class="form-label">YouTube URL</label>
+        <input type="text" class="form-input" id="m-url" placeholder="https://youtu.be/...">
       </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">YouTube URL</label>
-      <input type="text" class="form-input" id="m-url" placeholder="https://youtu.be/...">
     </div>
     <div class="form-group">
       <label class="form-label">Notes</label>
       <textarea class="form-textarea" id="m-notes" placeholder="Research notes, ideas, sources..."></textarea>
     </div>
-
-    <!-- Quality Control Checklist — shown when status = published -->
-    <div id="qc-section" style="display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:6px;">
-      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:10px;">✓ Quality Control — 5 Tests</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Episode must pass at least 4 of 5 before publishing.</div>
-      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
-        <input type="checkbox" id="qc-accuracy" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
-        <label for="qc-accuracy" style="cursor:pointer;flex:1;">
-          <div style="font-size:12px;font-weight:600;color:var(--text);">1. Accuracy</div>
-          <div style="font-size:11px;color:var(--text-muted);">Major claims are supported by sources</div>
-        </label>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
-        <input type="checkbox" id="qc-originality" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
-        <label for="qc-originality" style="cursor:pointer;flex:1;">
-          <div style="font-size:12px;font-weight:600;color:var(--text);">2. Originality</div>
-          <div style="font-size:11px;color:var(--text-muted);">Adds something beyond Wikipedia / basic internet information</div>
-        </label>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
-        <input type="checkbox" id="qc-story" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
-        <label for="qc-story" style="cursor:pointer;flex:1;">
-          <div style="font-size:12px;font-weight:600;color:var(--text);">3. Story</div>
-          <div style="font-size:11px;color:var(--text-muted);">There is an actual human narrative, not just facts</div>
-        </label>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
-        <input type="checkbox" id="qc-visuality" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
-        <label for="qc-visuality" style="cursor:pointer;flex:1;">
-          <div style="font-size:12px;font-weight:600;color:var(--text);">4. Visuality</div>
-          <div style="font-size:11px;color:var(--text-muted);">Story can be shown, not just told (photographs, maps, documents)</div>
-        </label>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
-        <input type="checkbox" id="qc-significance" style="margin-top:2px;accent-color:var(--gold);cursor:pointer;" onchange="updateQCScore()">
-        <label for="qc-significance" style="cursor:pointer;flex:1;">
-          <div style="font-size:12px;font-weight:600;color:var(--text);">5. Significance</div>
-          <div style="font-size:11px;color:var(--text-muted);">Answers "why should someone care today?"</div>
-        </label>
-      </div>
-      <div id="qc-score" style="margin-top:10px;font-size:12px;font-weight:600;"></div>
-    </div>
-
     <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:6px;">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveEpisode()">Save Episode</button>
@@ -388,53 +344,68 @@ tbody td:first-child{color:var(--text);font-weight:500;}
 </div>
 
 <script>
-
-/* ═══ ICON SYSTEM ═══════════════════════════════════════════════════════════ */
-const _IP = {
-  sun:             '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
-  'pen-line':      '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
-  mic:             '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
-  hammer:          '<path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/>',
-  dumbbell:        '<path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1 2.828-2.829l6.364 6.364a2 2 0 1 1-2.828 2.829l-1.768 1.767a2 2 0 1 1-2.828-2.828z"/>',
-  target:          '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
-  send:            '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
-  moon:            '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
-  paperclip:       '<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
-  settings:        '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
-  sparkles:        '<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>',
-  'rotate-cw':     '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
-  pencil:          '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
-  'rotate-ccw':    '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
-  check:           '<path d="M20 6 9 17l-5-5"/>',
-  download:        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
-  upload:          '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
-  'triangle-alert':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/>',
-  'external-link': '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
-  zap:             '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
-  lightbulb:       '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
-  film:            '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/>',
-  image:           '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
-  search:          '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
-  'file-text':     '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
-  'clipboard-list':'<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
-};
-function I(name, sz) {
-  sz = sz || 13;
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + sz + '" height="' + sz + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex-shrink:0;" aria-hidden="true">' + (_IP[name] || '') + '</svg>';
-}
-function applyIcons(root) {
-  (root || document).querySelectorAll('[data-ic]').forEach(function(el) {
-    var frag = document.createRange().createContextualFragment(I(el.getAttribute('data-ic'), el.getAttribute('data-ic-size') || 13));
-    el.parentNode.insertBefore(frag, el);
-    el.parentNode.removeChild(el);
-  });
-}
-/* ═══ END ICON SYSTEM ═══════════════════════════════════════════════════════ */
-
-
 'use strict';
 
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════════
+const SB_URL = 'https://vdlhcxbldiszghofghgi.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDY2NjUsImV4cCI6MjA5NzU4MjY2NX0.28RjGPZdbzJ2gYAfLo6Fn26cQmKp9KFbPnIaBgg0YC8';
+const SB = {
+  h() { return { 'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal' }; },
+  async get(t,q){ const r=await fetch(`${SB_URL}/rest/v1/${t}${q||''}`,{headers:this.h()}); if(!r.ok)throw new Error(await r.text()); return r.json(); },
+  async upsert(t,d,q){ const r=await fetch(`${SB_URL}/rest/v1/${t}${q||''}`,{method:'POST',headers:{...this.h(),'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(d)}); if(!r.ok)throw new Error(await r.text()); }
+};
+let sbOnline = false;
+async function sbInit() {
+  try {
+    await SB.get('tzh_hq_data','?limit=0');
+    sbOnline = true;
+    await sbLoad();
+    showSbStatus('● Synced');
+  } catch(e) { showSbStatus('○ Local only'); }
+}
+async function sbLoad() {
+  try {
+    const rows = await SB.get('tzh_hq_data','?id=eq.main');
+    if (!rows.length) { await sbSave(); return; }
+    const remote    = rows[0].data;
+    const remoteEps = (remote.episodes||[]).length;
+    const localEps  = (DB.d.episodes||[]).length;
+    const remoteTs  = new Date(rows[0].updated_at||0).getTime();
+    const localTs   = new Date(DB.d._updatedAt||0).getTime();
+    // prefer whichever has more episodes; use timestamp as tiebreaker
+    const useRemote = remoteEps > localEps || (remoteEps === localEps && remoteTs > localTs);
+    if (useRemote) {
+      // backup local before overwriting
+      const cur = localStorage.getItem(DB._key);
+      if (cur) localStorage.setItem(DB._key+'_backup', cur);
+      DB.d = remote;
+      ['episodes','research','thumbnails','analytics'].forEach(k=>{ if(!DB.d[k]) DB.d[k]=[]; });
+      localStorage.setItem(DB._key, JSON.stringify(DB.d));
+      DB.updateSidebar();
+      navigate(currentPage);
+    } else {
+      await sbSave();
+    }
+  } catch(e) { console.warn('sbLoad:',e.message); }
+}
+async function sbSave() {
+  if (!sbOnline) return;
+  const ts = new Date().toISOString();
+  DB.d._updatedAt = ts;
+  localStorage.setItem(DB._key, JSON.stringify(DB.d));
+  try {
+    await SB.upsert('tzh_hq_data', { id:'main', data:DB.d, updated_at:ts }, '?on_conflict=id');
+    showSbStatus('● Synced');
+  } catch(e) { showSbStatus('○ Sync error'); console.warn('sbSave:',e.message); }
+}
+function showSbStatus(msg) {
+  const el = document.getElementById('sb-status');
+  if (el) { el.textContent = msg; el.style.color = msg.startsWith('●') ? '#5C9E6E' : '#888'; }
+}
+
 // DATA STORE
 // ══════════════════════════════════════════════
 const DB = {
@@ -449,35 +420,7 @@ const DB = {
   save() {
     localStorage.setItem(this._key, JSON.stringify(this.d));
     this.updateSidebar();
-    this.syncToCommandCenter();
-    pushToSupabase();
-  },
-  syncToCommandCenter() {
-    try {
-      const eps = this.d.episodes || [];
-      const synced = new Date().toISOString();
-      // Write full episode data to vs_tzh_v1 so Command Center tracker stays live
-      localStorage.setItem('vs_tzh_v1', JSON.stringify(
-        eps.map(e => ({
-          id: e.id, title: e.title, num: e.num || null,
-          stage: e.status === 'published' ? 'published'
-               : e.status === 'editing'   ? 'editing'
-               : e.status === 'filming'   ? 'recording'
-               : e.status === 'scripting' ? 'scripted'
-               : e.status === 'research'  ? 'research'
-               : 'research',
-          target: e.date || '', actual: e.actual || '', theme: e.theme || ''
-        }))
-      ));
-      // Also write summary to vs_sync_tzh for the briefing widget
-      localStorage.setItem('vs_sync_tzh', JSON.stringify({
-        app: 'The Z Historian HQ', exported: synced,
-        episodes: eps.map(e => ({ title: e.title, status: e.status, topic: e.topic || '' }))
-      }));
-      // Update sync timestamp in UI if visible
-      const el = document.getElementById('sb-sync-time');
-      if (el) el.textContent = 'Synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    } catch(e) {}
+    sbSave();
   },
   updateSidebar() {
     const eps = this.d.episodes;
@@ -540,28 +483,12 @@ function renderDashboard(el) {
   const recent = [...eps].filter(e => e.status==='published')
     .sort((a,b) => (b.num||0)-(a.num||0)).slice(0,4);
 
-  // On-time rate
-  const withDates = eps.filter(e => e.status==='published' && e.date && e.actual);
-  const onTime = withDates.filter(e => e.actual <= e.date).length;
-  const onTimePct = withDates.length ? Math.round(onTime/withDates.length*100) : null;
-  const onTimeCol = onTimePct===null ? 'var(--text-muted)' : onTimePct>=80 ? '#7AC97A' : onTimePct>=50 ? 'var(--gold)' : '#E57373';
-
-  // This month's theme
-  const mk = new Date().toISOString().slice(0,7);
-  const THEMES = {'2026-10':'Forgotten People','2026-11':'Places & Cities','2026-12':"Zambia's Institutions",'2027-01':'Independence & Nation Building','2027-02':'Military & Security History','2027-03':'Women & Society','2027-04':'Industry, Mining & Infrastructure','2027-05':'Education & Intellectual History','2027-06':'Culture, Language & Identity','2027-07':'Politics & Public Life','2027-08':"Zambia's Regional & African Connections",'2027-09':'The Stories We Are Losing'};
-  const thisTheme = THEMES[mk] || '—';
-
   el.innerHTML = `
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;">
+  <div class="stats-grid">
     <div class="stat-card"><div class="stat-label">Total Episodes</div><div class="stat-value">${eps.length}</div><div class="stat-sub">All time</div></div>
     <div class="stat-card"><div class="stat-label">Published</div><div class="stat-value" style="color:#7AC97A">${cnt.published}</div><div class="stat-sub">Live on YouTube</div></div>
     <div class="stat-card"><div class="stat-label">In Production</div><div class="stat-value" style="color:var(--gold)">${inProg}</div><div class="stat-sub">Active workflow</div></div>
     <div class="stat-card"><div class="stat-label">Ideas Vault</div><div class="stat-value" style="color:#7A9EC9">${cnt.idea}</div><div class="stat-sub">Waiting to develop</div></div>
-    <div class="stat-card"><div class="stat-label">On-Time Rate</div><div class="stat-value" style="color:${onTimeCol}">${onTimePct!==null?onTimePct+'%':'—'}</div><div class="stat-sub">${withDates.length ? onTime+' of '+withDates.length+' on time' : 'No data yet'}</div></div>
-  </div>
-  <div style="background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--r);padding:10px 16px;margin-bottom:18px;display:flex;align-items:center;gap:12px;">
-    <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);">This Month's Theme</span>
-    <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--gold-light);">${thisTheme}</span>
   </div>
 
   <div class="grid-2" style="margin-bottom:18px;">
@@ -651,7 +578,7 @@ function renderEpisodes(el) {
         <tbody id="ep-tbody">${renderEpRows(eps)}</tbody>
       </table>
     </div>
-    ${eps.length===0 ? `<div class="empty-state"><div class="empty-state-icon"><span data-ic="film"></span></div><div class="empty-state-title">No episodes yet</div><div class="empty-state-sub">Click "New Episode" to start tracking your content</div></div>` : ''}
+    ${eps.length===0 ? `<div class="empty-state"><div class="empty-state-icon">🎬</div><div class="empty-state-title">No episodes yet</div><div class="empty-state-sub">Click "New Episode" to start tracking your content</div></div>` : ''}
   </div>`;
 }
 
@@ -694,17 +621,9 @@ function openModal(ep=null) {
   document.getElementById('m-topic').value = ep?.topic||'';
   document.getElementById('m-period').value= ep?.period||'';
   document.getElementById('m-status').value= ep?.status||'idea';
-  document.getElementById('m-theme').value = ep?.theme||'';
   document.getElementById('m-date').value  = ep?.date||'';
-  document.getElementById('m-actual').value= ep?.actual||'';
   document.getElementById('m-url').value   = ep?.url||'';
   document.getElementById('m-notes').value = ep?.notes||'';
-  // QC checkboxes
-  ['accuracy','originality','story','visuality','significance'].forEach(k => {
-    const el = document.getElementById('qc-'+k); if(el) el.checked = !!(ep?.qc?.[k]);
-  });
-  toggleQCSection(ep?.status||'idea');
-  updateQCScore();
   // Reset YouTube extract UI
   document.getElementById('yt-paste-url').value = ep?.url||'';
   document.getElementById('yt-status').style.display = 'none';
@@ -834,11 +753,11 @@ function detectPeriod(text) {
 
   // Strong keyword signals
   if(/\b(slave trade|transatlantic|middle passage|enslave|slavery)\b/i.test(t))
-    return 'Colonial Era (1880s–1960s)';
+    return 'Trans-Atlantic Slave Trade Era';
   if(/\b(pan.?african|marcus garvey|négritude|negritude|george padmore|c\.l\.r\. james)\b/i.test(t))
-    return 'Independence Era (1960s–1980s)';
+    return 'Pan-African Movements';
   if(/\b(pharaoh|ancient egypt|nubia|kush|mali empire|songhai|great zimbabwe|carthage|aksum|axum|timbuktu|mansa musa|sundiata)\b/i.test(t))
-    return 'Pre-Colonial Africa (before 1880s)';
+    return 'Ancient Civilizations';
   if(/\b(cold war|apartheid|liberation|uhuru|decoloni|lumumba|kaunda|nyerere|nkrumah|mugabe|freedom fight|independence movement|nationalist)\b/i.test(t))
     return 'Independence Era (1960s–1980s)';
   if(/\b(colonial|coloniali|scramble for africa|berlin conference|protectorate|british south africa|rhodesia|bsac|missionary|livingstone|rhodes|imperial)\b/i.test(t))
@@ -852,7 +771,7 @@ function detectPeriod(text) {
   const years = [...t.matchAll(/\b(1[0-9]{3}|20[0-2][0-9])\b/g)].map(m=>parseInt(m[1]));
   if(years.length) {
     const avg = years.reduce((a,b)=>a+b,0)/years.length;
-    if(avg < 1500)  return 'Pre-Colonial Africa (before 1880s)';
+    if(avg < 1500)  return 'Ancient Civilizations';
     if(avg < 1880)  return 'Pre-Colonial Africa (before 1880s)';
     if(avg < 1960)  return 'Colonial Era (1880s–1960s)';
     if(avg < 1985)  return 'Independence Era (1960s–1980s)';
@@ -867,41 +786,18 @@ function formatDisplayDate(iso) {
   try { return new Date(iso+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
   catch(e) { return iso; }
 }
-function toggleQCSection(status) {
-  const sec = document.getElementById('qc-section');
-  if(sec) sec.style.display = status === 'published' ? '' : 'none';
-}
-function updateQCScore() {
-  const keys = ['accuracy','originality','story','visuality','significance'];
-  const passed = keys.filter(k => { const el=document.getElementById('qc-'+k); return el&&el.checked; }).length;
-  const el = document.getElementById('qc-score');
-  if(!el) return;
-  const col = passed >= 4 ? '#7AC97A' : passed >= 3 ? 'var(--gold)' : '#E57373';
-  const msg = passed >= 4 ? '✓ Ready to publish' : passed === 3 ? '⚠ Borderline — consider improving weak areas' : '✕ Not ready — at least 4 tests must pass';
-  el.style.color = col;
-  el.textContent = `${passed}/5 passed — ${msg}`;
-}
-// Wire status dropdown to show/hide QC section
-document.addEventListener('change', e => { if(e.target.id==='m-status') toggleQCSection(e.target.value); });
 function closeModal() { document.getElementById('ep-modal').classList.remove('open'); editingId=null; }
 function saveEpisode() {
   const title = document.getElementById('m-title').value.trim();
   if(!title){ alert('Please enter a title.'); return; }
-  const qc = {};
-  ['accuracy','originality','story','visuality','significance'].forEach(k => {
-    const el = document.getElementById('qc-'+k); if(el) qc[k] = el.checked;
-  });
   const ep = {
     id: editingId||uid(), num: parseInt(document.getElementById('m-num').value)||null,
     title, topic: document.getElementById('m-topic').value.trim(),
-    theme: document.getElementById('m-theme').value,
     period: document.getElementById('m-period').value,
     status: document.getElementById('m-status').value,
     date: document.getElementById('m-date').value,
-    actual: document.getElementById('m-actual').value,
     url: document.getElementById('m-url').value.trim(),
     notes: document.getElementById('m-notes').value.trim(),
-    qc,
     createdAt: editingId ? undefined : new Date().toISOString()
   };
   if(editingId) { const i = DB.d.episodes.findIndex(e=>e.id===editingId); if(i>=0) DB.d.episodes[i]={...DB.d.episodes[i],...ep}; }
@@ -998,7 +894,9 @@ function renderStudio(el) {
             <option>Colonial Era (1880s–1960s)</option>
             <option>Independence Era (1960s–1980s)</option>
             <option>Modern Africa (1980s–present)</option>
-            <option>Other</option>
+            <option>Ancient Civilizations</option>
+            <option>Trans-Atlantic Slave Trade Era</option>
+            <option>Pan-African Movements</option>
           </select>
         </div>
         <div class="form-group">
@@ -1464,13 +1362,6 @@ const _socContents = {};
 function renderSocial(el) {
   const eps = DB.d.episodes.filter(e => e.status==='published'||e.status==='editing');
   el.innerHTML = `
-  <div class="tabs" style="margin-bottom:18px;">
-    <button class="tab-btn active" onclick="socTab('promote',this)">📢 Episode Promotion</button>
-    <button class="tab-btn" onclick="socTab('community',this)">🏛 Community Content</button>
-  </div>
-
-  <!-- EPISODE PROMOTION tab -->
-  <div id="soc-promote" class="tab-panel active">
   <div class="grid-2">
     <div class="card">
       <div class="card-header"><div class="card-title">Episode Details</div></div>
@@ -1511,55 +1402,6 @@ function renderSocial(el) {
         <div style="color:var(--text-muted);font-size:13px;">Fill in episode details and click Generate.</div>
       </div>
     </div>
-  </div>
-  </div>
-
-  <!-- COMMUNITY CONTENT tab -->
-  <div id="soc-community" class="tab-panel">
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-header"><div class="card-title">Community Post Generator</div></div>
-      <div class="form-group">
-        <label class="form-label">Format</label>
-        <select class="form-select" id="cc-format" onchange="updateCCPlaceholder()">
-          <option value="photo">📷 Historical photograph caption</option>
-          <option value="didyouknow">💡 "Did you know?"</option>
-          <option value="beforeafter">🔄 Before/after photographs</option>
-          <option value="map">🗺 Old map post</option>
-          <option value="newspaper">📰 Newspaper excerpt intro</option>
-          <option value="quote">💬 Historical quotation</option>
-          <option value="minibio">👤 Mini biography</option>
-          <option value="question">❓ Community question ("Do you remember?")</option>
-          <option value="anniversary">📅 Anniversary post</option>
-          <option value="timeline">📊 Historical timeline post</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Subject / Topic</label>
-        <input class="form-input" id="cc-subject" placeholder="e.g. Lusaka's Cairo Road, 1968...">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Key Detail or Fact</label>
-        <textarea class="form-textarea" id="cc-detail" placeholder="The key fact, quote, date, or description to build the post around..." style="min-height:70px;"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Connection to Today <span style="font-weight:400;color:var(--text-dim);font-size:10px;">(optional)</span></label>
-        <input class="form-input" id="cc-today" placeholder="e.g. This building still stands today as...">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Source URL <span style="font-weight:400;color:var(--text-dim);font-size:10px;">(optional — paste a link to fetch facts from)</span></label>
-        <input class="form-input" id="cc-url" placeholder="https://..." type="url">
-        <div id="cc-url-status" style="font-size:11px;margin-top:4px;color:var(--text-dim);min-height:14px;"></div>
-      </div>
-      <button class="btn btn-primary" onclick="generateCommunityPost()" style="width:100%;">⚡ Generate Post</button>
-    </div>
-    <div id="cc-out">
-      <div class="card" style="text-align:center;padding:60px 20px;">
-        <div style="font-size:34px;margin-bottom:12px;opacity:.25;">🏛</div>
-        <div style="color:var(--text-muted);font-size:13px;">Select a format and fill in the details.</div>
-      </div>
-    </div>
-  </div>
   </div>`;
 }
 
@@ -1610,123 +1452,6 @@ function copyPlatform(name) {
       }
     });
   }).catch(()=> alert('Copy failed — please select and copy manually.'));
-}
-
-function socTab(tab, btn) {
-  document.querySelectorAll('#soc-promote,#soc-community').forEach(el => el.classList.remove('active'));
-  document.getElementById('soc-'+tab).classList.add('active');
-  btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-const CC_PLACEHOLDERS = {
-  photo:      'e.g. Lusaka city centre, 1965 — describe what\'s visible and its significance',
-  didyouknow: 'e.g. In 1953, Zambia produced 20% of the world\'s copper output',
-  beforeafter:'e.g. Independence Avenue, Lusaka — then and now',
-  map:        'e.g. Northern Rhodesia 1924 administrative map showing district boundaries',
-  newspaper:  'e.g. Central African Post, March 1964 — headline and key quotes',
-  quote:      'e.g. Kenneth Kaunda, 1964 independence speech — the exact quote',
-  minibio:    'e.g. Simon Mwansa Kapwepwe — freedom fighter, 1922–1980',
-  question:   'e.g. The old Lusaka market that was demolished in the 1970s',
-  anniversary:'e.g. October 24, 1964 — Zambian independence day, 62 years ago',
-  timeline:   'e.g. Key events in the Copperbelt labour strikes 1935–1956'
-};
-
-function updateCCPlaceholder() {
-  const fmt = document.getElementById('cc-format').value;
-  document.getElementById('cc-detail').placeholder = CC_PLACEHOLDERS[fmt] || 'Key fact or detail...';
-}
-
-async function generateCommunityPost() {
-  const apiKey = (()=>{ try{ return localStorage.getItem('tc_apiKey')||''; }catch(e){return '';} })();
-  if(!apiKey){ alert('No Claude API key set. Add it in the Command Center → Strategy → Setup.'); return; }
-  const fmt     = document.getElementById('cc-format').value;
-  const subject = document.getElementById('cc-subject').value.trim();
-  const detail  = document.getElementById('cc-detail').value.trim();
-  const today   = document.getElementById('cc-today').value.trim();
-  if(!subject||!detail){ alert('Enter a subject and key detail.'); return; }
-
-  const FORMAT_GUIDE = {
-    photo:      'A Facebook post introducing a historical photograph. Describe what the image shows, its historical context, why it matters. End with a question inviting the audience to share memories or knowledge. 80–120 words.',
-    didyouknow: 'A "Did you know?" Facebook post. Open with "Did you know that…" State the surprising fact. Give 2–3 sentences of context. End with a reflection or question. 60–100 words.',
-    beforeafter:'A before/after photograph Facebook post. Describe both images and what changed. Connect past to present. Invite the audience to reflect. 80–120 words.',
-    map:        'A Facebook post introducing a historical map. Describe what the map shows, what it reveals about the period, what has changed since. Ask the audience what they notice. 80–120 words.',
-    newspaper:  'A Facebook post introducing a historical newspaper excerpt. Set the scene — the date, publication, context. Quote the key line. Explain why this moment mattered. 80–120 words.',
-    quote:      'A historical quotation post for Facebook. Present the quote in full. Attribute it precisely. Give 2–3 sentences of context about who said it and why it matters today. 60–100 words.',
-    minibio:    'A mini biography post for Facebook. 150–200 words. Who were they, what did they do, why have they been forgotten or overlooked, what should we remember them for. Tone: respectful, historically grounded, not hagiographic.',
-    question:   'A community memory post for Facebook using "Do you remember?" or "What happened here?" Open with the question. Give brief historical context. Invite the audience to share memories, photographs or knowledge. Warm, participatory tone. 60–100 words.',
-    anniversary:'An anniversary post for Facebook marking a historical date. State the date and event. Brief historical context. Why it still matters. 80–120 words.',
-    timeline:   'A historical timeline post for Facebook. Present 4–6 key dates and events as a structured list. Brief heading per entry. End with a reflection on what the sequence reveals. 150–200 words.'
-  };
-
-  const sourceUrl = document.getElementById('cc-url').value.trim();
-  const statusEl  = document.getElementById('cc-url-status');
-  let sourceMaterial = '';
-
-  if(sourceUrl) {
-    statusEl.textContent = '⏳ Fetching source…';
-    try {
-      const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(sourceUrl)}`;
-      const r = await fetch(proxy);
-      if(!r.ok) throw new Error('Proxy error '+r.status);
-      const j = await r.json();
-      const raw = j.contents || '';
-      // Strip HTML tags, collapse whitespace, limit to 3000 chars
-      const text = raw.replace(/<style[\s\S]*?<\/style>/gi,'')
-                      .replace(/<script[\s\S]*?<\/script>/gi,'')
-                      .replace(/<[^>]+>/g,' ')
-                      .replace(/\s+/g,' ')
-                      .trim()
-                      .slice(0,3000);
-      sourceMaterial = text;
-      statusEl.style.color = '#7AC97A';
-      statusEl.textContent = `✓ Fetched ${text.length} characters from source`;
-    } catch(e) {
-      statusEl.style.color = '#E57373';
-      statusEl.textContent = `⚠ Could not fetch source: ${e.message}. Generating without it.`;
-    }
-  } else {
-    statusEl.textContent = '';
-  }
-
-  const btn = document.querySelector('#soc-community .btn-primary');
-  const orig = btn.textContent; btn.textContent = '⏳ Generating…'; btn.disabled = true;
-
-  const prompt = `You are a writer for The Z Historian — a specialist platform for discovering, documenting and interpreting Zambia's history.
-
-VOICE: Historian and storyteller. Rigorous, curious, narrative-driven. Connects Zambian and African history to present-day questions. Scholarly but accessible. Surface the underappreciated and forgotten. History as applied knowledge, not nostalgia.
-
-FORMAT: ${FORMAT_GUIDE[fmt]}
-
-SUBJECT: ${subject}
-KEY DETAIL: ${detail}${today ? '\nCONNECTION TO TODAY: '+today : ''}${sourceMaterial ? '\n\nSOURCE MATERIAL (use facts and details from this to enrich the post — do not copy verbatim):\n'+sourceMaterial : ''}
-
-Write the post now. Output ONLY the finished post — no preamble, no explanation. Ready to copy and paste to Facebook.`;
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:prompt}]})
-    });
-    if(!resp.ok) throw new Error('API error '+resp.status);
-    const data = await resp.json();
-    const draft = data.content[0].text.trim();
-    window._ccLastDraft = draft;
-    const fmtLabels = {photo:'Historical Photo',didyouknow:'"Did you know?"',beforeafter:'Before/After',map:'Old Map',newspaper:'Newspaper',quote:'Historical Quote',minibio:'Mini Biography',question:'Community Question',anniversary:'Anniversary',timeline:'Timeline'};
-    document.getElementById('cc-out').innerHTML = `
-      <div class="platform-output">
-        <div class="platform-header">
-          <div class="platform-name" style="color:var(--gold);">🏛 ${fmtLabels[fmt]||fmt} — Facebook</div>
-          <button class="btn btn-ghost btn-sm" id="cc-copy-btn" onclick="navigator.clipboard.writeText(window._ccLastDraft).then(()=>{ this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',2000); })">Copy</button>
-        </div>
-        <div class="platform-body">${draft.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-      </div>`;
-  } catch(e) {
-    alert('Generation failed: '+e.message);
-  } finally {
-    btn.textContent = orig; btn.disabled = false;
-  }
 }
 
 function genYT(title,ep,facts,sum,url) {
@@ -2277,59 +2002,12 @@ function delAnalytic(id) {
 }
 
 // ══════════════════════════════════════════════
-// SUPABASE LIVE SYNC — VS Command Center
-// ══════════════════════════════════════════════
-const TZH_SB_URL = 'https://vdlhcxbldiszghofghgi.supabase.co';
-const TZH_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbGhjeGJsZGlzemdob2ZnaGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDY2NjUsImV4cCI6MjA5NzU4MjY2NX0.28RjGPZdbzJ2gYAfLo6Fn26cQmKp9KFbPnIaBgg0YC8';
-
-async function pushToSupabase() {
-  try {
-    const eps = DB.d.episodes || [];
-    const payload = {
-      user_key: 'victor',
-      episodes: eps.map(e => ({ title: e.title, status: e.status, topic: e.topic || '' })),
-      in_production: eps.filter(e => e.status && e.status !== 'published').length,
-      published: eps.filter(e => e.status === 'published').length,
-      updated_at: new Date().toISOString()
-    };
-    await fetch(`${TZH_SB_URL}/rest/v1/tzh_status`, {
-      method: 'POST',
-      headers: {
-        'apikey': TZH_SB_KEY,
-        'Authorization': 'Bearer ' + TZH_SB_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify(payload)
-    });
-  } catch(e) {}
-}
-
-// ══════════════════════════════════════════════
-// EXPORT STATUS JSON — for VS Command Center
-// ══════════════════════════════════════════════
-function exportStatusJSON() {
-  const eps = DB.d.episodes || [];
-  const payload = {
-    app: 'The Z Historian HQ',
-    exported: new Date().toISOString(),
-    episodes: eps.map(e => ({ title: e.title, status: e.status, topic: e.topic || '' }))
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'tzh_status.json';
-  a.click();
-}
-
-// ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
 DB.init();
 DB.updateSidebar();
-DB.syncToCommandCenter();
-pushToSupabase();
 navigate('dashboard');
+sbInit();
 
 document.getElementById('ep-modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 </script>

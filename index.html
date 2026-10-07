@@ -1258,9 +1258,9 @@ body {
     <!-- Banner / Countdown -->
     <div class="aila-banner">
       <div class="aila-banner-left">
-        <div class="aila-sprint-label">Q4 2026 · Cohort 1 Launch</div>
+        <div class="aila-sprint-label">Q4 2026 · Launch Workshop → Founding Cohort</div>
         <div class="aila-sprint-title">AI Leadership Academy (AILA)</div>
-        <div class="aila-sprint-sub">Foundation Complete → Launch → Recruit → Deliver · Nov 10–12 2026</div>
+        <div class="aila-sprint-sub">Free Launch Workshop Tue 10 Nov 2026 → Convert → Founding Cohort Feb/Mar 2027</div>
       </div>
       <div class="aila-countdown-group">
         <div class="aila-cd-block">
@@ -1403,6 +1403,7 @@ body {
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-ghost btn-sm" onclick="contentShowTab('queue')">📅 Queue</button>
+        <button class="btn btn-ghost btn-sm" onclick="contentShowTab('batch')">⚡ Batch Week</button>
         <button class="btn btn-ghost btn-sm" onclick="contentShowTab('ideas')">💡 Ideas</button>
         <button class="btn btn-ghost btn-sm" onclick="contentShowTab('draft')">✦ AI Draft</button>
       </div>
@@ -1447,6 +1448,23 @@ body {
         <button class="btn btn-gold btn-sm" onclick="addContentIdea()">+ Add</button>
       </div>
       <div id="ctIdeasList" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <!-- ── BATCH tab ── -->
+    <div id="ct-batch" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div class="sec-title" style="margin:0;font-size:13px;">Weekly Batch Session</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">Generate all drafts for the week — copy each to Buffer or Meta Business Suite</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="ctBatchNav(-1)">‹</button>
+          <span id="ct-batch-range" style="font-size:12px;color:var(--text2);min-width:130px;text-align:center;"></span>
+          <button class="btn btn-ghost btn-sm" onclick="ctBatchNav(1)">›</button>
+          <button class="btn btn-gold btn-sm" id="ctBatchAllBtn" onclick="ctBatchGenerateAll()" style="margin-left:6px;">⚡ Generate All</button>
+        </div>
+      </div>
+      <div id="ct-batch-list"></div>
     </div>
 
     <!-- ── DRAFT tab ── -->
@@ -1833,8 +1851,8 @@ const OKR_SEEDS = {
              krs:['1 long-form piece published per month (Oct/Nov/Dec)','2–3 short-form posts per week maintained (repurposed from long-form)'] },
   y4pz:    { title:'Y4PZ parked Q4 — resume Jan 2027',
              krs:['No active deliverables this quarter — Idea Vault only'] },
-  bantuwa: { title:'Bantuwa active — AILA Cohort 1 delivered + UAV X1 bench-tested',
-             krs:['AILA Cohort 1 delivered Nov 13–15 (10–20 participants)','UAV X1 v0.1 bench-tested by Dec 31 — Gate 1 passed','AILA v1.1 refined from feedback — Cohort 2 registration open'] },
+  bantuwa: { title:'Bantuwa active — AILA launched + Founding Cohort confirmed + UAV X1 bench-tested',
+             krs:['AILA Launch Workshop delivered Nov 10 (30–40 participants)','UAV X1 v0.1 bench-tested by Dec 31 — Gate 1 passed','Founding Cohort confirmed — 10+ deposits by end Nov'] },
   va:      { title:'VANGUARD close-out + PhD reading slot protected',
              krs:['VANGUARD presentation delivered (Nov/Dec)','Weekly PhD/research reading slot maintained — no deliverable until Q1 2027'] },
   selfdev: { title:'Build the personal excellence system — 12-month programme (Sep 2026)',
@@ -1879,7 +1897,7 @@ const DEFAULT = {
       { day:'Wednesday', am:'08:00–16:00 Army R&D (use gaps for AILA programme work)', pm:'Builder Block — AILA: curriculum, cohort prep, advertising, or participant follow-up', anchor:'AILA' },
       { day:'Thursday',  am:'08:00–16:00 Army R&D (use gaps for VANGUARD / UAV research)', pm:'Builder Block — VANGUARD / UAV: build, document, or advance one concrete milestone', anchor:'VANGUARD + UAV' },
       { day:'Friday',    am:'08:00–16:00 Army R&D (use gaps for weekly review prep)', pm:'Builder Block — Z Historian: publish OR Friday Review (5 capital forms). One relationship action logged.', anchor:'TZH + Review' },
-      { day:'Saturday',  am:'Deep Work — Z Historian final edit / upload / SEO, OR VANGUARD document work', pm:'Research & Academic — PhD reading, policy brief, knowledge domain. Family time protected.', anchor:'Deep Work' },
+      { day:'Saturday',  am:'Deep Work 08:00–12:00 HARD STOP — Z Historian final edit / upload / SEO, OR VANGUARD document work. No extensions.', pm:'12:00 onwards — PROTECTED. Family, rest, physical activity, hobby. No project work after midday.', anchor:'Deep Work · Rest' },
       { day:'Sunday',    am:'7BD review · prayer · family · church', pm:'15–30 min reflection: what moved, what stalled, what to stop. Feed into Monday planning.', anchor:'Reset + Strategy' }
     ],
     monthly: [
@@ -2683,10 +2701,22 @@ function renderWeekRhythmQuick() {
   const el=document.getElementById('weekRhythmQuick'); if(!el) return;
   const day=new Date().getDay();
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  el.innerHTML=(S.schedule.weekly||[]).map(row=>{
-    const isToday=days[day]===row.day;
-    return `<div style="${isToday?'color:var(--gold2);font-weight:600;':''}">${isToday?'▶ ':'  '}<strong>${row.day}:</strong> ${esc(row.am||'—')}</div>`;
-  }).join('');
+  const todayName=days[day];
+  const weekly=S.schedule.weekly||[];
+  const todayRow=weekly.find(r=>r.day===todayName);
+  if(!todayRow){el.innerHTML='<div style="color:var(--text3);font-size:12px;">No rhythm entry for today.</div>';return;}
+  let html=`<div style="margin-bottom:10px;">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gold2);margin-bottom:6px;">${todayName} — ${esc(todayRow.anchor||'')}</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:4px;"><span style="color:var(--text3);font-size:10px;">AM</span> ${esc(todayRow.am||'—')}</div>
+    <div style="font-size:12px;color:var(--text2);"><span style="color:var(--text3);font-size:10px;">PM</span> ${esc(todayRow.pm||'—')}</div>
+  </div>
+  <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;flex-wrap:wrap;gap:4px;">`;
+  weekly.forEach(r=>{
+    const isToday=r.day===todayName;
+    html+=`<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:${isToday?'rgba(212,175,55,.15)':'var(--bg3)'};color:${isToday?'var(--gold2)':'var(--text3)'};border:1px solid ${isToday?'rgba(212,175,55,.4)':'var(--border)'};">${r.day.slice(0,3)}: ${esc(r.anchor||r.day)}</span>`;
+  });
+  html+=`</div>`;
+  el.innerHTML=html;
 }
 function renderWeekOkrWidgets() {
   const el=document.getElementById('weekOkrWidgets'); if(!el) return;
@@ -3530,173 +3560,136 @@ const AILA_SPRINT = {
       ]
     },
     {
-      num:9, label:'FOUNDATIONS & LAUNCH', dates:'Oct 1–14',
+      num:9, label:'RESET & FOUNDATIONS', dates:'Oct 1–14',
       start:'2026-10-01', end:'2026-10-14',
-      goal:'Payment channels live, landing page updated, flyer published, Video 1 released, venue search started.',
-      deliverable:'Cohort 1 publicly launched — people can register and pay',
+      goal:'Switch to the new model: free 1-day Launch Workshop on Tue 10 Nov, which sells the paid 3-day Founding Cohort in early 2027. Lock the key decisions and materials.',
+      deliverable:'Launch model locked — venue host secured, flyer and materials pack final, landing page live for the free workshop',
       tasks:[
-        'Set up payment channels in Bantuwa\'s name (mobile money and/or bank account)',
-        'Set up official receipts for every payment',
-        'Publish the refund rule: full refund if AILA reschedules',
-        'Decide early-bird and group rates, if any',
-        'Update the landing page: new title, dates (10–12 Nov), fee, deadline (3 Nov), payment details',
-        'Finalise the flyer: dates, venue (or "Lusaka, venue TBC"), contacts',
-        'Add data-protection consent and photo/video consent to the registration form',
-        'Add "Will you bring a laptop?" to the registration form',
-        'Record and release Video 1',
-        'Send personal invitations to at least 10 target participants (week 1)',
-        'Book the venue for 10–12 November (room for 20–30, breakout space for 4–6 teams)',
-        'Test the venue internet with many devices; arrange a backup mobile router',
-        'Confirm backup power (generator or UPS) for all three days',
-        'Confirm projector, screen, sound, flipcharts and power strips'
+        'Decide the launch model: free 1-day Launch Workshop (Tue 10 Nov, 09:00–14:00, 40 seats) → paid 3-day Founding Cohort (Feb/Mar 2027)',
+        'Fix the Founding Cohort dates (late Feb or March 2027)',
+        'Set Founding Cohort pricing: early-bird, deposit, team rate (standard K1,500)',
+        'Ask 1–2 corporate or tourism contacts to host the venue (room for 40, tables for group work)',
+        'Recruit one support person for registration, photos and logistics on the day',
+        'Fill [VENUE] and [COHORT DATES] in the flyer and materials pack; export the flyer as PDF and WhatsApp image',
+        'Update the landing page: free Launch Workshop, 10 Nov, nomination option, register by 3 Nov',
+        'Update the registration form: organisation, role, problem to work on, photo/video consent',
+        'Update the original one-pager — remove the 10–12 Nov cohort and K1,500 fee',
+        'Build the target list: 30+ institutions (tourism, corporate, government, NGOs, education) with a named contact each'
       ]
     },
     {
-      num:10, label:'TOOLS, GO/NO-GO & LOCK-IN', dates:'Oct 15 – Nov 9',
+      num:10, label:'INVITE, BUILD & LOCK-IN', dates:'Oct 15 – Nov 9',
       start:'2026-10-15', end:'2026-11-09',
-      goal:'Tools chosen, content ready, go/no-go decision made Oct 27, all logistics locked by Nov 3.',
-      deliverable:'★ GO/NO-GO Oct 27: 12+ paid participants → cohort confirmed. Lock all logistics by Nov 3.',
+      goal:'Fill 40 seats through personal and institutional invitations, build the one-day content, and lock all logistics.',
+      deliverable:'★ CHECKPOINT Oct 27: 25+ registrations. Registration closes Nov 3. Content and logistics locked.',
       tasks:[
-        'Get catering quotes and confirm the caterer (3 lunches, refreshments, water)',
-        'Invite 3–4 judges for the Day 3 Innovation Challenge (ideally from different sectors)',
-        'Approach facilitators for each role: lead, AI, design, technical, sector, governance',
-        'Replace [venue] in the decks, flyer and video scripts',
-        'Choose the approved AI tools and prototype-building tools',
-        'Check free-tier limits for 20+ simultaneous users; budget for paid accounts if needed',
-        'Set up a shared workspace for teams (templates, files, links)',
-        'Write the Day 1 live demo script (task, inputs, before/after)',
-        'Build the fallback case bank: 5–6 cross-sector problems with synthetic data',
-        'Prepare synthetic or public datasets for the Build Lab',
-        'Fill the approved-tools list on the Day 3 "tools" slide',
-        '★ Oct 27 GO/NO-GO: count paid/committed participants — 12+ confirms; fewer than 12 moves to Feb/Mar 2027',
-        'Release Videos 4 and 5 (27 and 30 Oct)',
-        'Confirm every facilitator by name and send each their sessions in the Facilitator Guide',
-        'Confirm the judges and send them the panel scorecard',
-        'Close registration and payment (3 Nov)',
-        'Reconcile payments against registrations; issue all receipts',
-        'Decide who signs the certificates',
-        'Fix the 30-day follow-up session date (around 10–12 Dec)',
-        'Form teams of 4–5 from the problem statements (group similar problem types)',
-        'Send joining instructions: venue, times, parking, laptop, what to bring, security note',
-        'Run a full facilitator dry run with the three decks (around 5–6 Nov)',
-        'Test the AI tools and prototype tools on the venue network',
-        'Print workbooks, canvases, name badges, sign-in sheet and certificates',
-        'Pack participant folders, notebooks and pens',
-        'Arrange 2–3 spare laptops for participants without one',
-        'Confirm final numbers with the caterer',
-        'Day before: set up the room, registration desk and breakout areas; test projector, internet and power'
+        'Send nomination letters to 15+ heads of institutions (by 16 Oct)',
+        'Send personal WhatsApp/email invitations to 40–50 contacts (by 16 Oct)',
+        'Post the LinkedIn launch post; share the forwardable WhatsApp message in groups',
+        'Follow up every invitation by phone within 5 days',
+        'Build the slide deck for the six sessions',
+        'Finalise and print-proof the participant workbook (ends in the one-page diagnosis)',
+        'Write the live AI demo script, with an offline backup',
+        'Write the facilitator notes and run-sheet (timings, key messages)',
+        'Finalise the Founding Cohort offer sheet and enrolment/deposit form; set up payment channels in Bantuwa\'s name',
+        'Write the 48-hour follow-up email',
+        'Prepare the feedback form (QR), testimonial prompt card and participation certificate',
+        '★ Oct 27 CHECKPOINT: 25+ registrations → confirm room and refreshments; fewer → intensify outreach and right-size the room',
+        'Confirm venue AV, Wi-Fi, power and table layout',
+        'Close registration (3 Nov); send confirmations and reminders (7 days, 2 days, morning of)',
+        'Print workbooks, offer sheets, name badges, attendance register and certificates',
+        'Brief the photographer/support person; confirm final numbers for refreshments',
+        'Day before: set up the room and registration desk; test projector, internet and demo'
       ]
     },
     {
-      num:11, label:'COHORT 1 — DELIVER', dates:'Nov 10–12',
-      start:'2026-11-10', end:'2026-11-12',
-      goal:'Deliver the inaugural 3-day AILA workshop. Collect structured feedback and testimonials.',
-      deliverable:'Cohort 1 delivered + Feedback collected + Testimonials recorded',
+      num:11, label:'LAUNCH WORKSHOP', dates:'Tue Nov 10',
+      start:'2026-11-10', end:'2026-11-10',
+      goal:'Run the free AILA Launch Workshop: every participant leaves with a one-page problem diagnosis, and the Founding Cohort offer is made on the day.',
+      deliverable:'Launch delivered — diagnoses completed, deposits taken, testimonials and content captured',
       tasks:[
-        'Daily 0830 facilitator huddle; flag any team at risk',
-        'Read the security note aloud on Day 1',
-        '★ DAY 1: AI and the Changing Workplace · Problem Identification · Problem Decomposition · AI-Assisted Research · Prompting & Context Engineering',
-        '★ DAY 2: Building Solutions · AI Workflows · Agents & Automation · Responsible AI · Implementation Planning',
-        '★ DAY 3: Innovation Challenge with judges · Capstone Presentations · Certificate Ceremony',
-        'Check each team\'s end-of-day outputs before release (Day 1: 6 items, Day 2: 6 items)',
-        'Take photos (with consent) for future marketing',
-        'Record 3–5 short participant testimonials at the close',
-        'Collect evaluation forms; issue certificates'
+        '08:30 Registration — attendance register doubles as the lead list',
+        '09:00 Why AI projects fail in institutions',
+        '09:30 Frame your problem · 10:45 Find the root cause (five whys, in pairs)',
+        '11:45 Where AI actually helps — live demo',
+        '12:45 Show and tell — 3–4 volunteers present their diagnoses',
+        '13:30 The AILA pathway and the Founding Cohort offer — take deposits on the spot',
+        'Capture photos and short video of work in progress (with consent)',
+        'Record 3–5 testimonial clips ("What surprised you?" / "What problem will you work on?")',
+        'Collect feedback forms; issue participation certificates',
+        'Log targets: attendance ≥70%, diagnoses ≥80%, 8–10 deposits, 2+ institutional enquiries'
       ]
     },
     {
-      num:12, label:'DEBRIEF & REFINE', dates:'Nov 13 – Dec 31',
-      start:'2026-11-13', end:'2026-12-31',
-      goal:'Turn cohort 1 experience into a stronger programme and a plan for cohort 2.',
-      deliverable:'AILA v1.1 + Cohort 2 plan + Testimonials collected',
+      num:12, label:'CONVERT & PLAN COHORT', dates:'Nov 11 – Dec 31',
+      start:'2026-11-11', end:'2026-12-31',
+      goal:'Convert launch attendees into paid Founding Cohort participants and turn launch content into marketing.',
+      deliverable:'Founding Cohort confirmed (10+ deposits) + marketing content published + institutional leads followed up',
       tasks:[
-        'Compile all feedback into a structured debrief report',
-        'Score every session: what worked, what confused, what to cut, what to add',
-        'Revise programme based on debrief — update materials, timing, facilitation notes',
-        'Collect written testimonials and permission to use from all participants',
-        'Request LinkedIn recommendations from key participants',
-        'Identify 3–5 participants who could become programme advocates or referrers',
-        'Analyse: which participant profile got the most value?',
-        'Plan Cohort 2: dates, pricing, target audience, channel',
-        'Update AILA landing page with testimonials and cohort 2 registration',
-        'Declare AILA v1.1 complete — ready to scale'
+        'Send the 48-hour follow-up: diagnosis template, offer sheet, enrolment link, deadline',
+        'Phone every attendee who has not paid a deposit within one week',
+        'Deposit deadline (14 days after launch, ~24 Nov) — close the early-bird',
+        '★ Founding Cohort GO/NO-GO: 10+ deposits → confirm dates and book the venue',
+        'Follow up every institution that asked about in-house delivery',
+        'Publish launch content: photo post, testimonial clips, LinkedIn article from the opening talk',
+        'Write one anonymised before/after case study (with permission)',
+        'Update the landing page for Founding Cohort registration, with testimonials',
+        'Write the launch lessons-learned note: what converted, what did not',
+        'Plan Founding Cohort logistics: facilitators, judges, tools, catering'
       ]
     }
   ],
   masterChecklist: {
     'Weekly Until Nov 3': [
-      'Release week\'s video + post caption on LinkedIn, WhatsApp and YouTube (6, 13, 20, 27, 30 Oct)',
-      'Send personal invitations to at least 10 target participants',
-      'Update registration count: registered, paid, problem statement received',
-      'Follow up anyone registered but not yet paid',
-      'Screen new problem statements for suitability (no confidential information)'
+      'Post one content piece (LinkedIn / WhatsApp status)',
+      'Send at least 10 new personal invitations',
+      'Update the registration count and nominating institutions',
+      'Follow up anyone invited but not yet registered'
     ],
-    'By 6 Oct — Foundations': [
-      'Set up payment channels in Bantuwa\'s name (mobile money and/or bank account)',
-      'Set up official receipts for every payment',
-      'Publish the refund rule: full refund if AILA reschedules',
-      'Decide early-bird and group rates, if any',
-      'Update the landing page: new title, dates (10–12 Nov), fee, deadline (3 Nov), payment details',
-      'Finalise the flyer: dates, venue (or "Lusaka, venue TBC"), contacts',
-      'Add data-protection consent and photo/video consent to the registration form',
-      'Add "Will you bring a laptop?" to the registration form',
-      'Record and release Video 1'
+    'By 10 Oct — Decisions': [
+      'Confirm the launch model: free 1-day workshop, Tue 10 Nov',
+      'Fix the Founding Cohort dates',
+      'Set early-bird price, deposit and team rate',
+      'Ask a corporate or tourism contact to host the venue',
+      'Recruit a support person for the day'
     ],
-    'By 15 Oct — Venue & People': [
-      'Book the venue for 10–12 November (room for 20–30, breakout space for 4–6 teams)',
-      'Test the venue internet with many devices; arrange a backup mobile router',
-      'Confirm backup power (generator or UPS) for all three days',
-      'Confirm projector, screen, sound, flipcharts and power strips',
-      'Get catering quotes and confirm the caterer (3 lunches, refreshments, water)',
-      'Invite 3–4 judges for the Day 3 Innovation Challenge (ideally from different sectors)',
-      'Approach facilitators for each role: lead, AI, design, technical, sector, governance',
-      'Replace [venue] in the decks, flyer and video scripts'
+    'By 16 Oct — Materials & Invitations': [
+      'Fill venue and cohort dates in the flyer; export PDF and WhatsApp image',
+      'Update the landing page and registration form (incl. consent)',
+      'Update the original one-pager',
+      'Send nomination letters to 15+ heads of institutions',
+      'Send personal invitations to 40–50 contacts',
+      'Post the LinkedIn launch post'
     ],
-    'By 20 Oct — Tools & Content': [
-      'Choose the approved AI tools and prototype-building tools',
-      'Check free-tier limits for 20+ simultaneous users; budget for paid accounts if needed',
-      'Set up a shared workspace for teams (templates, files, links)',
-      'Write the Day 1 live demo script (task, inputs, before/after)',
-      'Build the fallback case bank: 5–6 cross-sector problems with synthetic data',
-      'Prepare synthetic or public datasets for the Build Lab',
-      'Fill the approved-tools list on the Day 3 "tools" slide'
+    'By 27 Oct — Checkpoint': [
+      'Count registrations: 25+ → confirm room and refreshments',
+      'Fewer than 25 → intensify outreach, right-size the room',
+      'Confirm venue AV, Wi-Fi, power and table layout'
     ],
-    'By 27 Oct — Go / No-Go': [
-      'Count paid (or firmly committed) participants',
-      '12 or more → confirm venue and caterer final numbers; announce "the workshop is on"',
-      'Fewer than 12 → move to Feb/Mar 2027; tell registrants, offer transfer or full refund; extend video series',
-      'Record and release Video 4 (and Video 5 by 30 Oct)'
+    'By 1 Nov — Content': [
+      'Slide deck for the six sessions',
+      'Participant workbook final',
+      'Live AI demo script + offline backup',
+      'Facilitator notes and run-sheet',
+      'Founding Cohort offer sheet + enrolment/deposit form + payment channels',
+      '48-hour follow-up email',
+      'Feedback form, testimonial prompt card, certificate'
     ],
-    'By 3 Nov — Lock In': [
-      'Confirm every facilitator by name and send each their sessions in the Facilitator Guide',
-      'Confirm the judges and send them the panel scorecard',
-      'Close registration and payment (3 Nov)',
-      'Reconcile payments against registrations; issue all receipts',
-      'Decide who signs the certificates',
-      'Fix the 30-day follow-up session date (around 10–12 Dec)'
+    '3–9 Nov — Lock In': [
+      'Close registration (3 Nov)',
+      'Send confirmations and reminders (7 days, 2 days, morning of)',
+      'Print workbooks, offer sheets, badges, register, certificates',
+      'Brief the photographer; confirm refreshment numbers',
+      'Day before: set up the room; test projector, internet and demo'
     ],
-    '4–9 Nov — Final Prep': [
-      'Form teams of 4–5 from the problem statements (group similar problem types)',
-      'Send joining instructions: venue, times, parking, laptop, what to bring, security note',
-      'Run a full facilitator dry run with the three decks (around 5–6 Nov)',
-      'Test the AI tools and prototype tools on the venue network',
-      'Print workbooks, canvases, name badges, sign-in sheet and certificates',
-      'Pack participant folders, notebooks and pens',
-      'Arrange 2–3 spare laptops for participants without one',
-      'Confirm final numbers with the caterer',
-      'Day before: set up the room, registration desk and breakout areas; test projector, internet and power'
-    ],
-    '10–12 Nov & After': [
-      'Daily 0830 facilitator huddle; flag any team at risk',
-      'Read the security note aloud on Day 1',
-      'Check each team\'s end-of-day outputs before release (Day 1: 6 items, Day 2: 6 items)',
-      'Take photos (with consent) for future marketing',
-      'Day 3: run the Innovation Challenge with the judges; collect scorecards',
-      'Record 3–5 short participant testimonials at the close',
-      'Collect evaluation forms; issue certificates',
-      'Within one week: thank-you message, photos, follow-up date confirmed',
-      'Write the pilot lessons-learned report for the next cohort',
-      'Run the 30-day follow-up session (around 10–12 Dec)'
+    '10 Nov & After': [
+      'Run the Launch Workshop; make the offer and take deposits on the day',
+      'Capture photos, video and testimonials',
+      'Send the 48-hour follow-up',
+      'Close the early-bird (~24 Nov)',
+      'Founding Cohort go/no-go: 10+ deposits',
+      'Publish launch content and case study',
+      'Write the lessons-learned note'
     ]
   }
 };
@@ -3907,7 +3900,7 @@ function ailaToggleChecklist(cat, idx, checked) {
 const UAV_PLAN = {
   start: '2026-10-01',
   gateOne: '2026-12-31',
-  deadline: '2027-03-31',
+  deadline: '2027-02-28',
   phases: [
     {
       num:1, label:'RESEARCH & DESIGN', months:'October 2026',
@@ -3927,10 +3920,10 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:2, label:'PROCUREMENT PLAN', months:'November 2026',
-      start:'2026-11-01', end:'2026-11-30',
-      goal:'Finalise the component list and budget. Order long-lead items. Secure a workspace.',
-      deliverable:'Component order placed + Workspace confirmed',
+      num:2, label:'PROCUREMENT & ASSEMBLY', months:'Oct – Nov 2026',
+      start:'2026-10-01', end:'2026-11-30',
+      goal:'Procure all components, secure workspace, assemble and bench-test the first prototype. Gate 1 decision made.',
+      deliverable:'X1 v0.1 bench-tested + Gate 1 review [GATE 1]',
       tasks:[
         'Finalise X1 Bill of Materials (BOM) — every component, source, cost in Kwacha',
         'Identify two suppliers per critical component to manage exchange-rate and availability risk',
@@ -3939,15 +3932,7 @@ const UAV_PLAN = {
         'Source or access a 3D printer for airframe prototyping (university partnership or service bureau)',
         'Identify a UAV systems engineer or technical advisor for part-time guidance',
         'Confirm data-protection and basic legal requirements for UAV operations research',
-        'Create a simple project logbook — document all design decisions and test results'
-      ]
-    },
-    {
-      num:3, label:'FIRST ASSEMBLY', months:'December 2026',
-      start:'2026-12-01', end:'2026-12-31',
-      goal:'First physical prototype assembled and bench-tested. Gate 1 decision made.',
-      deliverable:'X1 v0.1 bench-tested + Gate 1 review [GATE 1]',
-      tasks:[
+        'Create a simple project logbook — document all design decisions and test results',
         'Receive and inventory all ordered components',
         'Print or fabricate first airframe frame (3D print or sourced)',
         'Mount motors, ESCs and flight controller — bench assembly',
@@ -3955,13 +3940,13 @@ const UAV_PLAN = {
         'Configure open-source autopilot firmware (ArduPilot or PX4)',
         'Bench-test: motor spin, controller response, telemetry link',
         'Document all assembly steps, issues encountered, and solutions',
-        'Identify what to improve on X1 v0.2 (next iteration, Q1 2027)',
-        '★ GATE 1 (Dec 31): Design complete + components in hand + ZCAA path understood → proceed to Q1 2027 build'
+        'Identify what to improve on X1 v0.2 (next iteration)',
+        '★ GATE 1 (Dec 31): Design complete + components in hand + ZCAA path understood → proceed to First Flight'
       ]
     },
     {
-      num:4, label:'FIRST FLIGHT', months:'Jan – Feb 2027',
-      start:'2027-01-01', end:'2027-02-28',
+      num:3, label:'FIRST FLIGHT', months:'November 2026',
+      start:'2026-11-01', end:'2026-11-30',
       goal:'X1 achieves stable hover and basic autonomous waypoint flight.',
       deliverable:'X1 flying — hover + basic waypoint mission',
       tasks:[
@@ -3977,8 +3962,8 @@ const UAV_PLAN = {
       ]
     },
     {
-      num:5, label:'VANGUARD INTEGRATION', months:'March 2027',
-      start:'2027-03-01', end:'2027-03-31',
+      num:4, label:'VANGUARD INTEGRATION', months:'Jan – Feb 2027',
+      start:'2027-01-01', end:'2027-02-28',
       goal:'X1 sensor data successfully feeds into the VANGUARD system.',
       deliverable:'X1-VANGUARD data integration demonstrated',
       tasks:[
@@ -3988,11 +3973,11 @@ const UAV_PLAN = {
         'Demonstrate X1-VANGUARD integration to key stakeholder',
         'Document integration architecture and replication steps',
         'Identify next sensor payload to develop (thermal, LiDAR, etc.)',
-        '★ GATE 2 (Mar 31 2027): X1 flying + VANGUARD integration proven → scale build + explore commercial applications'
+        '★ GATE 2 (Feb 28 2027): X1 flying + VANGUARD integration proven → scale build + explore commercial applications'
       ]
     },
     {
-      num:6, label:'SCALE & COMMERCIALISE', months:'Q2 2027+',
+      num:5, label:'SCALE & COMMERCIALISE', months:'Q2 2027+',
       start:'2027-04-01', end:'2027-06-30',
       goal:'Move from prototype to multiple units. Explore first commercial service missions.',
       deliverable:'Second X1 unit + First commercial service mission',
@@ -4020,7 +4005,7 @@ const UAV_PLAN = {
       reward: 'Proceed to Q1 2027 build and first flight phase'
     },
     gate2: {
-      id: 'g2', label: 'GATE 2', month: 'End March 2027', date: '2027-03-31',
+      id: 'g2', label: 'GATE 2', month: 'End February 2027', date: '2027-02-28',
       criteria: [
         'X1 achieving stable hover and basic autonomous flight',
         'X1 sensor data successfully integrating with VANGUARD system',
@@ -4071,19 +4056,12 @@ function loadUAV() { try { return JSON.parse(localStorage.getItem(UAV_LS_KEY)||'
 function saveUAV(data) { try { localStorage.setItem(UAV_LS_KEY, JSON.stringify(data)); } catch(e) {} sbQueueSync(); }
 
 function uavCurrentPhase() {
-  const today = new Date(); today.setHours(0,0,0,0);
+  const progress = loadUAV();
   for (const p of UAV_PLAN.phases) {
-    const s = new Date(p.start); const e = new Date(p.end);
-    if (today >= s && today <= e) return p.num;
+    const allDone = p.tasks.every((_, i) => progress[`p${p.num}-${i}`]);
+    if (!allDone) return p.num;
   }
-  if (today < new Date(UAV_PLAN.phases[0].start)) return 1;
-  if (today > new Date(UAV_PLAN.deadline)) return 6;
-  for (let i = 0; i < UAV_PLAN.phases.length - 1; i++) {
-    const e = new Date(UAV_PLAN.phases[i].end);
-    const s = new Date(UAV_PLAN.phases[i+1].start);
-    if (today > e && today < s) return UAV_PLAN.phases[i+1].num;
-  }
-  return 1;
+  return UAV_PLAN.phases[UAV_PLAN.phases.length - 1].num;
 }
 
 function uavDaysLeft() {
@@ -4287,8 +4265,8 @@ const Q4_SEQUENCE = [
     primary: 'AILA + UAV',
     focus: [
       { tag: 'VANGUARD', text: 'Presentation prep only — 1–2 days, then close ✓' },
-      { tag: 'AILA', text: 'Test full programme end-to-end — find and fix friction' },
-      { tag: 'AILA', text: 'Advertise Cohort 1 — recruit 10–20 participants for Nov 13–15' },
+      { tag: 'AILA', text: 'Lock launch model, venue host and materials; build one-day content' },
+      { tag: 'AILA', text: 'Invite institutions — fill 40 seats for the free Launch Workshop (Nov 10)' },
       { tag: 'UAV', text: 'Research: define VANGUARD sensor requirements + X1 design brief' },
       { tag: 'Z HISTORIAN', text: '1 long form + 2–3 short posts per week (repurposed)' },
     ],
@@ -4302,11 +4280,11 @@ const Q4_SEQUENCE = [
   },
   {
     month: 'November 2026', key: '2026-11',
-    primary: 'AILA Cohort 1',
+    primary: 'AILA Launch',
     focus: [
       { tag: 'VANGUARD', text: 'Deliver presentation → VANGUARD complete ✓' },
-      { tag: 'AILA', text: '★ Run 3-day Cohort 1 — Nov 10–12' },
-      { tag: 'AILA', text: 'Collect feedback, testimonials, debrief' },
+      { tag: 'AILA', text: '★ Run the free Launch Workshop — Tue Nov 10' },
+      { tag: 'AILA', text: 'Convert attendees — Founding Cohort deposits by ~Nov 24' },
       { tag: 'UAV', text: 'Finalise BOM, order long-lead components, confirm workspace' },
       { tag: 'Z HISTORIAN', text: '1 long form + 2–3 short posts per week' },
     ],
@@ -4323,8 +4301,8 @@ const Q4_SEQUENCE = [
     primary: 'UAV + AILA Refine',
     focus: [
       { tag: 'UAV', text: 'First assembly — bench test X1 v0.1 → Gate 1 review Dec 31' },
-      { tag: 'AILA', text: 'Refine programme from Cohort 1 feedback — AILA v1.1' },
-      { tag: 'AILA', text: 'Open Cohort 2 registration with testimonials' },
+      { tag: 'AILA', text: 'Publish launch content and case study; plan Founding Cohort logistics' },
+      { tag: 'AILA', text: 'Open Founding Cohort registration with testimonials' },
       { tag: 'VANGUARD', text: '2026 year-end review · 2027 opening priorities set' },
       { tag: 'Z HISTORIAN', text: '1 long form + 2–3 short posts per week' },
     ],
@@ -4409,9 +4387,9 @@ const ROADMAP = {
         '2026-07': 'Corporate Foundation & Brand — register Bantuwa Innovate, develop brand identity, source craft/herbal suppliers',
         '2026-08': 'Digital Infrastructure — Bantuwa.com live, 9+ social accounts, online store with 10 products, Bantuwa Press setup',
         '2026-09': 'Content Pipeline & First Sales — batch 4 TZH videos, record 4 podcast episodes, first venture sales, manuscripts in production',
-        '2026-10': 'AILA + UAV — test and advertise AILA Cohort 1 (Nov 13–15 target); begin UAV X1 research and design brief for VANGUARD sensor; VANGUARD presentation prep only',
-        '2026-11': 'AILA Cohort 1 delivery (Nov 13–15) — run inaugural 3-day programme, collect feedback; UAV: finalise BOM, order components; Z Historian weekly cadence',
-        '2026-12': 'UAV first assembly — bench-test X1 v0.1, Gate 1 review Dec 31; AILA v1.1 refinement from feedback; year-end review and 2027 priorities set'
+        '2026-10': 'AILA + UAV — lock AILA launch model and invite institutions to the free Launch Workshop (Nov 10); begin UAV X1 research and design brief for VANGUARD sensor; VANGUARD presentation prep only',
+        '2026-11': 'AILA Launch Workshop (Nov 10) — run the free one-day launch, take Founding Cohort deposits; UAV: finalise BOM, order components; Z Historian weekly cadence',
+        '2026-12': 'UAV first assembly — bench-test X1 v0.1, Gate 1 review Dec 31; AILA Founding Cohort confirmed and prepared; year-end review and 2027 priorities set'
       }
     },
     {
@@ -4592,7 +4570,7 @@ ${ms90Summary}
 Monthly KPI Targets:
 ${Object.entries(ROADMAP.weeklyKPIs).map(([k,v])=>`${k}: ${v}`).join('\n')}
 
-AILA STATUS (Q4 2026 — Cohort 1 target: Nov 10–12 · Go/No-Go: Oct 27):
+AILA STATUS (Q4 2026 — free Launch Workshop Tue Nov 10 · Checkpoint Oct 27 · paid Founding Cohort Feb/Mar 2027):
 ${(()=>{
   const wk = ailaCurrentWeek();
   const dl = ailaDaysLeft();
@@ -4605,7 +4583,7 @@ ${(()=>{
 Phase Goal: ${week?.goal||''}
 Phase Deliverable: ${week?.deliverable||''}
 Progress: ${doneTasks}/${totalTasks} tasks done
-Days to Cohort 1 (Nov 10): ${dl}
+Days to end of AILA Q4 sprint (Dec 31): ${dl}
 Pending tasks this phase: ${pendingTasks.join(' | ')||'All done!'}`;
 })()}
 
@@ -4626,7 +4604,7 @@ Key pending tasks: ${pendingTasks.join(' | ')||'All done!'}`;
 PILLARS (use for tag field):
 - army    = VANGUARD / Army R&D (closing out Q4 — presentation and year-end review)
 - zhist   = The Z Historian (1 long form/month + 2–3 short posts/week)
-- aila    = AILA Academy (Q4 priority — Cohort 1 delivery Nov 13–15)
+- aila    = AILA Academy (Q4 priority — free Launch Workshop Nov 10, then Founding Cohort conversion)
 - bantuwa = UAV / Bantuwa Innovate (X1 slow build — VANGUARD sensor platform)
 - va      = Personal development / PhD reading (protected slot, no deliverable Q4)
 - y4pz    = Y4PZ (PARKED this quarter — do not propose Y4PZ tasks)
@@ -4635,7 +4613,7 @@ TASK: Propose ${mode === 'today' ? '3 Top priorities for TODAY specifically' : '
 
 Rules:
 - Be SPECIFIC and ACTIONABLE — not vague ("work on AILA") but concrete ("walk through AILA Day 1 as a student and time every session")
-- AILA Cohort 1 (Nov 13–15) is the Q4 headline event — if AILA has pending phase tasks, prioritise them
+- The AILA Launch Workshop (Tue Nov 10) is the Q4 headline event — if AILA has pending phase tasks, prioritise them
 - UAV is a slow background build — include at most 1 UAV task per proposal, only if the current phase has pending actions
 - VANGUARD is closing — only include if a presentation or year-end review is directly due
 - Y4PZ is parked — do not propose any Y4PZ tasks this quarter
@@ -4712,7 +4690,32 @@ function loadTZH() {
     const raw = localStorage.getItem(TZH_LS_KEY);
     if (raw) _tzhEpisodes = JSON.parse(raw);
   } catch(e) { _tzhEpisodes = []; }
-  // Seed October episode if empty
+
+  // Merge live data written by TZH HQ app (same localStorage, same browser)
+  try {
+    const hqRaw = localStorage.getItem('vs_tzh_v1');
+    if (hqRaw) {
+      const hqEps = JSON.parse(hqRaw);
+      hqEps.forEach(hqEp => {
+        const existing = _tzhEpisodes.find(e => e.id === hqEp.id);
+        if (existing) {
+          // Update stage, dates and theme from HQ — don't overwrite local-only fields
+          existing.stage  = hqEp.stage  || existing.stage;
+          existing.target = hqEp.target || existing.target;
+          existing.actual = hqEp.actual || existing.actual;
+          existing.theme  = hqEp.theme  || existing.theme;
+          existing.title  = hqEp.title  || existing.title;
+          // Keep pipeline flag in sync with stage
+          existing.pipeline = existing.stage === 'research';
+        } else {
+          _tzhEpisodes.push({ ...hqEp, pipeline: hqEp.stage === 'research', notes: '' });
+        }
+      });
+      saveTZH();
+    }
+  } catch(e) {}
+
+  // Seed October episode if still empty
   if (!_tzhEpisodes.length) {
     _tzhEpisodes = [{
       id: Date.now(),
@@ -4960,40 +4963,42 @@ const BRAND_PROFILES = {
 const CONTENT_CALENDAR = [
   // October 2026
   { date:'2026-10-02', brand:'victor',  platform:'Facebook',  title:'A new chapter',                                                                            pillar:'personal',  action:'Reflect on what comes after becoming good at a profession: learning → doing → leading → building.',                                              status:'pending' },
-  { date:'2026-10-03', brand:'zhist',   platform:'Facebook',  title:"What Zambia's history teaches us about building institutions",                             pillar:'history',   action:'Historical example connected to institutional development.',                                                                                     status:'pending' },
+  { date:'2026-10-03', brand:'zhist',   platform:'Facebook',  title:'Mini biography — forgotten Zambian figure (Forgotten People)',                       pillar:'history',   action:'Research and write a mini biography of an underappreciated Zambian: who they were, what they did, why they have been forgotten, what we should remember them for. Format: Mini Biography.',  format:'minibio',   status:'pending' },
   { date:'2026-10-06', brand:'victor',  platform:'LinkedIn',  title:'The danger of being good at too many things',                                              pillar:'leadership', action:'Capability can create fragmentation; decide what deserves to be built.',                                                                          status:'pending' },
   { date:'2026-10-08', brand:'victor',  platform:'Facebook',  title:"Builder's Note #01 — From Practitioner to Builder",                                       pillar:'building',  action:'Explain the transition toward building durable systems.',                                                                                          status:'pending' },
-  { date:'2026-10-10', brand:'zhist',   platform:'Facebook',  title:"History isn't about the past",                                                             pillar:'history',   action:'History as a way of understanding institutions, societies and choices.',                                                                            status:'pending' },
+  { date:'2026-10-10', brand:'zhist',   platform:'Facebook',  title:'Did you know? — surprising fact about a forgotten person or moment (Forgotten People)', pillar:'history',   action:'Open with "Did you know that…" State the surprising fact about a forgotten Zambian or African figure. 2–3 sentences of context. End with a reflection. Format: Did You Know.',                format:'didyouknow', status:'pending' },
   { date:'2026-10-13', brand:'victor',  platform:'LinkedIn',  title:'The biggest AI problem in organisations may not be technology',                            pillar:'ai',        action:'Start with problems, not tools.',                                                                                                                  status:'pending' },
   { date:'2026-10-15', brand:'victor',  platform:'Facebook',  title:'What building VANGUARD has taught me about innovation',                                    pillar:'building',  action:'Problem → research → prototype → test → feedback → adapt. Avoid sensitive details.',                                                               status:'pending' },
-  { date:'2026-10-17', brand:'zhist',   platform:'Facebook',  title:'Historical profile — underappreciated Zambian figure',                                    pillar:'history',   action:'Feature an underappreciated Zambian figure: who, what, why, lesson.',                                                                              status:'pending' },
+  { date:'2026-10-17', brand:'zhist',   platform:'Facebook',  title:'Historical photograph — forgotten era or person (Forgotten People)',                   pillar:'history',   action:'Find a historical photograph of a forgotten figure or moment. Write a caption: what the image shows, its historical context, why it matters, end with a question inviting the audience to share memories. Format: Historical Photo.',  format:'photo',     status:'pending' },
   { date:'2026-10-20', brand:'victor',  platform:'LinkedIn',  title:"You don't need more motivation. You need a system.",                                       pillar:'leadership', action:'Leadership, discipline, routines and priorities.',                                                                                                status:'pending' },
   { date:'2026-10-22', brand:'victor',  platform:'YouTube',   title:'From Practitioner to Builder: The Next Chapter',                                          pillar:'personal',  action:'15–20 minute foundational video.',                                                                                                                 status:'pending' },
-  { date:'2026-10-24', brand:'zhist',   platform:'Facebook',  title:'What forgotten history can teach us about leadership',                                     pillar:'history',   action:'Bridge history and leadership.',                                                                                                                   status:'pending' },
+  { date:'2026-10-24', brand:'zhist',   platform:'Facebook',  title:'Community question — do you remember or know this person? (Forgotten People)',        pillar:'history',   action:'Open with "Do you remember…" or "What do you know about…" Name a forgotten figure. Brief historical context. Invite the community to share memories, photographs or knowledge. Warm, participatory tone. Format: Community Question.',  format:'question',  status:'pending' },
   { date:'2026-10-27', brand:'victor',  platform:'LinkedIn',  title:'AI literacy is becoming a leadership competency',                                          pillar:'ai',        action:'Capabilities, limitations, risks and questions.',                                                                                                  status:'pending' },
   { date:'2026-10-29', brand:'victor',  platform:'Facebook',  title:"Builder's Note #02 — Why I'm trying to build fewer things",                               pillar:'building',  action:'Ambition vs focus and sustainability.',                                                                                                            status:'pending' },
   { date:'2026-10-31', brand:'victor',  platform:'Facebook',  title:'October Builder Review',                                                                   pillar:'building',  action:'Five lessons from the month.',                                                                                                                     status:'pending' },
   // November 2026
   { date:'2026-11-03', brand:'victor',  platform:'LinkedIn',  title:'Ideas are cheap. Tested ideas are different.',                                             pillar:'building',  action:'Discuss experimentation and evidence.',                                                                                                            status:'pending' },
   { date:'2026-11-05', brand:'bantuwa', platform:'Facebook',  title:"Why Bantuwa isn't simply an AI company",                                                   pillar:'strategy',  action:'Knowledge + Technology + Human Capability + Innovation.',                                                                                          status:'pending' },
-  { date:'2026-11-07', brand:'zhist',   platform:'Facebook',  title:'A Zambian example of innovation before the digital age',                                   pillar:'history',   action:'Historical innovation case.',                                                                                                                      status:'pending' },
+  { date:'2026-11-07', brand:'zhist',   platform:'Facebook',  title:'Old map — a Zambian city or place, then and now (Places & Cities)',                    pillar:'history',   action:'Source or describe an old map of a Zambian city or significant place. Write a post: what the map shows, what it reveals about the period, what has changed since. Ask the audience what they notice. Format: Old Map.',  format:'map',       status:'pending' },
   { date:'2026-11-10', brand:'victor',  platform:'LinkedIn',  title:"Leaders don't need to know everything. They need to know what questions to ask.",          pillar:'leadership', action:'Leadership + AI.',                                                                                                                               status:'pending' },
   { date:'2026-11-12', brand:'victor',  platform:'Facebook',  title:"Builder's Note #03 — What I learned from building AI systems nobody initially asked for",  pillar:'building',  action:'Adoption versus usefulness.',                                                                                                                     status:'pending' },
-  { date:'2026-11-14', brand:'zhist',   platform:'Facebook',  title:'Historical misconception — investigating a commonly held belief about Zambia',             pillar:'history',   action:'Investigate a commonly held belief about Zambia.',                                                                                                 status:'pending' },
+  { date:'2026-11-14', brand:'zhist',   platform:'Facebook',  title:'Before & after — a Zambian place then vs now (Places & Cities)',                      pillar:'history',   action:'Find or describe two images of the same Zambian place at different points in time. Describe both, what changed, connect past to present, invite the audience to reflect. Format: Before/After.',  format:'beforeafter', status:'pending' },
   { date:'2026-11-17', brand:'aila',    platform:'Facebook',  title:'The four stages of becoming an AI-enabled leader',                                         pillar:'ai',        action:'Problem Solver → Solution Builder → AI System Builder → Transformation Leader.',                                                                   status:'pending' },
   { date:'2026-11-19', brand:'victor',  platform:'YouTube',   title:'AI Leadership: Why Leaders Need to Understand AI Without Becoming Programmers',            pillar:'ai',        action:'15–20 minute AILA foundation video.',                                                                                                              status:'pending' },
   { date:'2026-11-21', brand:'victor',  platform:'LinkedIn',  title:'The uncomfortable side of ambition',                                                       pillar:'personal',  action:'Fear, comparison, overcommitment and focus.',                                                                                                       status:'pending' },
   { date:'2026-11-24', brand:'victor',  platform:'Facebook',  title:"Africa doesn't need to copy the future. It needs to build its own capacity to shape it.",  pillar:'strategy',  action:'African agency and innovation.',                                                                                                                   status:'pending' },
   { date:'2026-11-26', brand:'bantuwa', platform:'Facebook',  title:'What does sovereign innovation actually mean?',                                            pillar:'strategy',  action:'Knowledge, data, technology, people and institutions.',                                                                                            status:'pending' },
-  { date:'2026-11-28', brand:'zhist',   platform:'Facebook',  title:'African agency — historical story',                                                        pillar:'history',   action:'Historical story linked to African agency.',                                                                                                       status:'pending' },
+  { date:'2026-11-21', brand:'zhist',   platform:'Facebook',  title:'Did you know? — surprising fact about a Zambian city or place (Places & Cities)',      pillar:'history',   action:'Open with "Did you know that…" State a surprising historical fact about a Zambian city, town or landmark. 2–3 sentences of context. End with a reflection or question. Format: Did You Know.',  format:'didyouknow', status:'pending' },
+  { date:'2026-11-28', brand:'zhist',   platform:'Facebook',  title:'Historical timeline — the story of a significant Zambian place (Places & Cities)',          pillar:'history',   action:'Present 4–6 key dates in the history of a significant Zambian city, town or landmark. Brief heading per entry. End with a reflection on what the sequence reveals. Format: Timeline.',  format:'timeline',  status:'pending' },
   { date:'2026-11-30', brand:'victor',  platform:'Facebook',  title:'November Builder Review',                                                                  pillar:'building',  action:'What was built, what failed, what was learned.',                                                                                                   status:'pending' },
   // December 2026
   { date:'2026-12-01', brand:'victor',  platform:'Facebook',  title:'What does it mean to reinvent yourself without becoming someone else?',                    pillar:'personal',  action:'Personal reflection.',                                                                                                                             status:'pending' },
   { date:'2026-12-03', brand:'victor',  platform:'LinkedIn',  title:'Your next level may require subtraction, not addition.',                                   pillar:'leadership', action:'Fewer projects, distractions and commitments.',                                                                                                   status:'pending' },
-  { date:'2026-12-05', brand:'zhist',   platform:'Facebook',  title:"What 2026 taught me about Zambia's history",                                               pillar:'history',   action:'Reflective historical piece.',                                                                                                                     status:'pending' },
+  { date:'2026-12-05', brand:'zhist',   platform:'Facebook',  title:'Historical newspaper — founding or milestone moment of a Zambian institution (Zambia\'s Institutions)', pillar:'history',   action:'Describe or source a historical newspaper excerpt about the founding or a key milestone of a Zambian institution. Set the scene — date, publication, context. Quote the key line. Explain why this moment mattered. Format: Newspaper.',  format:'newspaper', status:'pending' },
   { date:'2026-12-08', brand:'victor',  platform:'LinkedIn',  title:'The future of AI in Africa will not be determined only by technology',                     pillar:'ai',        action:'Talent, data, institutions, leadership, infrastructure and governance.',                                                                           status:'pending' },
   { date:'2026-12-10', brand:'victor',  platform:'Facebook',  title:"Builder's Note #04 — The projects I'm carrying into 2027",                                pillar:'building',  action:'Explain the three major bets.',                                                                                                                    status:'pending' },
-  { date:'2026-12-12', brand:'zhist',   platform:'Facebook',  title:'The Zambia we inherited — major long-form historical story',                               pillar:'history',   action:'Major long-form historical story.',                                                                                                                status:'pending' },
+  { date:'2026-12-12', brand:'zhist',   platform:'Facebook',  title:'Historical quote — founder or leader of a key Zambian institution (Zambia\'s Institutions)', pillar:'history',   action:'Find a powerful quote from the founder or a key leader of a Zambian institution. Present the quote in full. Attribute it precisely. Give 2–3 sentences of context about who said it and why it matters today. Format: Historical Quote.',  format:'quote',     status:'pending' },
+  { date:'2026-12-19', brand:'zhist',   platform:'Facebook',  title:'Anniversary — founding of a significant Zambian institution (Zambia\'s Institutions)',         pillar:'history',   action:'Mark the founding anniversary of a significant Zambian institution. State the date and event. Brief historical context. Why it still matters today. Format: Anniversary.',  format:'anniversary', status:'pending' },
   { date:'2026-12-15', brand:'aila',    platform:'Facebook',  title:"Leadership in the age of AI isn't about using more tools",                                 pillar:'ai',        action:'Think better, decide better, learn faster, build systems.',                                                                                        status:'pending' },
   { date:'2026-12-17', brand:'victor',  platform:'YouTube',   title:'2026: From Practitioner to Builder',                                                       pillar:'personal',  action:'Year-end flagship video.',                                                                                                                         status:'pending' },
   { date:'2026-12-19', brand:'victor',  platform:'LinkedIn',  title:'Things I learned this year that had nothing to do with technology',                        pillar:'personal',  action:'Family, rest, discipline, faith, relationships, humility and focus.',                                                                              status:'pending' },
@@ -5037,6 +5042,110 @@ function contentShowTab(tab) {
   document.getElementById('ct-queue').style.display  = tab === 'queue'  ? '' : 'none';
   document.getElementById('ct-ideas').style.display  = tab === 'ideas'  ? '' : 'none';
   document.getElementById('ct-draft').style.display  = tab === 'draft'  ? '' : 'none';
+  document.getElementById('ct-batch').style.display  = tab === 'batch'  ? '' : 'none';
+  if (tab === 'batch') renderBatchWeek();
+}
+
+// ── BATCH WEEK ──────────────────────────────────────────
+let _batchWeekOffset = 0;
+const _batchDrafts = {}; // key: calendar index → draft text
+
+function ctBatchNav(dir) { _batchWeekOffset += dir; renderBatchWeek(); }
+
+function renderBatchWeek() {
+  const ws = ctWeekStart(_batchWeekOffset);
+  const we = new Date(ws); we.setDate(ws.getDate() + 6); we.setHours(23,59,59,999);
+  const fmt = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  document.getElementById('ct-batch-range').textContent = fmt(ws) + ' – ' + fmt(we);
+
+  const posts = CONTENT_CALENDAR.map((c,i) => ({c, i}))
+    .filter(({c}) => { const d = new Date(c.date); return d >= ws && d <= we; });
+
+  const list = document.getElementById('ct-batch-list');
+  if (!posts.length) {
+    list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text3);font-size:13px;">No posts scheduled this week.</div>`;
+    return;
+  }
+
+  const formatLabels = { photo:'Historical Photo', didyouknow:'"Did you know?"', beforeafter:'Before/After', map:'Old Map', newspaper:'Newspaper', quote:'Historical Quote', minibio:'Mini Bio', question:'Community Question', anniversary:'Anniversary', timeline:'Timeline' };
+
+  list.innerHTML = posts.map(({c, i}) => {
+    const d = new Date(c.date);
+    const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+    const bc = BRAND_COLOR[c.brand] || '#aaa';
+    const draft = _batchDrafts[i];
+    const statusBadge = c.status === 'done' ? '✅' : c.status === 'skipped' ? '⊘' : '○';
+    return `<div id="batch-card-${i}" style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid ${bc};border-radius:10px;margin-bottom:12px;overflow:hidden;">
+      <div style="padding:12px 14px;display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:15px;margin-top:1px;cursor:pointer;" onclick="ctCycleStatus('cal',${i});renderBatchWeek();" title="Cycle status">${statusBadge}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);">${esc(c.title)}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;">
+            <span style="color:${bc}">${BRAND_LABEL[c.brand]||c.brand}</span>
+            <span>${c.platform}</span>
+            <span>${dayName} ${d.getDate()}</span>
+            ${c.format ? `<span style="color:var(--gold);font-size:10px;background:rgba(232,180,36,.1);padding:1px 6px;border-radius:4px;">${formatLabels[c.format]||c.format}</span>` : ''}
+          </div>
+          ${c.action ? `<div style="font-size:11px;color:var(--text2);margin-top:5px;line-height:1.5;">${esc(c.action)}</div>` : ''}
+        </div>
+        <button class="btn btn-ghost btn-sm" id="batch-gen-btn-${i}" onclick="ctBatchGenerateOne(${i})" style="white-space:nowrap;font-size:11px;flex-shrink:0;">${draft ? '↻ Re-draft' : '⚡ Draft'}</button>
+      </div>
+      ${draft ? `
+      <div style="border-top:1px solid var(--border);padding:12px 14px;background:var(--bg3);">
+        <textarea id="batch-text-${i}" style="width:100%;font-size:12px;line-height:1.7;color:var(--text);background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;resize:vertical;min-height:120px;font-family:inherit;box-sizing:border-box;" oninput="window._batchDrafts[${i}]=this.value">${esc(draft)}</textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          <button class="btn btn-ghost btn-sm" id="batch-copy-${i}" onclick="navigator.clipboard.writeText(window._batchDrafts[${i}]).then(()=>{const b=document.getElementById('batch-copy-${i}');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',2000)})">Copy</button>
+          <span style="font-size:10px;color:var(--text3);align-self:center;">→ paste into Buffer / Meta Business Suite → schedule for ${dayName} ${d.getDate()}</span>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  // expose drafts to window for copy buttons
+  window._batchDrafts = _batchDrafts;
+}
+
+async function ctBatchGenerateOne(calIdx) {
+  const item = CONTENT_CALENDAR[calIdx];
+  if (!item) return;
+  const apiKey = (()=>{ try{ return localStorage.getItem('tc_apiKey')||''; }catch(e){return '';} })();
+  if (!apiKey) { alert('No Claude API key set. Add it in Strategy → Setup.'); return; }
+
+  const btn = document.getElementById(`batch-gen-btn-${calIdx}`);
+  if (btn) { btn.textContent = '⏳…'; btn.disabled = true; }
+
+  const profile = BRAND_PROFILES[item.brand] || BRAND_PROFILES.victor;
+  const fmtGuide = { linkedin:'LinkedIn post, 150–250 words, no hashtags, professional and direct', facebook:'Facebook post, 120–200 words, warm and engaging', youtube:'YouTube video description, 100–150 words', buildernote:"Builder's Note: first-person reflection, 200–300 words", commandnote:'Short leadership insight, under 120 words', thread:'3-post Twitter/X thread, each under 280 characters' };
+  const formatLabels = { photo:'Historical Photo caption (80–120 words, describe image, historical context, end with a question)', didyouknow:'"Did you know?" post (open with "Did you know that…", 60–100 words)', beforeafter:'Before/After post (80–120 words, describe both images, connect past to present)', map:'Old Map post (80–120 words, describe map, what it reveals, what changed)', newspaper:'Historical Newspaper post (80–120 words, set the scene, quote key line, explain why it mattered)', quote:'Historical Quote post (60–100 words, present quote, attribute, give context)', minibio:'Mini Biography (150–200 words, who, what, why forgotten, what to remember)', question:'Community Question post (60–100 words, open with "Do you remember…", invite responses)', anniversary:'Anniversary post (80–120 words, state date and event, context, why it still matters)', timeline:'Historical Timeline post (150–200 words, 4–6 key dates as structured list, end with reflection)' };
+  const platformFmt = { YouTube:'youtube', LinkedIn:'linkedin', Facebook:'facebook' };
+  const fmt = item.format ? formatLabels[item.format] : (fmtGuide[platformFmt[item.platform]] || fmtGuide.facebook);
+
+  const prompt = `You are writing for ${profile.name}.\n\nVOICE: ${profile.voice}\nAUDIENCE: ${profile.audience}\nAVOID: ${profile.avoid}\n\nFORMAT: ${fmt}\n\nTOPIC: ${item.title}\nACTION BRIEF: ${item.action||''}\n\nWrite the post now. Output ONLY the finished post — no preamble, no explanation.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:prompt}]})
+    });
+    if (!resp.ok) throw new Error('API error '+resp.status);
+    const data = await resp.json();
+    _batchDrafts[calIdx] = data.content[0].text.trim();
+  } catch(e) {
+    _batchDrafts[calIdx] = '⚠ Generation failed: ' + e.message;
+  } finally {
+    renderBatchWeek();
+  }
+}
+
+async function ctBatchGenerateAll() {
+  const ws = ctWeekStart(_batchWeekOffset);
+  const we = new Date(ws); we.setDate(ws.getDate() + 6); we.setHours(23,59,59,999);
+  const posts = CONTENT_CALENDAR.map((c,i) => ({c,i})).filter(({c}) => { const d = new Date(c.date); return d >= ws && d <= we; });
+  const btn = document.getElementById('ctBatchAllBtn');
+  if (btn) { btn.textContent = '⏳ Generating…'; btn.disabled = true; }
+  for (const {i} of posts) { await ctBatchGenerateOne(i); }
+  if (btn) { btn.textContent = '⚡ Generate All'; btn.disabled = false; }
 }
 
 function ctWeekStart(offset) {
@@ -5131,10 +5240,12 @@ function ctDraftFromCalendar(idx) {
   if (!item) return;
   document.getElementById('ctDraftBrand').value = item.brand;
   document.getElementById('ctDraftTopic').value = item.title;
-  // Pick a sensible default format
   const fmtMap = { YouTube:'youtube', LinkedIn:'linkedin', Facebook:'facebook' };
   document.getElementById('ctDraftFormat').value = fmtMap[item.platform] || 'facebook';
-  document.getElementById('ctDraftContext').value = '';
+  // Pre-fill context with action + format guide for TZH community content
+  const formatLabels = { photo:'Historical Photo caption', didyouknow:'"Did you know?" post', beforeafter:'Before/After post', map:'Old Map post', newspaper:'Historical Newspaper post', quote:'Historical Quote post', minibio:'Mini Biography', question:'Community Question post', anniversary:'Anniversary post', timeline:'Historical Timeline post' };
+  const ctx = item.action ? item.action + (item.format ? `\n\nFormat to use: ${formatLabels[item.format] || item.format}` : '') : '';
+  document.getElementById('ctDraftContext').value = ctx;
   document.getElementById('ctDraftResult').style.display = 'none';
   contentShowTab('draft');
 }
