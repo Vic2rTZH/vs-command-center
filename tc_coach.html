@@ -1770,7 +1770,28 @@ async function init() {
   setTimeout(()=>overlay.style.display='none', 400);
 
   renderDashboard();
+  handleDeepLink();
 }
+
+// Opened from the Command Center: tc_coach.html#draft=<date>|<title>
+function handleDeepLink() {
+  const h = decodeURIComponent(location.hash || '');
+  if (!h.startsWith('#draft=')) return;
+  let date='', title='', brief='';
+  try { const o = JSON.parse(h.slice(7)); date=o.d||''; title=o.t||''; brief=o.a||''; }
+  catch(e) { const [d, ...rest] = h.slice(7).split('|'); date=d; title=rest.join('|'); }
+  let i = TC_PLAN.findIndex(p => p.date === date && p.title === title);
+  if (i >= 0) { draftFromCalendar(i); }
+  else {
+    switchPanel('posts', null);
+    document.getElementById('post-plan').value=''; loadPlanItem('', true);
+    document.getElementById('post-topic').value = title;
+    document.getElementById('post-msg').value = brief.replace(/\s*Format:.*$/,'');
+    updatePostSummary(); showToast('Loaded from the Command Center');
+  }
+  history.replaceState(null, '', location.pathname + location.search);
+}
+window.addEventListener('hashchange', handleDeepLink);
 
 init();
 </script>

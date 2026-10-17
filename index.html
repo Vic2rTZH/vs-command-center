@@ -733,16 +733,16 @@ body {
 <div class="launch-bar">
   <span class="launch-label">Launch</span>
   <a href="https://vic2rtzh.github.io/Take-Command/index.html" target="_blank" class="launch-btn">
-    <span class="app-dot" style="background:var(--gold);"></span>Take Command
+    <span class="app-dot" style="background:var(--gold);"></span>VS HQ
   </a>
   <a href="tzh_hq.html" target="_blank" class="launch-btn">
     <span class="app-dot" style="background:var(--zhist);"></span>TZH HQ
   </a>
   <a href="bantuwa_content_hq.html" target="_blank" class="launch-btn">
-    <span class="app-dot" style="background:var(--bantuwa);"></span>Bantuwa HQ
+    <span class="app-dot" style="background:var(--bantuwa);"></span>Bi HQ
   </a>
   <a href="tc_coach.html" target="_blank" class="launch-btn">
-    <span class="app-dot" style="background:var(--va);"></span>TC Coach
+    <span class="app-dot" style="background:var(--va);"></span>TC HQ
   </a>
 </div>
 
@@ -1440,13 +1440,11 @@ body {
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
       <div>
         <div class="sec-title" style="margin:0;">✦ Content Engine</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:3px;">One strong idea → 5–8 pieces across 4 brands</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px;">Plan and track here — each Draft button opens the brand’s own HQ: TC HQ (Victor Simz) · TZH HQ (Z Historian) · Bi HQ (Bantuwa &amp; AILA)</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-ghost btn-sm" onclick="contentShowTab('queue')">📅 Queue</button>
-        <button class="btn btn-ghost btn-sm" onclick="contentShowTab('batch')">⚡ Batch Week</button>
         <button class="btn btn-ghost btn-sm" onclick="contentShowTab('ideas')">💡 Ideas</button>
-        <button class="btn btn-ghost btn-sm" onclick="contentShowTab('draft')">✦ AI Draft</button>
       </div>
     </div>
 
@@ -5543,7 +5541,7 @@ function renderContentQueue() {
             </div>
             ${c.action ? `<div style="font-size:12px;color:var(--text2);margin-top:5px;line-height:1.5;">${esc(c.action)}</div>` : ''}
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="ctDraftFromCalendar(${CONTENT_CALENDAR.indexOf(c)})" style="white-space:nowrap;font-size:11px;flex-shrink:0;">Draft ✦</button>
+          <button class="btn btn-ghost btn-sm" onclick="ctDraftFromCalendar(${CONTENT_CALENDAR.indexOf(c)})" style="white-space:nowrap;font-size:11px;flex-shrink:0;" title="Opens ${APP_FOR[c.brand]?.name||'the brand app'} with this post loaded">${c.pillar==='quote'?'Make card ↗':'Draft in '+(APP_FOR[c.brand]?.name||'HQ')+' ↗'}</button>
         </div>
       </div>`;
     }).join('');
@@ -5578,9 +5576,23 @@ function ctCycleStatus(src, idx) {
   renderContentQueue();
 }
 
+// Drafting lives in each brand's own app; the Command Center plans, tracks and routes
+const APP_FOR = {
+  victor:  { name:'TC HQ',  url:'tc_coach.html' },
+  zhist:   { name:'TZH HQ', url:'tzh_hq.html' },
+  bantuwa: { name:'Bi HQ',  url:'bantuwa_content_hq.html' },
+  aila:    { name:'Bi HQ',  url:'bantuwa_content_hq.html' },
+};
+function openInBrandApp(brand, payload) {
+  const app = APP_FOR[brand] || APP_FOR.victor;
+  window.open(app.url + '#draft=' + encodeURIComponent(JSON.stringify({ ...payload, b: brand })), '_blank');
+}
+function isTCItem(c) { return c.brand==='victor' && c.date>='2026-10-20'; }
 function ctDraftFromCalendar(idx) {
   const item = CONTENT_CALENDAR[idx];
   if (!item) return;
+  openInBrandApp(item.brand, { d:item.date, t:item.title, p:item.platform, a:item.action||'', f:item.format||'' });
+  return;
   document.getElementById('ctDraftBrand').value = item.brand;
   document.getElementById('ctDraftTopic').value = item.title;
   const fmtMap = { YouTube:'youtube', LinkedIn:'linkedin', Facebook:'facebook' };
@@ -5640,6 +5652,8 @@ function deleteContentIdea(i) {
 function ctDraftFromIdea(i) {
   const idea = _contentIdeas[i];
   if (!idea) return;
+  openInBrandApp(idea.brand === 'all' ? 'victor' : idea.brand, { d:'', t:idea.text, p:'LinkedIn', a:'', f:'' });
+  return;
   document.getElementById('ctDraftBrand').value = idea.brand === 'all' ? 'victor' : idea.brand;
   document.getElementById('ctDraftTopic').value = idea.text;
   document.getElementById('ctDraftFormat').value = 'linkedin';
