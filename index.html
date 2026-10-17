@@ -402,6 +402,17 @@ body {
 }
 .toast.show { opacity: 1; transform: translateY(0); }
 
+/* ── TAKE COMMAND TRACKER (reuses AILA classes; accent via --aila override) ── */
+#panel-tc { --aila: var(--gold); }
+.tc-due { font-size: 10px; color: var(--text3); white-space: nowrap; margin-left: 4px; }
+.tc-due.tc-soon { color: var(--gold2); font-weight: 700; }
+.tc-due.tc-over { color: var(--red); font-weight: 700; }
+.tc-ws { font-size: 10px; font-weight: 700; border: 1px solid; border-radius: 10px; padding: 0 7px; white-space: nowrap; }
+#panel-tc .aila-week-grid { grid-template-columns: repeat(4, 1fr); }
+#panel-tc .aila-checklist-grid { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1000px) { #panel-tc .aila-checklist-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px)  { #panel-tc .aila-checklist-grid, #panel-tc .aila-week-grid { grid-template-columns: 1fr; } }
+
 /* ── AILA SPRINT TRACKER ── */
 .aila-banner {
   background: linear-gradient(135deg, rgba(14,165,233,.12) 0%, rgba(14,165,233,.04) 100%);
@@ -743,6 +754,7 @@ body {
     <button class="tab-btn" data-panel="week">This Week</button>
     <button class="tab-btn" data-panel="strategy" style="color:var(--gold2);">◈ Strategy</button>
     <button class="tab-btn" data-panel="schedule">Rhythm</button>
+    <button class="tab-btn" data-panel="tc" style="color:var(--gold)">⚔ Take Command</button>
     <button class="tab-btn" data-panel="aila" style="color:var(--aila)"><span data-ic="sparkles"></span> AILA Sprint</button>
     <button class="tab-btn" data-panel="uav" style="color:var(--uav)">✈ UAV MVP</button>
     <button class="tab-btn" data-panel="q4focus" style="color:#10b981">◎ Q4 Focus</button>
@@ -1250,6 +1262,35 @@ body {
       </div>
     </div>
 
+  </div>
+
+  <!-- ═══════════════ TAKE COMMAND ═══════════════ -->
+  <div class="panel" id="panel-tc">
+    <div class="aila-banner">
+      <div class="aila-banner-left">
+        <div class="aila-sprint-label">Implementation Tracker · Concept Paper v2.0</div>
+        <div class="aila-sprint-title">Take Command — Book Launch &amp; Brand</div>
+        <div class="aila-sprint-sub">Prepare (Oct–Dec) → Build (Jan–Feb) → Launch (March 2027, 40th milestone) → Apply (Apr–Jun: TCTT pilot)</div>
+      </div>
+      <div class="aila-countdown-group">
+        <div class="aila-cd-block"><div class="aila-cd-num" id="tcDaysLeft">--</div><div class="aila-cd-lbl">Days to Launch</div></div>
+        <div class="aila-cd-block"><div class="aila-cd-num" id="tcPctDone">0%</div><div class="aila-cd-lbl">Complete</div></div>
+        <div class="aila-cd-block"><div class="aila-cd-num" id="tcOverdue" style="color:var(--red)">0</div><div class="aila-cd-lbl">Overdue</div></div>
+      </div>
+    </div>
+
+    <div class="sec-title" style="margin-bottom:12px;">Next Up — Overdue &amp; Due in 14 Days</div>
+    <div id="tcNextUp" style="margin-bottom:24px;"></div>
+
+    <div class="sec-title" style="margin-bottom:12px;">Launch Roadmap — 4 Phases</div>
+    <div class="aila-week-grid" id="tcPhaseGrid"></div>
+
+    <div class="sec-title" style="margin-bottom:12px;">Phase Tasks</div>
+    <div id="tcPhaseDetail" style="margin-bottom:24px;"></div>
+
+    <div class="sec-title" style="margin-bottom:12px;">By Workstream</div>
+    <div class="aila-checklist-grid" id="tcWorkstreams"></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:12px;">Posts for the series live in the ✦ Content tab (Victor Simz, from 2 Nov).</div>
   </div>
 
   <!-- ═══════════════ AILA SPRINT ═══════════════ -->
@@ -2079,18 +2120,20 @@ async function sbSyncAll() {
     const sq = sqLoad();
     const uav = loadUAV();
     const aila = loadAILA();
+    const tcd = loadTC();
     await Promise.all([
       SB.upsert('cc_settings', { key:'app_state',  value: JSON.stringify(S),      updated_at: new Date().toISOString() }, '?on_conflict=key'),
       SB.upsert('cc_settings', { key:'sd_data',    value: JSON.stringify(sdData), updated_at: new Date().toISOString() }, '?on_conflict=key'),
       SB.upsert('cc_settings', { key:'sq_journal', value: JSON.stringify(sq),     updated_at: new Date().toISOString() }, '?on_conflict=key'),
       SB.upsert('cc_settings', { key:'uav_data',   value: JSON.stringify(uav),    updated_at: new Date().toISOString() }, '?on_conflict=key'),
       SB.upsert('cc_settings', { key:'aila_data',  value: JSON.stringify(aila),   updated_at: new Date().toISOString() }, '?on_conflict=key'),
+      SB.upsert('cc_settings', { key:'tc_data',    value: JSON.stringify(tcd),    updated_at: new Date().toISOString() }, '?on_conflict=key'),
     ]);
   } catch(e) { console.warn('sbSyncAll:', e.message); }
 }
 async function sbLoadAll() {
   try {
-    const rows = await SB.get('cc_settings', '?key=in.(app_state,sd_data,sq_journal,uav_data,aila_data,today_tasks,week_tasks)');
+    const rows = await SB.get('cc_settings', '?key=in.(app_state,sd_data,sq_journal,uav_data,aila_data,tc_data,today_tasks,week_tasks)');
     _sbSyncing = true;
     let changed = false;
     const appRow = rows.find(r => r.key === 'app_state');
@@ -2098,6 +2141,7 @@ async function sbLoadAll() {
     const sqRow  = rows.find(r => r.key === 'sq_journal');
     const uavRow = rows.find(r => r.key === 'uav_data');
     const ailaRow= rows.find(r => r.key === 'aila_data');
+    const tcRow  = rows.find(r => r.key === 'tc_data');
     const trRow  = rows.find(r => r.key === 'today_tasks');
     const wrRow  = rows.find(r => r.key === 'week_tasks');
     if (appRow && appRow.value) {
@@ -2157,6 +2201,15 @@ async function sbLoadAll() {
         const localKeys  = Object.keys(loadAILA()).length;
         if (remoteKeys > localKeys) {
           localStorage.setItem(AILA_LS_KEY, ailaRow.value);
+          changed = true;
+        }
+      } catch(e) {}
+    }
+    if (tcRow && tcRow.value) {
+      try {
+        const remote = JSON.parse(tcRow.value);
+        if (Object.keys(remote).length > Object.keys(loadTC()).length) {
+          localStorage.setItem(TC_LS_KEY, tcRow.value);
           changed = true;
         }
       } catch(e) {}
@@ -3357,6 +3410,7 @@ function switchTab(panelId) {
   if(panelId==='review'){renderReview();renderDeliverables();}
   if(panelId==='week'){renderWeek();renderWeekRhythmQuick();}
   if(panelId==='okrs') renderOKRs();
+  if(panelId==='tc') renderTC();
   if(panelId==='aila') renderAILA();
   if(panelId==='uav')  renderUAV();
   if(panelId==='q4focus') renderQ4Focus();
@@ -3430,6 +3484,235 @@ function clearAllData() {
 /* ══════════════════════════════════════════
    AILA SPRINT DATA & TRACKER
    ══════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════
+   TAKE COMMAND — IMPLEMENTATION TRACKER (Concept Paper v2.0)
+   Progress keys are stable task ids (e.g. 'cl1'), stored in vs_tc_v1.
+   ══════════════════════════════════════════════════════ */
+const TC_PLAN = {
+  launch: '2027-03-01', // launch window opens — set to the exact launch date once fixed
+  workstreams: {
+    clearance: { label:'Clearance',  color:'#f06060' },
+    book:      { label:'Book',       color:'#e8b424' },
+    brand:     { label:'Brand',      color:'#a78bfa' },
+    content:   { label:'Content',    color:'#4a9eff' },
+    audience:  { label:'Audience',   color:'#34d47a' },
+    launch:    { label:'Launch',     color:'#f97316' },
+    tctt:      { label:'TCTT',       color:'#0ea5e9' },
+  },
+  phases: [
+    {
+      num:1, label:'PREPARE', dates:'Oct 19 – Dec 31, 2026', start:'2026-10-19', end:'2026-12-31',
+      goal:'Clear the gates (clearance, releases, publishing route), build brand assets and start publishing consistently.',
+      deliverable:'Clearance received · 13 releases signed · publishing route chosen · ISBN secured · 8 posts a month published · newsletter live',
+      tasks:[
+        { id:'br1', ws:'brand',     due:'2026-10-24', text:'Approve concept paper v2 decisions (Section 18)' },
+        { id:'cl1', ws:'clearance', due:'2026-10-30', text:'Draft and submit clearance request to Zambia Army (book + public platform)' },
+        { id:'bk1', ws:'book',      due:'2026-10-30', text:'Send contributor release forms to all 13 contributors' },
+        { id:'ct1', ws:'content',   due:'2026-10-30', text:'Write first month’s 8 posts (LinkedIn + Facebook versions)' },
+        { id:'ct2', ws:'content',   due:'2026-10-31', text:'Block weekly batch sessions in Rhythm (Session 1 outline · Session 2 draft & schedule)' },
+        { id:'br2', ws:'brand',     due:'2026-10-31', text:'Update bios: LinkedIn, Facebook, YouTube, podcast — “Victor Simukonda (Victor Simz)”' },
+        { id:'ct3', ws:'content',   due:'2026-11-03', text:'★ First Take Command post live — Tue 3 Nov' },
+        { id:'br3', ws:'brand',     due:'2026-11-06', text:'One-page brand guide (palette, fonts, wordmark, series labels, language rule)' },
+        { id:'br4', ws:'brand',     due:'2026-11-06', text:'Post templates — one per series + quote card' },
+        { id:'ct4', ws:'content',   due:'2026-11-12', text:'First short video recorded (Life Is a Campaign)' },
+        { id:'cl2', ws:'clearance', due:'2026-11-13', text:'Confirm rules on outside earnings (royalties, paid speaking, TCTT fees) and any declarations' },
+        { id:'bk2', ws:'book',      due:'2026-11-13', text:'Title + trademark search: Take Command, VICTORY Protocol, V-PRO, 7BDs, IPLB, Life Campaign Plan' },
+        { id:'br5', ws:'brand',     due:'2026-11-13', text:'Secure domain names and matching handles' },
+        { id:'br6', ws:'brand',     due:'2026-11-13', text:'Decide: podcast rebranded under Take Command?' },
+        { id:'bk3', ws:'book',      due:'2026-11-20', text:'Publishing route decision brief (self / hybrid / traditional — costs, timelines)' },
+        { id:'au1', ws:'audience',  due:'2026-11-20', text:'Choose newsletter platform; set up “The Commander’s Brief”' },
+        { id:'cl3', ws:'clearance', due:'2026-11-27', text:'Agree content protocol for professional examples' },
+        { id:'br7', ws:'brand',     due:'2026-11-27', text:'Signature visuals: 7BD wheel + V-PRO flow diagram' },
+        { id:'ct5', ws:'content',   due:'2026-11-27', text:'Write December posts' },
+        { id:'au2', ws:'audience',  due:'2026-11-27', text:'Design free download: Domain Command Template — Spiritual Domain edition' },
+        { id:'bk4', ws:'book',      due:'2026-11-30', text:'Collect all 13 signed contributor releases' },
+        { id:'au3', ws:'audience',  due:'2026-12-01', text:'Newsletter welcome email + first issue sent' },
+        { id:'bk5', ws:'book',      due:'2026-12-04', text:'★ Decide publishing route' },
+        { id:'bk6', ws:'book',      due:'2026-12-11', text:'Manuscript fixes: disclaimer (Zambia Army & MOD) · Preface rank/date · unify PLCP/LCP' },
+        { id:'bk7', ws:'book',      due:'2026-12-11', text:'Quotation and epigraph permissions review' },
+        { id:'ct6', ws:'content',   due:'2026-12-15', text:'Command Voices #1 published (released essay)' },
+        { id:'cl4', ws:'clearance', due:'2026-12-18', text:'★ Written clearance received' },
+        { id:'bk8', ws:'book',      due:'2026-12-18', text:'Obtain ISBN; complete imprint and “Printed in”' },
+        { id:'bk9', ws:'book',      due:'2026-12-18', text:'Commission professional proofread + layout check' },
+        { id:'bk10',ws:'book',      due:'2026-12-18', text:'Cover design brief issued' },
+        { id:'ct7', ws:'content',   due:'2026-12-18', text:'Write January posts' },
+        { id:'au4', ws:'audience',  due:'2026-12-18', text:'Contributor promo kit (ready-made posts + graphics)' },
+      ]
+    },
+    {
+      num:2, label:'BUILD', dates:'Jan 1 – Feb 28, 2027', start:'2027-01-01', end:'2027-02-28',
+      goal:'Lock the book, open pre-orders, grow the list and prepare the launch and the TCTT pilot.',
+      deliverable:'Print-ready file approved · pre-orders open · landing page live · launch event planned · TCTT pilot designed',
+      tasks:[
+        { id:'bk11',ws:'book',      due:'2027-01-15', text:'Final manuscript locked after proofread' },
+        { id:'la1', ws:'launch',    due:'2027-01-15', text:'Confirm launch date (40th milestone) and announce' },
+        { id:'bk12',ws:'book',      due:'2027-01-29', text:'Cover final; print-ready file approved' },
+        { id:'au5', ws:'audience',  due:'2027-01-29', text:'Book landing page live (pre-order + template download)' },
+        { id:'ct8', ws:'content',   due:'2027-01-29', text:'Write February posts' },
+        { id:'bk13',ws:'book',      due:'2027-02-01', text:'★ Pre-orders open (online + local)' },
+        { id:'la2', ws:'launch',    due:'2027-02-05', text:'Launch event plan: venue, date, guest list, programme' },
+        { id:'bk14',ws:'book',      due:'2027-02-12', text:'Order launch print run / author copies' },
+        { id:'la3', ws:'launch',    due:'2027-02-12', text:'Media pitch list + press kit' },
+        { id:'ct9', ws:'content',   due:'2027-02-19', text:'Write March (launch month) posts' },
+        { id:'tc1', ws:'tctt',      due:'2027-02-26', text:'Design TCTT pilot: 7-week cohort, modules, schedule, pricing' },
+        { id:'tc2', ws:'tctt',      due:'2027-02-26', text:'Build participant workbook from Annexes A–E' },
+        { id:'au6', ws:'audience',  due:'2027-02-26', text:'Review list growth against launch target' },
+      ]
+    },
+    {
+      num:3, label:'LAUNCH', dates:'March 2027', start:'2027-03-01', end:'2027-03-31',
+      goal:'Launch the book at the 40th milestone and convert attention into readers and TCTT participants.',
+      deliverable:'Book launched · first sales · media coverage · TCTT pilot registration open',
+      tasks:[
+        { id:'la4', ws:'launch',    due:'2027-03-10', text:'Contributors briefed and launch posts scheduled' },
+        { id:'la5', ws:'launch',    due:'2027-03-16', text:'Commander’s Journal launch story published' },
+        { id:'la6', ws:'launch',    due:'2027-03-20', text:'★ Book launch event held' },
+        { id:'tc3', ws:'tctt',      due:'2027-03-25', text:'Open TCTT pilot registration (15–25 seats)' },
+        { id:'la7', ws:'launch',    due:'2027-03-31', text:'3+ media / podcast appearances' },
+        { id:'au7', ws:'audience',  due:'2027-03-31', text:'Launch newsletter issue sent' },
+      ]
+    },
+    {
+      num:4, label:'APPLY', dates:'Apr 1 – Jun 30, 2027', start:'2027-04-01', end:'2027-06-30',
+      goal:'Run the TCTT pilot, measure real application and plan the second cycle.',
+      deliverable:'Life Campaign Plans completed · pilot findings · 90-day brand review · next cycle planned',
+      tasks:[
+        { id:'ct10',ws:'content',   due:'2027-04-15', text:'Plan second content cycle (Professional + Generational domains)' },
+        { id:'tc4', ws:'tctt',      due:'2027-05-31', text:'★ Run TCTT pilot cohort' },
+        { id:'tc5', ws:'tctt',      due:'2027-06-30', text:'30- and 90-day reviews; record outcomes' },
+        { id:'bk15',ws:'book',      due:'2027-06-30', text:'Collect reviews; decide on second print run' },
+        { id:'br8', ws:'brand',     due:'2027-06-30', text:'90-day brand review against measurement framework' },
+      ]
+    }
+  ]
+};
+const TC_LS_KEY = 'vs_tc_v1';
+let tcActivePhase = null;
+
+function loadTC() { try { return JSON.parse(localStorage.getItem(TC_LS_KEY)||'{}'); } catch(e) { return {}; } }
+function saveTC(d) { try { localStorage.setItem(TC_LS_KEY, JSON.stringify(d)); } catch(e) {} if (typeof sbQueueSync==='function') sbQueueSync(); }
+function tcToday() { const t = new Date(); t.setHours(0,0,0,0); return t; }
+function tcAllTasks() { return TC_PLAN.phases.flatMap(p => p.tasks.map(t => ({...t, phase:p.num}))); }
+function tcCurrentPhase() {
+  const t = tcToday();
+  for (const p of TC_PLAN.phases) if (t >= new Date(p.start) && t <= new Date(p.end+'T23:59:59')) return p.num;
+  return t < new Date(TC_PLAN.phases[0].start) ? 1 : TC_PLAN.phases.length;
+}
+function tcDaysToLaunch() { return Math.max(0, Math.ceil((new Date(TC_PLAN.launch) - tcToday())/86400000)); }
+function tcPhasePct(p, prog) { const d = p.tasks.filter(t => prog[t.id]).length; return Math.round(d / p.tasks.length * 100); }
+function tcDueLabel(due, done) {
+  const d = new Date(due); const days = Math.round((d - tcToday())/86400000);
+  const txt = d.toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
+  if (done) return `<span class="tc-due">${txt}</span>`;
+  if (days < 0)  return `<span class="tc-due tc-over">${txt} · ${-days}d overdue</span>`;
+  if (days <= 7) return `<span class="tc-due tc-soon">${txt} · ${days===0?'today':days+'d'}</span>`;
+  return `<span class="tc-due">${txt}</span>`;
+}
+function tcWsChip(ws) { const w = TC_PLAN.workstreams[ws]; return `<span class="tc-ws" style="color:${w.color};border-color:${w.color}55">${w.label}</span>`; }
+function tcTaskRow(t, prog) {
+  const done = !!prog[t.id];
+  return `<div class="aila-task-row ${done?'done':''}">
+    <input type="checkbox" ${done?'checked':''} onchange="tcToggle('${t.id}',this.checked)">
+    <span class="aila-task-text">${esc(t.text)}</span>
+    <span style="display:flex;gap:6px;align-items:center;flex-shrink:0;">${tcWsChip(t.ws)}${tcDueLabel(t.due, done)}</span>
+  </div>`;
+}
+
+function renderTC() {
+  const grid = document.getElementById('tcPhaseGrid'); if (!grid) return;
+  const prog = loadTC();
+  const cur = tcCurrentPhase();
+  const all = tcAllTasks();
+  const doneN = all.filter(t => prog[t.id]).length;
+  const overdue = all.filter(t => !prog[t.id] && new Date(t.due) < tcToday());
+  document.getElementById('tcDaysLeft').textContent = tcDaysToLaunch();
+  document.getElementById('tcPctDone').textContent = Math.round(doneN/all.length*100) + '%';
+  document.getElementById('tcOverdue').textContent = overdue.length;
+
+  grid.innerHTML = TC_PLAN.phases.map(p => {
+    const pct = tcPhasePct(p, prog);
+    let cls = 'aila-week-tile';
+    if (p.num === cur) cls += ' current'; else if (pct === 100) cls += ' done'; else if (p.num > cur) cls += ' future';
+    return `<div class="${cls}" onclick="tcShowPhase(${p.num})">
+      <div class="aila-wk-num">Phase ${p.num} ${p.num===cur?'← NOW':''}</div>
+      <div class="aila-wk-label">${p.label}</div>
+      <div class="aila-wk-dates">${p.dates}</div>
+      <div class="aila-wk-progress"><div class="aila-wk-fill" style="width:${pct}%"></div></div>
+      <div class="aila-wk-pct">${pct}% complete</div>
+    </div>`;
+  }).join('');
+
+  // Next up: overdue + next 14 days, open tasks only
+  const horizon = new Date(tcToday()); horizon.setDate(horizon.getDate()+14);
+  const next = all.filter(t => !prog[t.id] && new Date(t.due) <= horizon).sort((a,b)=>a.due.localeCompare(b.due));
+  document.getElementById('tcNextUp').innerHTML = next.length
+    ? `<div class="aila-week-detail">${next.map(t => tcTaskRow(t, prog)).join('')}</div>`
+    : `<div style="color:var(--text3);font-size:13px;padding:8px 0;">Nothing due in the next 14 days.</div>`;
+
+  if (!tcActivePhase) tcActivePhase = cur;
+  tcShowPhase(tcActivePhase);
+  renderTCWorkstreams(prog);
+}
+
+function tcShowPhase(num) {
+  tcActivePhase = num;
+  const prog = loadTC();
+  const p = TC_PLAN.phases[num-1];
+  const pct = tcPhasePct(p, prog);
+  const tasks = [...p.tasks].sort((a,b)=>a.due.localeCompare(b.due));
+  document.getElementById('tcPhaseDetail').innerHTML = `<div class="aila-week-detail">
+    <div class="aila-detail-header">
+      <div>
+        <div class="aila-detail-badge">Phase ${num} — ${esc(p.label)}</div>
+        <div class="aila-detail-title" style="margin-top:8px;">${esc(p.dates)}</div>
+        <div class="aila-detail-goal">${esc(p.goal)}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:28px;font-weight:800;color:var(--aila);">${pct}%</div>
+        <div style="font-size:11px;color:var(--text3);">${p.tasks.filter(t=>prog[t.id]).length}/${p.tasks.length} tasks</div>
+      </div>
+    </div>
+    <div class="aila-detail-deliverable">📦 End state: ${esc(p.deliverable)}</div>
+    ${tasks.map(t => tcTaskRow(t, prog)).join('')}
+  </div>`;
+}
+
+function renderTCWorkstreams(prog) {
+  const el = document.getElementById('tcWorkstreams'); if (!el) return;
+  const all = tcAllTasks();
+  el.innerHTML = Object.entries(TC_PLAN.workstreams).map(([key, w]) => {
+    const items = all.filter(t => t.ws === key).sort((a,b)=>a.due.localeCompare(b.due));
+    const done = items.filter(t => prog[t.id]).length;
+    const pct = items.length ? Math.round(done/items.length*100) : 0;
+    return `<div class="aila-cat-card">
+      <div class="aila-cat-header"><span class="aila-cat-name" style="color:${w.color}">${w.label}</span><span class="aila-cat-count">${done}/${items.length}</span></div>
+      <div class="aila-cat-bar"><div class="aila-cat-fill" style="width:${pct}%;background:${w.color}"></div></div>
+      ${items.map(t => { const d = !!prog[t.id]; return `<div class="aila-mini-task ${d?'done':''}">
+        <input type="checkbox" id="tcw-${t.id}" ${d?'checked':''} onchange="tcToggle('${t.id}',this.checked)">
+        <label for="tcw-${t.id}">${esc(t.text)} ${tcDueLabel(t.due, d)}</label></div>`; }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function tcToggle(id, checked) {
+  const prog = loadTC();
+  if (checked) prog[id] = true; else delete prog[id];
+  saveTC(prog);
+  renderTC();
+}
+
+function tcStatusForAI() {
+  const prog = loadTC(); const ph = TC_PLAN.phases[tcCurrentPhase()-1];
+  const all = tcAllTasks();
+  const overdue = all.filter(t => !prog[t.id] && new Date(t.due) < tcToday()).map(t => t.text);
+  const next = all.filter(t => !prog[t.id] && new Date(t.due) >= tcToday()).sort((a,b)=>a.due.localeCompare(b.due)).slice(0,4).map(t => `${t.text} (due ${t.due})`);
+  return `Current Phase: ${ph.num} — ${ph.label} (${ph.dates})
+Phase Goal: ${ph.goal}
+Progress: ${ph.tasks.filter(t=>prog[t.id]).length}/${ph.tasks.length} phase tasks done · Days to launch window: ${tcDaysToLaunch()}
+Overdue: ${overdue.slice(0,4).join(' | ') || 'None'}
+Next due: ${next.join(' | ') || 'None'}`;
+}
 
 const AILA_SPRINT = {
   deadline: '2026-12-31',
@@ -4579,6 +4862,9 @@ Days to end of AILA Q4 sprint (Dec 31): ${dl}
 Pending tasks this phase: ${pendingTasks.join(' | ')||'All done!'}`;
 })()}
 
+TAKE COMMAND STATUS (book launch March 2027 · brand implementation):
+${tcStatusForAI()}
+
 UAV STATUS (X1 VANGUARD Sensor Platform — slow build Q4):
 ${(()=>{
   const ph = uavCurrentPhase();
@@ -4923,11 +5209,11 @@ const CONTENT_LS_KEY = 'vs_content_v1';
 
 const BRAND_PROFILES = {
   victor: {
-    name: 'Victor Simz',
+    name: 'Victor Simz — Take Command',
     color: '#a78bfa',
-    voice: 'Practitioner-scholar. Thoughtful, direct, honest about tensions and uncertainty. First-person experience used sparingly but with credibility. Original ideas over generic advice. Tone: intellectually confident, not self-promotional. No motivational fluff. Short paragraphs. End with a question or provocation.',
-    audience: 'Broad professional audience — leaders, builders, strategists, Zambians',
-    avoid: 'Generic motivational quotes, certificates as achievements, AI hype, posts designed to signal success'
+    voice: 'Take Command brand (by Victor Simukonda). Life is a campaign; every person is its commander. Direct, disciplined, practical, faith-grounded and honest — a field manual, not motivation. Draw on the book: the Seven Battle Domains (Spiritual, Physical, Financial, Relational, Creational, Professional, Generational) and the VICTORY Protocol (Visualize end state, Identify higher intent, Clarify the problem, Tasks, Operational environment, Resources/restrictions/risks, Your mission & COAs). Structure: BLUF → Problem → Insight → Example → Commander’s Directive (one action) → reflective question. Translate every military term into plain language on first use. Military metaphor clarifies, never glorifies violence. Faith stated openly, never imposed. Short paragraphs.',
+    audience: 'Primary: professionals and emerging leaders (25–45) seeking direction across their whole life; secondary: students at transition, parents, entrepreneurs',
+    avoid: 'Generic motivational quotes, hype, warrior/combat imagery, untranslated jargon and acronyms, medical or financial advice, operational or sensitive professional detail, posts designed to signal success'
   },
   zhist: {
     name: 'The Z Historian',
@@ -4953,7 +5239,6 @@ const BRAND_PROFILES = {
 };
 
 const CONTENT_CALENDAR = [
-  // October 2026
   { date:'2026-10-02', brand:'victor',  platform:'Facebook',  title:'A new chapter',                                                                            pillar:'personal',  action:'Reflect on what comes after becoming good at a profession: learning → doing → leading → building.',                                              status:'pending' },
   { date:'2026-10-03', brand:'zhist',   platform:'Facebook',  title:'Mini biography — forgotten Zambian figure (Forgotten People)',                       pillar:'history',   action:'Research and write a mini biography of an underappreciated Zambian: who they were, what they did, why they have been forgotten, what we should remember them for. Format: Mini Biography.',  format:'minibio',   status:'pending' },
   { date:'2026-10-06', brand:'victor',  platform:'LinkedIn',  title:'The danger of being good at too many things',                                              pillar:'leadership', action:'Capability can create fragmentation; decide what deserves to be built.',                                                                          status:'pending' },
@@ -4968,35 +5253,71 @@ const CONTENT_CALENDAR = [
   { date:'2026-10-27', brand:'victor',  platform:'LinkedIn',  title:'AI literacy is becoming a leadership competency',                                          pillar:'ai',        action:'Capabilities, limitations, risks and questions.',                                                                                                  status:'pending' },
   { date:'2026-10-29', brand:'victor',  platform:'Facebook',  title:"Builder's Note #02 — Why I'm trying to build fewer things",                               pillar:'building',  action:'Ambition vs focus and sustainability.',                                                                                                            status:'pending' },
   { date:'2026-10-31', brand:'victor',  platform:'Facebook',  title:'October Builder Review',                                                                   pillar:'building',  action:'Five lessons from the month.',                                                                                                                     status:'pending' },
-  // November 2026
-  { date:'2026-11-03', brand:'victor',  platform:'LinkedIn',  title:'Ideas are cheap. Tested ideas are different.',                                             pillar:'building',  action:'Discuss experimentation and evidence.',                                                                                                            status:'pending' },
+  { date:'2026-11-03', brand:'victor', platform:'LinkedIn + Facebook', title:'Why I Am Launching Take Command as I Approach 40', pillar:'journal', action:'Preface + Acknowledgements. Six years in the making; from OSB in Kabwe to Fort Leavenworth; what Take Command is and what to expect. Invite readers to follow the series.', status:'pending' },
   { date:'2026-11-05', brand:'bantuwa', platform:'Facebook',  title:"Why Bantuwa isn't simply an AI company",                                                   pillar:'strategy',  action:'Knowledge + Technology + Human Capability + Innovation.',                                                                                          status:'pending' },
+  { date:'2026-11-05', brand:'victor', platform:'LinkedIn + Facebook', title:'Life Is a Campaign: The Seven Domains You Are Already Fighting In', pillar:'domains', action:'Ch. 1 opening (Persia and the sea, multidomain operations). Introduce the 7BDs; ask readers which domain they neglect most.', status:'pending' },
   { date:'2026-11-07', brand:'zhist',   platform:'Facebook',  title:'Old map — a Zambian city or place, then and now (Places & Cities)',                    pillar:'history',   action:'Source or describe an old map of a Zambian city or significant place. Write a post: what the map shows, what it reveals about the period, what has changed since. Ask the audience what they notice. Format: Old Map.',  format:'map',       status:'pending' },
-  { date:'2026-11-10', brand:'victor',  platform:'LinkedIn',  title:"Leaders don't need to know everything. They need to know what questions to ask.",          pillar:'leadership', action:'Leadership + AI.',                                                                                                                               status:'pending' },
-  { date:'2026-11-12', brand:'victor',  platform:'Facebook',  title:"Builder's Note #03 — What I learned from building AI systems nobody initially asked for",  pillar:'building',  action:'Adoption versus usefulness.',                                                                                                                     status:'pending' },
+  { date:'2026-11-10', brand:'victor', platform:'LinkedIn + Facebook', title:'Hope Is Not a Strategy', pillar:'vpro', action:'Introduction — We Are at War! Busyness vs progress, movement vs momentum, wishes vs plans. Commander’s Directive: write down one plan you have been hoping into existence.', status:'pending' },
+  { date:'2026-11-12', brand:'victor', platform:'LinkedIn + Facebook', title:'The Spiritual Domain: Your Centre of Gravity', pillar:'domains', action:'Ch. 1 — Spiritual Domain. Napoleon and morale; why every domain draws strength from this one. Faith stated openly, not imposed.', status:'pending' },
+  { date:'2026-11-13', brand:'victor', platform:'YouTube', title:'Life Is a Campaign — the Take Command idea in 5 minutes', pillar:'vpro', action:'Short video. BLUF, the 7BDs and V-PRO in one sentence each. Close with the tagline.', status:'pending' },
   { date:'2026-11-14', brand:'zhist',   platform:'Facebook',  title:'Before & after — a Zambian place then vs now (Places & Cities)',                      pillar:'history',   action:'Find or describe two images of the same Zambian place at different points in time. Describe both, what changed, connect past to present, invite the audience to reflect. Format: Before/After.',  format:'beforeafter', status:'pending' },
   { date:'2026-11-17', brand:'aila',    platform:'Facebook',  title:'The four stages of becoming an AI-enabled leader',                                         pillar:'ai',        action:'Problem Solver → Solution Builder → AI System Builder → Transformation Leader.',                                                                   status:'pending' },
-  { date:'2026-11-19', brand:'victor',  platform:'YouTube',   title:'AI Leadership: Why Leaders Need to Understand AI Without Becoming Programmers',            pillar:'ai',        action:'15–20 minute AILA foundation video.',                                                                                                              status:'pending' },
-  { date:'2026-11-21', brand:'victor',  platform:'LinkedIn',  title:'The uncomfortable side of ambition',                                                       pillar:'personal',  action:'Fear, comparison, overcommitment and focus.',                                                                                                       status:'pending' },
-  { date:'2026-11-24', brand:'victor',  platform:'Facebook',  title:"Africa doesn't need to copy the future. It needs to build its own capacity to shape it.",  pillar:'strategy',  action:'African agency and innovation.',                                                                                                                   status:'pending' },
-  { date:'2026-11-26', brand:'bantuwa', platform:'Facebook',  title:'What does sovereign innovation actually mean?',                                            pillar:'strategy',  action:'Knowledge, data, technology, people and institutions.',                                                                                            status:'pending' },
+  { date:'2026-11-17', brand:'victor', platform:'LinkedIn + Facebook', title:'Why Winning in One Domain Fails If You Neglect Another', pillar:'domains', action:'Ch. 1 closing — the systems view: physical neglect lowers professional performance and creational output. Use a personal example.', status:'pending' },
+  { date:'2026-11-19', brand:'victor', platform:'LinkedIn + Facebook', title:'Motivation Is Not a Feeling. It Is Clarity.', pillar:'vpro', action:'Introduction — The Misconception About Motivation. ‘Motive’ = reason, cause, purpose. The battlefield does not care whether you are motivated.', status:'pending' },
   { date:'2026-11-21', brand:'zhist',   platform:'Facebook',  title:'Did you know? — surprising fact about a Zambian city or place (Places & Cities)',      pillar:'history',   action:'Open with "Did you know that…" State a surprising historical fact about a Zambian city, town or landmark. 2–3 sentences of context. End with a reflection or question. Format: Did You Know.',  format:'didyouknow', status:'pending' },
+  { date:'2026-11-24', brand:'victor', platform:'LinkedIn + Facebook', title:'Six Years to Finish a Book: What Delayed It, and What It Taught Me', pillar:'journal', action:'Acknowledgements line: ‘in hindsight, I understand why it wasn’t finished earlier.’ Honest lessons on unfinished work.', status:'pending' },
+  { date:'2026-11-26', brand:'bantuwa', platform:'Facebook',  title:'What does sovereign innovation actually mean?',                                            pillar:'strategy',  action:'Knowledge, data, technology, people and institutions.',                                                                                            status:'pending' },
+  { date:'2026-11-26', brand:'victor', platform:'LinkedIn + Facebook', title:'The Greatest Empire Is the Empire Over Yourself', pillar:'domains', action:'Ch. 2 — What is the Greatest Empire? Scipio and command of self; identity statements as command directives.', status:'pending' },
+  { date:'2026-11-27', brand:'victor', platform:'YouTube', title:'The Seven Battle Domains Explained', pillar:'domains', action:'Short video walking through all seven domains with one question each (use the 7BD wheel graphic).', status:'pending' },
   { date:'2026-11-28', brand:'zhist',   platform:'Facebook',  title:'Historical timeline — the story of a significant Zambian place (Places & Cities)',          pillar:'history',   action:'Present 4–6 key dates in the history of a significant Zambian city, town or landmark. Brief heading per entry. End with a reflection on what the sequence reveals. Format: Timeline.',  format:'timeline',  status:'pending' },
-  { date:'2026-11-30', brand:'victor',  platform:'Facebook',  title:'November Builder Review',                                                                  pillar:'building',  action:'What was built, what failed, what was learned.',                                                                                                   status:'pending' },
-  // December 2026
-  { date:'2026-12-01', brand:'victor',  platform:'Facebook',  title:'What does it mean to reinvent yourself without becoming someone else?',                    pillar:'personal',  action:'Personal reflection.',                                                                                                                             status:'pending' },
-  { date:'2026-12-03', brand:'victor',  platform:'LinkedIn',  title:'Your next level may require subtraction, not addition.',                                   pillar:'leadership', action:'Fewer projects, distractions and commitments.',                                                                                                   status:'pending' },
+  { date:'2026-11-30', brand:'victor', platform:'Facebook', title:'November Command Review', pillar:'journal', action:'What was published, what resonated, audience questions, one adjustment for December.', status:'pending' },
+  { date:'2026-12-01', brand:'victor', platform:'LinkedIn + Facebook', title:'Your Body Is Your First Line of Defense', pillar:'domains', action:'Ch. 1 — Physical Domain. Energy, vitality and capacity as the foundation of the whole campaign. General guidance, not medical advice.', status:'pending' },
+  { date:'2026-12-03', brand:'victor', platform:'LinkedIn + Facebook', title:'V — Visualize the End State: What Does Victory Look Like?', pillar:'vpro', action:'Ch. 5. Most people never define victory. Condition-based end states vs vague goals.', status:'pending' },
   { date:'2026-12-05', brand:'zhist',   platform:'Facebook',  title:'Historical newspaper — founding or milestone moment of a Zambian institution (Zambia\'s Institutions)', pillar:'history',   action:'Describe or source a historical newspaper excerpt about the founding or a key milestone of a Zambian institution. Set the scene — date, publication, context. Quote the key line. Explain why this moment mattered. Format: Newspaper.',  format:'newspaper', status:'pending' },
-  { date:'2026-12-08', brand:'victor',  platform:'LinkedIn',  title:'The future of AI in Africa will not be determined only by technology',                     pillar:'ai',        action:'Talent, data, institutions, leadership, infrastructure and governance.',                                                                           status:'pending' },
-  { date:'2026-12-10', brand:'victor',  platform:'Facebook',  title:"Builder's Note #04 — The projects I'm carrying into 2027",                                pillar:'building',  action:'Explain the three major bets.',                                                                                                                    status:'pending' },
+  { date:'2026-12-08', brand:'victor', platform:'LinkedIn + Facebook', title:'Write Your Own Eulogy Before You Plan Your Year', pillar:'vpro', action:'Annex B — Eulogy End State Template. Walk through the exercise; offer the template via newsletter.', status:'pending' },
+  { date:'2026-12-10', brand:'victor', platform:'LinkedIn + Facebook', title:'Building Fitness Around a Demanding Professional Life', pillar:'domains', action:'Physical Domain applied: Victor’s own routine and battle rhythm. Practical, honest, sustainable.', status:'pending' },
+  { date:'2026-12-11', brand:'victor', platform:'YouTube', title:'Write Your Eulogy: The End-State Exercise', pillar:'vpro', action:'Short video demonstrating Annex B; call to action: download the template.', status:'pending' },
   { date:'2026-12-12', brand:'zhist',   platform:'Facebook',  title:'Historical quote — founder or leader of a key Zambian institution (Zambia\'s Institutions)', pillar:'history',   action:'Find a powerful quote from the founder or a key leader of a Zambian institution. Present the quote in full. Attribute it precisely. Give 2–3 sentences of context about who said it and why it matters today. Format: Historical Quote.',  format:'quote',     status:'pending' },
-  { date:'2026-12-19', brand:'zhist',   platform:'Facebook',  title:'Anniversary — founding of a significant Zambian institution (Zambia\'s Institutions)',         pillar:'history',   action:'Mark the founding anniversary of a significant Zambian institution. State the date and event. Brief historical context. Why it still matters today. Format: Anniversary.',  format:'anniversary', status:'pending' },
   { date:'2026-12-15', brand:'aila',    platform:'Facebook',  title:"Leadership in the age of AI isn't about using more tools",                                 pillar:'ai',        action:'Think better, decide better, learn faster, build systems.',                                                                                        status:'pending' },
-  { date:'2026-12-17', brand:'victor',  platform:'YouTube',   title:'2026: From Practitioner to Builder',                                                       pillar:'personal',  action:'Year-end flagship video.',                                                                                                                         status:'pending' },
-  { date:'2026-12-19', brand:'victor',  platform:'LinkedIn',  title:'Things I learned this year that had nothing to do with technology',                        pillar:'personal',  action:'Family, rest, discipline, faith, relationships, humility and focus.',                                                                              status:'pending' },
+  { date:'2026-12-15', brand:'victor', platform:'LinkedIn + Facebook', title:'Command Voices #1 — First Contributor Feature', pillar:'voices', action:'Feature one contributor’s essay (Part I). REQUIRES signed release. Tag the contributor; include their disclaimer.', status:'pending' },
+  { date:'2026-12-17', brand:'victor', platform:'LinkedIn + Facebook', title:'Your Next Level May Require Subtraction, Not Addition', pillar:'journal', action:'Fewer projects, distractions and commitments — tie to Commander’s Planning Guidance: keep scope manageable.', status:'pending' },
+  { date:'2026-12-18', brand:'victor', platform:'YouTube', title:'2026 → 2027: Plan the Year Like a Campaign', pillar:'vpro', action:'Year-end video: end state, higher intent, and a first look at V-PRO for New Year planning.', status:'pending' },
+  { date:'2026-12-19', brand:'zhist',   platform:'Facebook',  title:'Anniversary — founding of a significant Zambian institution (Zambia\'s Institutions)',         pillar:'history',   action:'Mark the founding anniversary of a significant Zambian institution. State the date and event. Brief historical context. Why it still matters today. Format: Anniversary.',  format:'anniversary', status:'pending' },
   { date:'2026-12-22', brand:'bantuwa', platform:'Facebook',  title:'2027: Building African capability',                                                        pillar:'strategy',  action:'Forward-looking institutional post.',                                                                                                              status:'pending' },
-  { date:'2026-12-29', brand:'victor',  platform:'Facebook',  title:'My 2027 Operating Principles',                                                             pillar:'personal',  action:'Build fewer things; evidence before scale; problems before tools; protect life; turn knowledge into systems.',                                     status:'pending' },
-  { date:'2026-12-31', brand:'victor',  platform:'Facebook',  title:'From Practitioner to Builder — 2027',                                                      pillar:'personal',  action:'Three bets: VANGUARD, AILA and The Z Historian.',                                                                                                   status:'pending' },
+  { date:'2026-12-22', brand:'victor', platform:'LinkedIn + Facebook', title:'Your Big E: One Picture of Victory for 2027', pillar:'vpro', action:'Ch. 5 — the Big E as the unifying picture of victory across domains. Ask readers to write theirs.', status:'pending' },
+  { date:'2026-12-29', brand:'victor', platform:'LinkedIn + Facebook', title:'Things I Learned This Year That Had Nothing to Do With Technology', pillar:'journal', action:'Family, rest, discipline, faith, relationships, humility and focus — mapped to the domains.', status:'pending' },
+  { date:'2026-12-31', brand:'victor', platform:'Facebook', title:'My 2027 Campaign: End State and Operating Principles', pillar:'journal', action:'Share Victor’s own Big E and operating principles; announce what is coming in 2027 (the book).', status:'pending' },
+  { date:'2027-01-05', brand:'victor', platform:'LinkedIn + Facebook', title:'I — Identify Higher Intent: Why Does It Matter?', pillar:'vpro', action:'Ch. 6. Goals without higher intent collapse under pressure. Help readers write a Higher Intent Statement.', status:'pending' },
+  { date:'2027-01-07', brand:'victor', platform:'LinkedIn + Facebook', title:'Money Is Logistics, Not Status', pillar:'domains', action:'Ch. 1 — Financial Domain: Life’s Logistics. No logistics, no movement; no movement, no victory. General guidance, not financial advice.', status:'pending' },
+  { date:'2027-01-08', brand:'victor', platform:'YouTube', title:'Higher Intent: The Why Behind Your Plan', pillar:'vpro', action:'Short video on Ch. 6 with one worked example.', status:'pending' },
+  { date:'2027-01-12', brand:'victor', platform:'LinkedIn + Facebook', title:'C — Clarify the Problem: The Real Problem Is Rarely the One You Can See', pillar:'vpro', action:'Ch. 7. Symptoms vs root problems; introduce the Problem Clarification Template (Annex D).', status:'pending' },
+  { date:'2027-01-14', brand:'victor', platform:'LinkedIn + Facebook', title:'Treating Cash Shortage as the Problem When It Is a Symptom', pillar:'domains', action:'Ch. 7 — Financial Domain example of symptom vs problem.', status:'pending' },
+  { date:'2027-01-19', brand:'victor', platform:'LinkedIn + Facebook', title:'Command Voices #2', pillar:'voices', action:'Second contributor feature. Signed release required.', status:'pending' },
+  { date:'2027-01-21', brand:'victor', platform:'LinkedIn + Facebook', title:'Leaders Don’t Need to Know Everything. They Need to Know What Questions to Ask.', pillar:'vpro', action:'Clarify the Problem applied to leadership (and AI): the quality of the question decides the quality of the plan.', status:'pending' },
+  { date:'2027-01-22', brand:'victor', platform:'YouTube', title:'How to Clarify the Real Problem', pillar:'vpro', action:'Short walkthrough of the Problem Clarification Template.', status:'pending' },
+  { date:'2027-01-26', brand:'victor', platform:'LinkedIn + Facebook', title:'My Domain Assessment, Honestly Scored', pillar:'journal', action:'Victor scores his own 7 domains using the Domain Command Template; what he is changing.', status:'pending' },
+  { date:'2027-01-28', brand:'victor', platform:'LinkedIn + Facebook', title:'Treating Anxiety as the Problem When It Is a Symptom', pillar:'domains', action:'Ch. 7 — Spiritual Domain example. Careful, non-clinical framing.', status:'pending' },
+  { date:'2027-02-02', brand:'victor', platform:'LinkedIn + Facebook', title:'Relationships Are Terrain, Not Background', pillar:'domains', action:'Ch. 1 — Relational Domain: The Human Terrain. Managing relationships strategically, not emotionally.', status:'pending' },
+  { date:'2027-02-04', brand:'victor', platform:'LinkedIn + Facebook', title:'Take Command Is Coming — Pre-orders Are Open', pillar:'journal', action:'Announce the book: title, what it is (a field manual), contributors from 12 armies, launch month. Link to pre-order page.', status:'pending' },
+  { date:'2027-02-05', brand:'victor', platform:'YouTube', title:'Why I Wrote Take Command', pillar:'journal', action:'Short video: the story, the system, the invitation to pre-order.', status:'pending' },
+  { date:'2027-02-09', brand:'victor', platform:'LinkedIn + Facebook', title:'T — Specified, Implied and Essential Tasks in Everyday Life', pillar:'vpro', action:'Ch. 8. Most people only see specified tasks; the implied ones decide success.', status:'pending' },
+  { date:'2027-02-11', brand:'victor', platform:'LinkedIn + Facebook', title:'O — Where Are You, Really? Intelligence Preparation of Life’s Battlefield', pillar:'vpro', action:'Ch. 9 — IPLB: current environment, desired environment, the gap.', status:'pending' },
+  { date:'2027-02-16', brand:'victor', platform:'LinkedIn + Facebook', title:'Command Voices #3', pillar:'voices', action:'Third contributor feature. Signed release required.', status:'pending' },
+  { date:'2027-02-18', brand:'victor', platform:'LinkedIn + Facebook', title:'Treating Conflict as the Problem When It Is a Symptom', pillar:'domains', action:'Ch. 7 — Relational Domain example.', status:'pending' },
+  { date:'2027-02-19', brand:'victor', platform:'YouTube', title:'IPLB: Map Your Life’s Battlefield', pillar:'vpro', action:'Short walkthrough of the IPLB template (Annex E).', status:'pending' },
+  { date:'2027-02-23', brand:'victor', platform:'LinkedIn + Facebook', title:'R — Resources, Restrictions and Risks: Plan for Friction Before It Finds You', pillar:'vpro', action:'Ch. 10. Account for reality before reality does it for you.', status:'pending' },
+  { date:'2027-02-25', brand:'victor', platform:'LinkedIn + Facebook', title:'The Uncomfortable Side of Ambition', pillar:'journal', action:'Fear, comparison, overcommitment and focus — honest reflection before turning 40.', status:'pending' },
+  { date:'2027-03-02', brand:'victor', platform:'LinkedIn + Facebook', title:'Y — Your Mission and Courses of Action', pillar:'vpro', action:'Ch. 11. From end state to an executable mission; choosing between courses of action.', status:'pending' },
+  { date:'2027-03-04', brand:'victor', platform:'LinkedIn + Facebook', title:'What Will You Build That Would Not Exist Without You?', pillar:'domains', action:'Ch. 1 — Creational Domain: Your Contribution.', status:'pending' },
+  { date:'2027-03-05', brand:'victor', platform:'YouTube', title:'V-PRO in 10 Minutes', pillar:'vpro', action:'All seven VICTORY steps with one worked example. Pre-order call to action.', status:'pending' },
+  { date:'2027-03-09', brand:'victor', platform:'LinkedIn + Facebook', title:'Adjust the Route, Not the Destination', pillar:'vpro', action:'Commander’s Planning Guidance: adaptation is not deviation — change the COAs, not the mission or end state.', status:'pending' },
+  { date:'2027-03-11', brand:'victor', platform:'LinkedIn + Facebook', title:'Command Voices #4 — Voices From 12 Armies', pillar:'voices', action:'Launch run-up: montage of contributor perspectives on command of self.', status:'pending' },
+  { date:'2027-03-16', brand:'victor', platform:'LinkedIn + Facebook', title:'★ Turning 40: Why I Wrote Take Command', pillar:'journal', action:'LAUNCH WEEK — align with the launch date. The full story, the dedication, the invitation.', status:'pending' },
+  { date:'2027-03-18', brand:'victor', platform:'LinkedIn + Facebook', title:'Start by Making Your Bed', pillar:'vpro', action:'Ch. 12 — small disciplines that start the campaign each day; personal battle rhythm.', status:'pending' },
+  { date:'2027-03-19', brand:'victor', platform:'YouTube', title:'Take Command — Launch Highlights', pillar:'journal', action:'Launch event highlights / talk recording.', status:'pending' },
+  { date:'2027-03-23', brand:'victor', platform:'LinkedIn + Facebook', title:'Do It or Die: The Advice That Set Me on the Path of Action', pillar:'journal', action:'Epilogue — Brig Gen Harry Ngusa: ‘if what you know is not what you do, then you know nothing.’', status:'pending' },
+  { date:'2027-03-25', brand:'victor', platform:'LinkedIn + Facebook', title:'Your First Life Campaign Plan', pillar:'vpro', action:'One-page starter plan; announce TCTT pilot registration.', status:'pending' },
+  { date:'2027-03-30', brand:'victor', platform:'Facebook', title:'Launch Review: What Happened and What’s Next', pillar:'journal', action:'Honest launch review; thank readers and contributors; preview TCTT pilot.', status:'pending' },
 ];
 
 // Merge calendar status from localStorage
@@ -5153,7 +5474,7 @@ function contentNextWeek() { _ctWeekOffset++; renderContentQueue(); }
 
 const BRAND_COLOR = { victor:'#a78bfa', zhist:'#34d47a', bantuwa:'#4a9eff', aila:'#0ea5e9' };
 const BRAND_LABEL = { victor:'Victor Simz', zhist:'Z Historian', bantuwa:'Bantuwa', aila:'AILA' };
-const PILLAR_LABEL = { leadership:'Leadership', ai:'AI & Tech', strategy:'Strategy', building:'Building', history:'History', personal:'Personal' };
+const PILLAR_LABEL = { leadership:'Leadership', ai:'AI & Tech', strategy:'Strategy', building:'Building', history:'History', personal:'Personal', domains:'7 Battle Domains', vpro:'V-PRO in Practice', voices:'Command Voices', journal:'Commander’s Journal' };
 
 function ctStatusBadge(status) {
   const map = { pending:'⬜', done:'✅', skipped:'⏭' };
@@ -5233,7 +5554,7 @@ function ctDraftFromCalendar(idx) {
   document.getElementById('ctDraftBrand').value = item.brand;
   document.getElementById('ctDraftTopic').value = item.title;
   const fmtMap = { YouTube:'youtube', LinkedIn:'linkedin', Facebook:'facebook' };
-  document.getElementById('ctDraftFormat').value = fmtMap[item.platform] || 'facebook';
+  document.getElementById('ctDraftFormat').value = fmtMap[item.platform] || (String(item.platform).includes('LinkedIn') ? 'linkedin' : 'facebook');
   // Pre-fill context with action + format guide for TZH community content
   const formatLabels = { photo:'Historical Photo caption', didyouknow:'"Did you know?" post', beforeafter:'Before/After post', map:'Old Map post', newspaper:'Historical Newspaper post', quote:'Historical Quote post', minibio:'Mini Biography', question:'Community Question post', anniversary:'Anniversary post', timeline:'Historical Timeline post' };
   const ctx = item.action ? item.action + (item.format ? `\n\nFormat to use: ${formatLabels[item.format] || item.format}` : '') : '';
@@ -5546,6 +5867,7 @@ function renderAll() {
   renderWeek(); renderWeekRhythmQuick(); renderWeek90Banner();
   renderOKRs();
   renderAILA();
+  renderTC();
   render90Day();
   renderSchedule();
   renderScorecard();

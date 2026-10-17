@@ -94,6 +94,8 @@ label { font-size: 12px; font-weight: 600; color: var(--text-muted); display: bl
 .platform-tab.tw.active { background: #000;    border-color: #000; }
 .platform-tab.ig.active { background: #e1306c; border-color: #e1306c; }
 .platform-tab.fb.active { background: #1877f2; border-color: #1877f2; }
+.platform-tab.yt.active { background: #ff0000; border-color: #ff0000; }
+.platform-tab.nl.active { background: #0b1117; border-color: #0b1117; }
 
 .output-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 13px; line-height: 1.8; color: var(--text); white-space: pre-wrap; min-height: 120px; }
 .output-box.placeholder { color: var(--text-light); font-style: italic; }
@@ -110,7 +112,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
 .btn-share { padding: 6px 13px; border: none; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; color: white; display: inline-flex; align-items: center; gap: 5px; }
 .btn-share:hover { opacity: .82; transform: translateY(-1px); }
 
-.cal-grid    { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.cal-grid    { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .cal-header  { background: var(--dark); color: rgba(255,255,255,.65); font-size: 11px; text-align: center; padding: 8px 4px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; }
 .cal-day     { background: var(--card); min-height: 80px; padding: 6px; cursor: pointer; transition: background .1s; }
 .cal-day:hover       { background: var(--gold-light); }
@@ -123,6 +125,13 @@ canvas { width: 100%; border-radius: 6px; display: block; }
 .ev-ig { background: rgba(225,48,108,.13);color: #b01f5a; }
 .ev-fb { background: rgba(24,119,242,.13);color: #1044a0; }
 .ev-pod{ background: var(--gold-light);   color: #7a5000; }
+.ev-lf { background: rgba(0,90,170,.12); color: #0b4f8a; }
+.ev-yt { background: rgba(255,0,0,.10); color: #a10000; }
+.ev-nl { background: rgba(11,17,23,.08); color: #333; }
+.src-tag { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; padding:2px 8px; border-radius:10px; }
+.src-book { background: rgba(52,168,83,.14); color:#1e7a3c; }
+.src-orig { background: rgba(232,151,26,.18); color:#8a5600; }
+.hint { font-size:11px; color:var(--text-light); margin-top:4px; line-height:1.5; }
 
 .vault-item  { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); transition: background .1s; }
 .vault-item:hover { background: var(--surface); }
@@ -226,7 +235,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
   <div class="sidebar-footer">
     <div class="profile-pill">
       <div class="avatar">VS</div>
-      <div><div class="profile-name">Victor Simz</div><div class="profile-role">Author · Strategist</div></div>
+      <div><div class="profile-name">Victor Simukonda</div><div class="profile-role">Author · Take Command</div></div>
     </div>
 
     <!-- Supabase sync status -->
@@ -271,7 +280,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
     </div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div class="section-title" style="margin-bottom:0;">Content Pillars</div>
+        <div class="section-title" style="margin-bottom:0;">Series Mix</div>
       </div>
       <div id="dash-pillar-bars" style="display:flex;flex-direction:column;gap:8px;"></div>
       <hr class="divider">
@@ -282,8 +291,8 @@ canvas { width: 100%; border-radius: 6px; display: block; }
   <div class="section">
     <div class="section-title">Quick Actions</div>
     <div class="grid-4">
-      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('quotes',null)"><div style="font-size:22px;margin-bottom:6px;">🖼</div><div style="font-size:13px;font-weight:600;">Quote Card</div><div style="font-size:11px;color:var(--text-muted);">AI-sourced from book</div></div>
-      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('posts',null)"><div style="font-size:22px;margin-bottom:6px;">✦</div><div style="font-size:13px;font-weight:600;">Social Post</div><div style="font-size:11px;color:var(--text-muted);">Any platform</div></div>
+      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('quotes',null)"><div style="font-size:22px;margin-bottom:6px;">🖼</div><div style="font-size:13px;font-weight:600;">Quote Card</div><div style="font-size:11px;color:var(--text-muted);">Verified from the book</div></div>
+      <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('posts',null)"><div style="font-size:22px;margin-bottom:6px;">✦</div><div style="font-size:13px;font-weight:600;">Social Post</div><div style="font-size:11px;color:var(--text-muted);">BLUF structure</div></div>
       <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('podcast',null)"><div style="font-size:22px;margin-bottom:6px;">🎙</div><div style="font-size:13px;font-weight:600;">Podcast Script</div><div style="font-size:11px;color:var(--text-muted);">Full episode</div></div>
       <div class="card-sm" style="cursor:pointer;text-align:center;" onclick="switchPanel('calendar',null)"><div style="font-size:22px;margin-bottom:6px;">⬡</div><div style="font-size:13px;font-weight:600;">Schedule Post</div><div style="font-size:11px;color:var(--text-muted);">Plan your content</div></div>
     </div>
@@ -294,26 +303,36 @@ canvas { width: 100%; border-radius: 6px; display: block; }
 <div class="panel" id="panel-quotes">
   <div class="panel-header">
     <div class="panel-title">Quote Card Generator</div>
-    <div class="panel-sub">AI surfaces a quote from <em>Take Command</em> by Victor Simz — generates a branded 1080×1080 PNG card ready to post</div>
+    <div class="panel-sub">Real quotes from the <em>Take Command</em> manuscript (verified word for word), or clearly labelled original lines — as a branded 1080×1080 card</div>
   </div>
   <div class="grid-2" style="gap:24px;align-items:start;">
     <div style="display:flex;flex-direction:column;gap:14px;">
       <div class="card">
         <div class="section-title" style="margin-bottom:14px;">Quote Source</div>
         <div class="form-row">
-          <label>Content Pillar</label>
-          <select id="quote-pillar">
-            <option>Self-Command</option><option>Strategy</option><option>Planning</option>
-            <option>Identity</option><option>Vision</option><option>Execution</option>
-            <option>Leadership</option><option>Legacy</option><option>Mindset</option><option>Discipline</option>
+          <label>Source</label>
+          <select id="quote-source" onchange="onQuoteSourceChange()">
+            <option value="book">From the book — verified quote bank</option>
+            <option value="original">Original line — AI, labelled “Original”</option>
+            <option value="custom">Paste my own</option>
           </select>
         </div>
         <div class="form-row">
-          <label>Or Paste Your Own Quote</label>
-          <textarea id="custom-quote" rows="3" placeholder="Type any passage from Take Command, or leave blank to let AI source one…"></textarea>
+          <label>Theme</label>
+          <select id="quote-theme" onchange="renderQuoteBankList()"></select>
+        </div>
+        <div class="form-row" id="quote-bank-row">
+          <label>Quote <span id="quote-bank-count" style="color:var(--text-light);font-weight:400;"></span></label>
+          <select id="quote-bank-select"></select>
+          <div class="hint">Every quote here was checked word for word against the manuscript. Leave on “Random” to let the generator pick.</div>
+        </div>
+        <div class="form-row" id="custom-quote-row" style="display:none;">
+          <label>Your Quote</label>
+          <textarea id="custom-quote" rows="3" placeholder="Type a passage. Tick below only if it is word for word from the book."></textarea>
+          <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-weight:400;text-transform:none;letter-spacing:0;"><input type="checkbox" id="custom-is-book" style="width:auto;"> This is a word-for-word quote from <em>Take Command</em></label>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-gold" onclick="generateQuote()" style="flex:1;">⚡ Generate Quote + Card</button>
+          <button class="btn btn-gold" onclick="generateQuote()" style="flex:1;">⚡ Generate Card</button>
           <button class="btn btn-primary" onclick="downloadCard()">⬇ PNG</button>
         </div>
         <div style="margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="regenerateQuote()">↺ Try Another</button></div>
@@ -341,7 +360,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
         <div style="font-size:11px;color:var(--text-light);margin-top:8px;">Images are saved in this browser. Re-upload on a new device.</div>
       </div>
       <div class="card" id="ai-quote-card" style="display:none;">
-        <div class="section-title">AI-Sourced Quote</div>
+        <div class="section-title">Quote <span id="quote-src-tag"></span></div>
         <div class="output-box" id="ai-quote-text" style="min-height:80px;font-size:13px;font-style:italic;"></div>
         <div class="output-actions">
           <button class="btn btn-sm btn-outline" onclick="copyOutput('ai-quote-text')">Copy</button>
@@ -353,7 +372,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">On mobile: native share sheet opens. On desktop: image downloads, then the platform opens — attach from Downloads.</div>
         <div class="share-row">
           <button class="btn-share" style="background:#25D366" onclick="shareCard('whatsapp')">📱 WhatsApp</button>
-          <button class="btn-share" style="background:#000"    onclick="shareCard('twitter')">✕ Twitter/X</button>
+          <button class="btn-share" style="background:#E1306C" onclick="shareCard('instagram')">◎ Instagram</button>
           <button class="btn-share" style="background:#1877F2" onclick="shareCard('facebook')">f Facebook</button>
           <button class="btn-share" style="background:#0A66C2" onclick="shareCard('linkedin')">in LinkedIn</button>
           <button class="btn-share" style="background:#e8971a;color:#000;" onclick="shareCard('native')">↑ Share Image</button>
@@ -369,7 +388,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
 <div class="panel" id="panel-posts">
   <div class="panel-header">
     <div class="panel-title">Social Post Generator</div>
-    <div class="panel-sub">Platform-optimised posts in Victor Simz's voice — powered by Claude AI</div>
+    <div class="panel-sub">Take Command posts built on the BLUF structure — LinkedIn, Facebook, YouTube shorts and the newsletter</div>
   </div>
   <div class="grid-2" style="gap:24px;align-items:start;">
     <div style="display:flex;flex-direction:column;gap:14px;">
@@ -377,28 +396,31 @@ canvas { width: 100%; border-radius: 6px; display: block; }
         <div class="section-title" style="margin-bottom:14px;">Platform</div>
         <div class="platform-tabs">
           <div class="platform-tab li active" onclick="setActivePlatform(this,'li')">LinkedIn</div>
-          <div class="platform-tab tw"        onclick="setActivePlatform(this,'tw')">Twitter / X</div>
-          <div class="platform-tab ig"        onclick="setActivePlatform(this,'ig')">Instagram</div>
           <div class="platform-tab fb"        onclick="setActivePlatform(this,'fb')">Facebook</div>
+          <div class="platform-tab yt"        onclick="setActivePlatform(this,'yt')">YouTube Short</div>
+          <div class="platform-tab nl"        onclick="setActivePlatform(this,'nl')">Newsletter</div>
         </div>
-        <div class="form-row"><label>Content Pillar</label>
-          <select id="post-pillar">
-            <option>Self-Command</option><option>Strategy</option><option>Planning</option>
-            <option>Identity</option><option>Vision</option><option>Execution</option>
-            <option>Leadership</option><option>Legacy</option><option>Mindset</option><option>Discipline</option>
+        <div class="form-row"><label>From the Content Plan (optional)</label>
+          <select id="post-plan" onchange="loadPlanItem(this.value)"><option value="">— Pick a planned post to pre-fill —</option></select>
+        </div>
+        <div class="form-row"><label>Series</label>
+          <select id="post-series" onchange="syncFormatToSeries()"></select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-row"><label>Battle Domain</label><select id="post-domain"></select></div>
+          <div class="form-row"><label>V-PRO Step</label><select id="post-step"></select></div>
+        </div>
+        <div class="form-row"><label>Structure</label>
+          <select id="post-format">
+            <option value="bluf">Standard — BLUF → Problem → Insight → Example → Commander’s Directive → Question</option>
+            <option value="journal">Commander’s Journal — Situation → Question → Decision → What happened → Lesson → Next step</option>
+            <option value="voices">Command Voices — introduce the contributor → their key idea → why it matters → question</option>
           </select>
         </div>
-        <div class="form-row"><label>Topic / Angle</label><input type="text" id="post-topic" placeholder="e.g. Why self-command is the foundation of all leadership" /></div>
-        <div class="form-row"><label>Tone</label>
-          <select id="post-tone">
-            <option value="thought">Thought leadership — authoritative, commanding</option>
-            <option value="challenge">Provocative — challenge the reader's assumption</option>
-            <option value="narrative">Narrative — story-driven, leads to insight</option>
-            <option value="insight">Tactical insight — specific and actionable</option>
-            <option value="cta">Call to action — movement-building</option>
-          </select>
-        </div>
-        <div class="form-row"><label>Key Message (optional)</label><textarea id="post-msg" rows="2" placeholder="Core idea or quote to anchor the post…"></textarea></div>
+        <div class="form-row"><label>Working Title / Topic</label><input type="text" id="post-topic" placeholder="e.g. Hope Is Not a Strategy" /></div>
+        <div class="form-row"><label>Brief / Book Source</label><textarea id="post-msg" rows="3" placeholder="What the post must say, and the chapter it draws on…"></textarea></div>
+        <div class="form-row"><label>Book Excerpt to Ground the Post (optional)</label><textarea id="post-excerpt" rows="3" placeholder="Paste the paragraph from the manuscript this post is based on. The AI will stay faithful to it."></textarea>
+          <div class="hint">The AI has not read the book. Paste the relevant passage for accuracy; it will never invent book quotes.</div></div>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-gold" onclick="generatePost()" style="flex:1;">⚡ Generate Post</button>
           <button class="btn btn-outline" onclick="clearPost()">Clear</button>
@@ -415,7 +437,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
           <div class="section-title" style="margin-bottom:0;">Generated Post</div>
           <span id="platform-badge" class="badge badge-dark">LinkedIn</span>
         </div>
-        <div class="output-box placeholder" id="post-output">Your generated post will appear here. Select your platform, pillar, and topic — then hit Generate.</div>
+        <div class="output-box placeholder" id="post-output">Your generated post will appear here. Pick a planned post or set the series and topic — then hit Generate.</div>
         <div class="output-actions">
           <button class="btn btn-sm btn-outline" onclick="copyOutput('post-output')">Copy</button>
           <button class="btn btn-sm btn-outline" onclick="saveToVault('post')">Save to Vault</button>
@@ -424,7 +446,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
         </div>
       </div>
       <div class="card">
-        <div class="section-title">Platform Best Practices</div>
+        <div class="section-title">Platform Guidance</div>
         <div id="platform-tips" style="font-size:12px;color:var(--text-muted);line-height:1.9;"></div>
       </div>
     </div>
@@ -435,19 +457,18 @@ canvas { width: 100%; border-radius: 6px; display: block; }
 <div class="panel" id="panel-podcast">
   <div class="panel-header">
     <div class="panel-title">Podcast Script Writer</div>
-    <div class="panel-sub">Full episode scripts for the Take Command Podcast — in Victor Simz's voice</div>
+    <div class="panel-sub">Seated, conversational episode scripts — faith and Stoic reflection on the Take Command system</div>
   </div>
   <div class="grid-2" style="gap:24px;align-items:start;">
     <div>
       <div class="card">
         <div class="section-title">Episode Brief</div>
-        <div class="form-row"><label>Content Pillar</label>
-          <select id="pod-pillar">
-            <option>Self-Command</option><option>Strategy</option><option>Planning</option>
-            <option>Identity</option><option>Vision</option><option>Execution</option>
-            <option>Leadership</option><option>Legacy</option><option>Mindset</option><option>Discipline</option>
-          </select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-row"><label>Battle Domain</label><select id="pod-domain"></select></div>
+          <div class="form-row"><label>V-PRO Step</label><select id="pod-step"></select></div>
         </div>
+        <div class="form-row"><label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-weight:500;"><input type="checkbox" id="pod-faith" checked style="width:auto;"> Include a Scripture + Stoic reflection segment</label></div>
+        <div class="form-row"><label>Book Excerpt (optional)</label><textarea id="pod-excerpt" rows="3" placeholder="Paste the passage the episode is built on…"></textarea></div>
         <div class="form-row"><label>Episode Topic / Title</label><input type="text" id="pod-topic" placeholder="e.g. Why You Can't Lead Others Until You Command Yourself" /></div>
         <div class="form-row"><label>Central Thesis</label><textarea id="pod-thesis" rows="3" placeholder="What is the core claim? What should listeners walk away knowing or doing?"></textarea></div>
         <div class="form-row"><label>Episode Length</label>
@@ -486,14 +507,17 @@ canvas { width: 100%; border-radius: 6px; display: block; }
     <div style="display:flex;gap:8px;align-items:center;">
       <button class="btn btn-outline btn-sm" onclick="changeMonth(-1)">← Prev</button>
       <button class="btn btn-outline btn-sm" onclick="changeMonth(1)">Next →</button>
+      <button class="btn btn-outline btn-sm" onclick="importTCPlan()" title="Adds the 53 planned posts (3 Nov 2026 – 30 Mar 2027); skips any already on the calendar">⇩ Import Take Command Plan</button>
       <button class="btn btn-gold btn-sm"    onclick="openScheduleModal(null)">+ Schedule Post</button>
     </div>
   </div>
   <div class="card" style="margin-bottom:16px;">
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:12px;">
       <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#0077b5;opacity:.6;"></div>LinkedIn</div>
-      <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#000;opacity:.45;"></div>Twitter/X</div>
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#0b4f8a;opacity:.5;"></div>LinkedIn + Facebook</div>
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#ff0000;opacity:.5;"></div>YouTube</div>
       <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#e1306c;opacity:.6;"></div>Instagram</div>
+      <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#555;opacity:.5;"></div>Newsletter</div>
       <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#1877f2;opacity:.6;"></div>Facebook</div>
       <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:var(--gold);opacity:.7;"></div>Podcast</div>
       <div style="margin-left:auto;color:var(--text-muted);" id="cal-post-count"></div>
@@ -531,7 +555,7 @@ canvas { width: 100%; border-radius: 6px; display: block; }
     <div class="card-sm"><div class="stat-label">Quote Cards</div><div class="stat-value" id="an-cards">—</div><div class="stat-delta">PNG cards generated</div></div>
   </div>
   <div class="grid-2 section">
-    <div class="card"><div class="section-title">Output by Pillar</div><div id="an-pillar-chart" class="bar-chart"></div></div>
+    <div class="card"><div class="section-title">Output by Series / Theme</div><div id="an-pillar-chart" class="bar-chart"></div></div>
     <div class="card"><div class="section-title">Output by Platform</div><div id="an-platform-chart" class="bar-chart"></div></div>
   </div>
 </div>
@@ -547,8 +571,8 @@ canvas { width: 100%; border-radius: 6px; display: block; }
     <div class="modal-row"><label>Date</label><input type="date" id="sched-date" /></div>
     <div class="modal-row"><label>Platform</label>
       <select id="sched-platform">
-        <option value="li">LinkedIn</option><option value="tw">Twitter / X</option>
-        <option value="ig">Instagram</option><option value="fb">Facebook</option><option value="pod">Podcast</option>
+        <option value="lf">LinkedIn + Facebook</option><option value="li">LinkedIn</option><option value="fb">Facebook</option>
+        <option value="yt">YouTube</option><option value="ig">Instagram (quote card)</option><option value="nl">Newsletter</option><option value="pod">Podcast</option>
       </select>
     </div>
     <div class="modal-row"><label>Title / Note</label><input type="text" id="sched-title" placeholder="Brief description…" /></div>
@@ -645,13 +669,39 @@ async function callClaude(system, user, maxTokens=1400) {
   return (await r.json()).content[0].text;
 }
 
-const VICTOR_VOICE = `You are writing as Victor Simz — author of "Take Command: How to Plan Your Life Like a Military General," historian, strategist, and leadership coach.
+const VICTOR_VOICE = `You write for TAKE COMMAND — the personal brand and book of Victor Simukonda ("Victor Simz" on social media), a Zambian Army officer, author and practitioner-scholar.
 
-Core thesis: The greatest generals in history didn't just win battles — they planned for them. Victor applies military strategic doctrine to personal life planning. You are the commander of your own life; without a command strategy, you will be commanded by your circumstances.
+THE BOOK: "Take Command: How to Plan Your Life Like a Military General" — a field manual, not a motivational book. Core idea: life is a campaign and every person is its commander. "Identity gives you command over self. Planning gives you command over domains. Together they give you command over life."
+- The Seven Battle Domains of Life (7BDs): Spiritual (the centre of gravity), Physical (your first line of defense), Financial (life's logistics), Relational (the human terrain), Creational (your contribution), Professional (the training ground), Generational (fighting the good fight).
+- The VICTORY Protocol (V-PRO), producing a Life Campaign Plan: V Visualize the End State · I Identify Higher Intent · C Clarify the Problem · T Tasks (specified, implied, essential) · O Operational Environment · R Resources, Restrictions and Risks · Y Your Mission & Courses of Action.
+- Field tools: Domain Command Template, Eulogy End State, Vision Board, Problem Clarification Template, Intelligence Preparation of Life's Battlefield (IPLB), Personal Battle Rhythm.
+- Grounded in Christian faith (the Spiritual Domain is the centre of gravity) and Stoic philosophy (Marcus Aurelius, Seneca).
 
-Voice: declarative, high-conviction, no hedging or filler. Military metaphors woven naturally. Treats personal development as strategic operations. Short punchy sentences for emphasis, longer sentences for argument. Never says "It's time to…", "I believe…", or empty motivational clichés. The reader is a commander, not a victim.
+VOICE: direct, disciplined, practical, honest. Clarity of a field manual, depth of a researcher. Confident without self-importance. Willing to say "I am testing this" or "I got this wrong". Short paragraphs.
+RULES:
+- Translate every military term into plain language the first time it appears (e.g. "course of action — the route you choose to reach your goal"). Spell out acronyms.
+- Military metaphor clarifies; it never glorifies violence. "War" means the struggle for discipline and purpose.
+- Faith is expressed openly, never imposed; content stays useful to readers of any faith or none.
+- NEVER invent quotations from the book or attribute words to Victor's book that were not supplied to you. Only quote book text that appears in the brief or excerpt.
+- No generic motivational clichés, hype, emojis in the first line, medical/financial advice, or operational/sensitive military detail.
+- Primary audience: professionals and emerging leaders (25–45), many in Africa, seeking direction across their whole life.`;
 
-Content pillars: Self-Command, Strategy, Planning, Identity, Vision, Execution, Leadership, Legacy, Mindset, Discipline.`;
+const SERIES = ['Seven Battle Domains','V-PRO in Practice','Command Voices','Commander’s Journal'];
+const DOMAINS = ['—','Spiritual','Physical','Financial','Relational','Creational','Professional','Generational'];
+const VPRO_STEPS = ['—','V — Visualize the End State','I — Identify Higher Intent','C — Clarify the Problem','T — Tasks','O — Operational Environment','R — Resources, Restrictions & Risks','Y — Your Mission & COAs'];
+const FORMATS = {
+  bluf: `STRUCTURE (do not print the labels): 1) BLUF — the bottom line in the first line (this is what shows before "see more"). 2) Problem. 3) Insight. 4) Example or evidence. 5) Commander’s Directive — ONE specific action the reader can take today. 6) A reflective question that invites comments.`,
+  journal: `STRUCTURE — Commander’s Journal, first person, honest (do not print the labels): Situation → Question I faced → Decision or experiment → What happened → Lesson → Next step. End with a question to the reader.`,
+  voices: `STRUCTURE — Command Voices feature (do not print the labels): introduce the contributing officer by rank, name and service → their key idea in one or two sentences (only what the brief/excerpt supports) → why it matters for the reader’s own life campaign → a question. Credit the contributor clearly; do not invent quotes from them.`
+};
+const QUOTE_THEMES = {all:'All themes',core:'Take Command — core',self:'Command of Self',domains:'Seven Battle Domains',spiritual:'Spiritual Domain',physical:'Physical Domain',financial:'Financial Domain',relational:'Relational Domain',creational:'Creational Domain',professional:'Professional Domain',generational:'Generational Domain',vpro:'V-PRO — planning',V:'V — Visualize the End State',I:'I — Identify Higher Intent',Y:'Y — Mission & COAs',rhythm:'Battle Rhythm',faith:'Faith & Legacy'};
+// Verified word for word against the manuscript (Oct 2026). Add new lines only if copied exactly from the book.
+const QUOTE_BANK = [{"t": "Life is a Campaign. All of us are Commanders. But if you don’t think and plan like one and Take Command of your life, something else will.", "th": "core", "lbl": "Take Command", "src": "Preface"}, {"t": "Hope is not a strategy.", "th": "core", "lbl": "Take Command", "src": "Introduction"}, {"t": "They mistake busyness for progress, movement for momentum, and wishes for plans.", "th": "core", "lbl": "Take Command", "src": "Introduction"}, {"t": "In doctrine, command is not just a position; it is authority.", "th": "core", "lbl": "Take Command", "src": "Introduction"}, {"t": "The battlefield does not care whether you are motivated.", "th": "core", "lbl": "Take Command", "src": "Introduction"}, {"t": "Only motivation as disciplined purpose endures.", "th": "core", "lbl": "Take Command", "src": "Introduction"}, {"t": "True purpose is not a treasure to be found; it’s a truth to be discovered.", "th": "core", "lbl": "Take Command", "src": "Introduction"}, {"t": "Never surrender your purpose to circumstance, your convictions to convenience, or your future to chance.", "th": "faith", "lbl": "Legacy", "src": "To My Children"}, {"t": "Stand firm when others retreat, create when others consume, and serve when others seek only to be served.", "th": "faith", "lbl": "Legacy", "src": "To My Children"}, {"t": "Long-suffering is not passive resignation; it’s disciplined endurance.", "th": "spiritual", "lbl": "Spiritual Domain", "src": "Introduction"}, {"t": "Life is a large, interconnected battlespace.", "th": "domains", "lbl": "Seven Battle Domains", "src": "Ch. 1"}, {"t": "Just as no commander can control the land while being blind in the air or vulnerable in cyberspace, you cannot win the war of life if your success is one-dimensional.", "th": "domains", "lbl": "Seven Battle Domains", "src": "Ch. 1"}, {"t": "Before winning any external battle, it’s first won internally through clarity, discipline, and mental mastery.", "th": "spiritual", "lbl": "Spiritual Domain", "src": "Ch. 1"}, {"t": "Victory belongs to the leader who controls their attention, not the one who responds to every signal.", "th": "spiritual", "lbl": "Spiritual Domain", "src": "Ch. 1"}, {"t": "Victory belongs to those who remain loyal to their mission and advance steadily along their own path.", "th": "spiritual", "lbl": "Spiritual Domain", "src": "Ch. 1"}, {"t": "A clear heart leads with wisdom; a bitter heart remains trapped in battles already over.", "th": "spiritual", "lbl": "Spiritual Domain", "src": "Ch. 1"}, {"t": "Hope is often restored in motion, not in retreat, and the battle is never finished while you still choose to lead.", "th": "spiritual", "lbl": "Spiritual Domain", "src": "Ch. 1"}, {"t": "A commander who neglects physical readiness creates vulnerabilities the enemy will exploit.", "th": "physical", "lbl": "Physical Domain", "src": "Ch. 1"}, {"t": "Strength commands respect not out of vanity but because it indicates discipline, capability, and inner order.", "th": "physical", "lbl": "Physical Domain", "src": "Ch. 1"}, {"t": "To Take Command, you must reject the modern lie that the body and the mind can be managed separately.", "th": "physical", "lbl": "Physical Domain", "src": "Ch. 1"}, {"t": "It’s impossible to run an effective campaign when your supply lines are under attack.", "th": "financial", "lbl": "Financial Domain", "src": "Ch. 1"}, {"t": "If you don’t command your resources, your lack of resources will command you.", "th": "financial", "lbl": "Financial Domain", "src": "Ch. 1"}, {"t": "No campaign is won in isolation, and no leader remains strong when surrounded by unchecked friction, misalignment, or silent resistance.", "th": "relational", "lbl": "Relational Domain", "src": "Ch. 1"}, {"t": "The right network can open doors that discipline alone cannot.", "th": "relational", "lbl": "Relational Domain", "src": "Ch. 1"}, {"t": "To take command of your life, you must not only live but create.", "th": "creational", "lbl": "Creational Domain", "src": "Ch. 1"}, {"t": "Life is not won through bursts of effort but through continuous learning, disciplined action, and staying grounded over time.", "th": "professional", "lbl": "Professional Domain", "src": "Ch. 1"}, {"t": "In this realm, discipline becomes legacy, character becomes value, and example becomes doctrine for future generations.", "th": "generational", "lbl": "Generational Domain", "src": "Ch. 1"}, {"t": "To take command of this domain is to live with the weight of eternity in mind.", "th": "generational", "lbl": "Generational Domain", "src": "Ch. 1"}, {"t": "Before strategies matter, before plans are made, before objectives are set, a key precondition is that YOU must take command and responsibility for YOUR life.", "th": "self", "lbl": "Command of Self", "src": "Ch. 2"}, {"t": "What separates those who move forward from those who get stuck has never been the environment; it’s the ability to see clearly, plan intentionally, and act with discipline despite it.", "th": "self", "lbl": "Command of Self", "src": "Ch. 2"}, {"t": "They’re not just words; they’re commands to the self, and over time the self obeys.", "th": "self", "lbl": "Command of Self", "src": "Ch. 2"}, {"t": "In the absence of command, chaos governs, and identity becomes accidental rather than intentional.", "th": "self", "lbl": "Command of Self", "src": "Ch. 2"}, {"t": "To Take Command and change your life, you must first take command of your identity.", "th": "self", "lbl": "Command of Self", "src": "Ch. 2"}, {"t": "When you say “I am disciplined,” you are issuing a standing order.", "th": "self", "lbl": "Command of Self", "src": "Ch. 2"}, {"t": "A commander with authority but no plan still loses wars.", "th": "self", "lbl": "Command of Self", "src": "Ch. 2"}, {"t": "Identity gives you command over self. Planning gives you command over domains. And together they give you command over life.", "th": "core", "lbl": "Take Command", "src": "Ch. 2"}, {"t": "And just as no commander steps onto a battlefield without a plan, no individual should walk through life without a strategy.", "th": "vpro", "lbl": "V-PRO", "src": "Ch. 3"}, {"t": "Without a plan, they don’t command their lives; they’re commanded by circumstances, trapped in routines they didn’t design, fighting battles they didn’t choose.", "th": "vpro", "lbl": "V-PRO", "src": "Ch. 3"}, {"t": "Planning is the discipline that forces you to rise above the noise, the rush, and the firefighting.", "th": "vpro", "lbl": "V-PRO", "src": "Ch. 4"}, {"t": "Speed without clarity only accelerates failure.", "th": "vpro", "lbl": "V-PRO", "src": "Ch. 4"}, {"t": "Planning lives on paper; vague thoughts don’t survive pressure.", "th": "vpro", "lbl": "V-PRO", "src": "Ch. 4"}, {"t": "Remember that adaptation is not deviation.", "th": "vpro", "lbl": "V-PRO", "src": "Ch. 4"}, {"t": "Vision is not fantasy or wishful thinking; it is disciplined imagination grounded in reality.", "th": "V", "lbl": "V — Visualize the End State", "src": "Ch. 5"}, {"t": "Visualization is the commander’s first act of command.", "th": "V", "lbl": "V — Visualize the End State", "src": "Ch. 5"}, {"t": "Generals don’t begin campaigns by asking what they’ll do tomorrow.", "th": "V", "lbl": "V — Visualize the End State", "src": "Ch. 5"}, {"t": "Tasks describe what you do; an end state describes what must be true when you are done.", "th": "V", "lbl": "V — Visualize the End State", "src": "Ch. 5"}, {"t": "Planning is non-negotiable because an unplanned life under a fixed deadline constitutes strategic negligence.", "th": "V", "lbl": "V — Visualize the End State", "src": "Ch. 5"}, {"t": "Vision that remains in the mind dies there.", "th": "V", "lbl": "V — Visualize the End State", "src": "Ch. 5"}, {"t": "End states anchor success, but Higher Intent sustains judgment when conditions change.", "th": "I", "lbl": "I — Identify Higher Intent", "src": "Ch. 6"}, {"t": "Until you can answer why you are fighting, no amount of skill or discipline will make you Take Command and achieve mastery.", "th": "I", "lbl": "I — Identify Higher Intent", "src": "Ch. 6"}, {"t": "Once a commander has crafted valid missions, they reach the point where amateurs stop and strategists begin.", "th": "Y", "lbl": "Y — Your Mission & COAs", "src": "Ch. 11"}, {"t": "A single untested path is not a plan; it’s a gamble, and commanders don’t gamble.", "th": "Y", "lbl": "Y — Your Mission & COAs", "src": "Ch. 11"}, {"t": "Excellence isn’t born from dramatic moments; it’s forged through disciplined repetition of simple things done well.", "th": "rhythm", "lbl": "Battle Rhythm", "src": "Ch. 12"}, {"t": "Daily Rituals are the smallest unit of command yet carry the greatest cumulative power.", "th": "rhythm", "lbl": "Battle Rhythm", "src": "Ch. 12"}, {"t": "Taking command doesn’t require permission, rank, or perfect conditions.", "th": "core", "lbl": "Take Command", "src": "Epilogue"}, {"t": "That version of you is not a fantasy; it is the predictable outcome of disciplined planning and execution.", "th": "core", "lbl": "Take Command", "src": "Epilogue"}, {"t": "You are a commander—appointed by God, equipped by wisdom, sharpened by experience, strengthened through suffering, guided by purpose.", "th": "faith", "lbl": "Final Charge", "src": "Final Charge"}];
+// Take Command content plan, 3 Nov 2026 – 30 Mar 2027 (Concept Paper v2.0)
+const TC_PLAN = [{"date": "2026-11-03", "plat": "LinkedIn + Facebook", "series": "journal", "title": "Why I Am Launching Take Command as I Approach 40", "brief": "Preface + Acknowledgements. Six years in the making; from OSB in Kabwe to Fort Leavenworth; what Take Command is and what to expect. Invite readers to follow the series."}, {"date": "2026-11-05", "plat": "LinkedIn + Facebook", "series": "domains", "title": "Life Is a Campaign: The Seven Domains You Are Already Fighting In", "brief": "Ch. 1 opening (Persia and the sea, multidomain operations). Introduce the 7BDs; ask readers which domain they neglect most."}, {"date": "2026-11-10", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "Hope Is Not a Strategy", "brief": "Introduction — We Are at War! Busyness vs progress, movement vs momentum, wishes vs plans. Commander’s Directive: write down one plan you have been hoping into existence."}, {"date": "2026-11-12", "plat": "LinkedIn + Facebook", "series": "domains", "title": "The Spiritual Domain: Your Centre of Gravity", "brief": "Ch. 1 — Spiritual Domain. Napoleon and morale; why every domain draws strength from this one. Faith stated openly, not imposed."}, {"date": "2026-11-13", "plat": "YouTube", "series": "vpro", "title": "Life Is a Campaign — the Take Command idea in 5 minutes", "brief": "Short video. BLUF, the 7BDs and V-PRO in one sentence each. Close with the tagline."}, {"date": "2026-11-17", "plat": "LinkedIn + Facebook", "series": "domains", "title": "Why Winning in One Domain Fails If You Neglect Another", "brief": "Ch. 1 closing — the systems view: physical neglect lowers professional performance and creational output. Use a personal example."}, {"date": "2026-11-19", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "Motivation Is Not a Feeling. It Is Clarity.", "brief": "Introduction — The Misconception About Motivation. ‘Motive’ = reason, cause, purpose. The battlefield does not care whether you are motivated."}, {"date": "2026-11-24", "plat": "LinkedIn + Facebook", "series": "journal", "title": "Six Years to Finish a Book: What Delayed It, and What It Taught Me", "brief": "Acknowledgements line: ‘in hindsight, I understand why it wasn’t finished earlier.’ Honest lessons on unfinished work."}, {"date": "2026-11-26", "plat": "LinkedIn + Facebook", "series": "domains", "title": "The Greatest Empire Is the Empire Over Yourself", "brief": "Ch. 2 — What is the Greatest Empire? Scipio and command of self; identity statements as command directives."}, {"date": "2026-11-27", "plat": "YouTube", "series": "domains", "title": "The Seven Battle Domains Explained", "brief": "Short video walking through all seven domains with one question each (use the 7BD wheel graphic)."}, {"date": "2026-11-30", "plat": "Facebook", "series": "journal", "title": "November Command Review", "brief": "What was published, what resonated, audience questions, one adjustment for December."}, {"date": "2026-12-01", "plat": "LinkedIn + Facebook", "series": "domains", "title": "Your Body Is Your First Line of Defense", "brief": "Ch. 1 — Physical Domain. Energy, vitality and capacity as the foundation of the whole campaign. General guidance, not medical advice."}, {"date": "2026-12-03", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "V — Visualize the End State: What Does Victory Look Like?", "brief": "Ch. 5. Most people never define victory. Condition-based end states vs vague goals."}, {"date": "2026-12-08", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "Write Your Own Eulogy Before You Plan Your Year", "brief": "Annex B — Eulogy End State Template. Walk through the exercise; offer the template via newsletter."}, {"date": "2026-12-10", "plat": "LinkedIn + Facebook", "series": "domains", "title": "Building Fitness Around a Demanding Professional Life", "brief": "Physical Domain applied: Victor’s own routine and battle rhythm. Practical, honest, sustainable."}, {"date": "2026-12-11", "plat": "YouTube", "series": "vpro", "title": "Write Your Eulogy: The End-State Exercise", "brief": "Short video demonstrating Annex B; call to action: download the template."}, {"date": "2026-12-15", "plat": "LinkedIn + Facebook", "series": "voices", "title": "Command Voices #1 — First Contributor Feature", "brief": "Feature one contributor’s essay (Part I). REQUIRES signed release. Tag the contributor; include their disclaimer."}, {"date": "2026-12-17", "plat": "LinkedIn + Facebook", "series": "journal", "title": "Your Next Level May Require Subtraction, Not Addition", "brief": "Fewer projects, distractions and commitments — tie to Commander’s Planning Guidance: keep scope manageable."}, {"date": "2026-12-18", "plat": "YouTube", "series": "vpro", "title": "2026 → 2027: Plan the Year Like a Campaign", "brief": "Year-end video: end state, higher intent, and a first look at V-PRO for New Year planning."}, {"date": "2026-12-22", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "Your Big E: One Picture of Victory for 2027", "brief": "Ch. 5 — the Big E as the unifying picture of victory across domains. Ask readers to write theirs."}, {"date": "2026-12-29", "plat": "LinkedIn + Facebook", "series": "journal", "title": "Things I Learned This Year That Had Nothing to Do With Technology", "brief": "Family, rest, discipline, faith, relationships, humility and focus — mapped to the domains."}, {"date": "2026-12-31", "plat": "Facebook", "series": "journal", "title": "My 2027 Campaign: End State and Operating Principles", "brief": "Share Victor’s own Big E and operating principles; announce what is coming in 2027 (the book)."}, {"date": "2027-01-05", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "I — Identify Higher Intent: Why Does It Matter?", "brief": "Ch. 6. Goals without higher intent collapse under pressure. Help readers write a Higher Intent Statement."}, {"date": "2027-01-07", "plat": "LinkedIn + Facebook", "series": "domains", "title": "Money Is Logistics, Not Status", "brief": "Ch. 1 — Financial Domain: Life’s Logistics. No logistics, no movement; no movement, no victory. General guidance, not financial advice."}, {"date": "2027-01-08", "plat": "YouTube", "series": "vpro", "title": "Higher Intent: The Why Behind Your Plan", "brief": "Short video on Ch. 6 with one worked example."}, {"date": "2027-01-12", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "C — Clarify the Problem: The Real Problem Is Rarely the One You Can See", "brief": "Ch. 7. Symptoms vs root problems; introduce the Problem Clarification Template (Annex D)."}, {"date": "2027-01-14", "plat": "LinkedIn + Facebook", "series": "domains", "title": "Treating Cash Shortage as the Problem When It Is a Symptom", "brief": "Ch. 7 — Financial Domain example of symptom vs problem."}, {"date": "2027-01-19", "plat": "LinkedIn + Facebook", "series": "voices", "title": "Command Voices #2", "brief": "Second contributor feature. Signed release required."}, {"date": "2027-01-21", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "Leaders Don’t Need to Know Everything. They Need to Know What Questions to Ask.", "brief": "Clarify the Problem applied to leadership (and AI): the quality of the question decides the quality of the plan."}, {"date": "2027-01-22", "plat": "YouTube", "series": "vpro", "title": "How to Clarify the Real Problem", "brief": "Short walkthrough of the Problem Clarification Template."}, {"date": "2027-01-26", "plat": "LinkedIn + Facebook", "series": "journal", "title": "My Domain Assessment, Honestly Scored", "brief": "Victor scores his own 7 domains using the Domain Command Template; what he is changing."}, {"date": "2027-01-28", "plat": "LinkedIn + Facebook", "series": "domains", "title": "Treating Anxiety as the Problem When It Is a Symptom", "brief": "Ch. 7 — Spiritual Domain example. Careful, non-clinical framing."}, {"date": "2027-02-02", "plat": "LinkedIn + Facebook", "series": "domains", "title": "Relationships Are Terrain, Not Background", "brief": "Ch. 1 — Relational Domain: The Human Terrain. Managing relationships strategically, not emotionally."}, {"date": "2027-02-04", "plat": "LinkedIn + Facebook", "series": "journal", "title": "Take Command Is Coming — Pre-orders Are Open", "brief": "Announce the book: title, what it is (a field manual), contributors from 12 armies, launch month. Link to pre-order page."}, {"date": "2027-02-05", "plat": "YouTube", "series": "journal", "title": "Why I Wrote Take Command", "brief": "Short video: the story, the system, the invitation to pre-order."}, {"date": "2027-02-09", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "T — Specified, Implied and Essential Tasks in Everyday Life", "brief": "Ch. 8. Most people only see specified tasks; the implied ones decide success."}, {"date": "2027-02-11", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "O — Where Are You, Really? Intelligence Preparation of Life’s Battlefield", "brief": "Ch. 9 — IPLB: current environment, desired environment, the gap."}, {"date": "2027-02-16", "plat": "LinkedIn + Facebook", "series": "voices", "title": "Command Voices #3", "brief": "Third contributor feature. Signed release required."}, {"date": "2027-02-18", "plat": "LinkedIn + Facebook", "series": "domains", "title": "Treating Conflict as the Problem When It Is a Symptom", "brief": "Ch. 7 — Relational Domain example."}, {"date": "2027-02-19", "plat": "YouTube", "series": "vpro", "title": "IPLB: Map Your Life’s Battlefield", "brief": "Short walkthrough of the IPLB template (Annex E)."}, {"date": "2027-02-23", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "R — Resources, Restrictions and Risks: Plan for Friction Before It Finds You", "brief": "Ch. 10. Account for reality before reality does it for you."}, {"date": "2027-02-25", "plat": "LinkedIn + Facebook", "series": "journal", "title": "The Uncomfortable Side of Ambition", "brief": "Fear, comparison, overcommitment and focus — honest reflection before turning 40."}, {"date": "2027-03-02", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "Y — Your Mission and Courses of Action", "brief": "Ch. 11. From end state to an executable mission; choosing between courses of action."}, {"date": "2027-03-04", "plat": "LinkedIn + Facebook", "series": "domains", "title": "What Will You Build That Would Not Exist Without You?", "brief": "Ch. 1 — Creational Domain: Your Contribution."}, {"date": "2027-03-05", "plat": "YouTube", "series": "vpro", "title": "V-PRO in 10 Minutes", "brief": "All seven VICTORY steps with one worked example. Pre-order call to action."}, {"date": "2027-03-09", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "Adjust the Route, Not the Destination", "brief": "Commander’s Planning Guidance: adaptation is not deviation — change the COAs, not the mission or end state."}, {"date": "2027-03-11", "plat": "LinkedIn + Facebook", "series": "voices", "title": "Command Voices #4 — Voices From 12 Armies", "brief": "Launch run-up: montage of contributor perspectives on command of self."}, {"date": "2027-03-16", "plat": "LinkedIn + Facebook", "series": "journal", "title": "★ Turning 40: Why I Wrote Take Command", "brief": "LAUNCH WEEK — align with the launch date. The full story, the dedication, the invitation."}, {"date": "2027-03-18", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "Start by Making Your Bed", "brief": "Ch. 12 — small disciplines that start the campaign each day; personal battle rhythm."}, {"date": "2027-03-19", "plat": "YouTube", "series": "journal", "title": "Take Command — Launch Highlights", "brief": "Launch event highlights / talk recording."}, {"date": "2027-03-23", "plat": "LinkedIn + Facebook", "series": "journal", "title": "Do It or Die: The Advice That Set Me on the Path of Action", "brief": "Epilogue — Brig Gen Harry Ngusa: ‘if what you know is not what you do, then you know nothing.’"}, {"date": "2027-03-25", "plat": "LinkedIn + Facebook", "series": "vpro", "title": "Your First Life Campaign Plan", "brief": "One-page starter plan; announce TCTT pilot registration."}, {"date": "2027-03-30", "plat": "Facebook", "series": "journal", "title": "Launch Review: What Happened and What’s Next", "brief": "Honest launch review; thank readers and contributors; preview TCTT pilot."}];
+const SERIES_KEY = {domains:'Seven Battle Domains',vpro:'V-PRO in Practice',voices:'Command Voices',journal:'Commander’s Journal'};
+
+function fillSelect(id, items, sel) { const el=document.getElementById(id); if(!el) return; el.innerHTML=items.map(v=>`<option${v===sel?' selected':''}>${v}</option>`).join(''); }
 
 // ══════════════════════════════════════════════════════════════════
 //  NAV
@@ -688,9 +738,9 @@ function copyOutput(id) { navigator.clipboard.writeText(document.getElementById(
 // ══════════════════════════════════════════════════════════════════
 function saveToVault(type) {
   let content='', title='';
-  if (type==='post')    { content=document.getElementById('post-output').textContent; title=`[${currentPlatform.toUpperCase()}] ${document.getElementById('post-pillar').value}`; }
+  if (type==='post')    { content=document.getElementById('post-output').textContent; title=`[${currentPlatform.toUpperCase()}] ${document.getElementById('post-series').value} — ${document.getElementById('post-topic').value||'Post'}`; }
   if (type==='podcast') { content=document.getElementById('pod-output').textContent;  title=document.getElementById('pod-topic').value||'Podcast Script'; }
-  if (type==='quote')   { content=document.getElementById('ai-quote-text').textContent; title='Quote — '+document.getElementById('quote-pillar').value; }
+  if (type==='quote')   { content=document.getElementById('ai-quote-text').textContent; title='Quote — '+(currentQuoteMeta.label||'Take Command')+(currentQuoteMeta.book?' (book)':' (original)'); }
   if (!content||content.includes('will appear here')) { showToast('Generate content first'); return; }
   const vault=getState('vault',[]);
   vault.unshift({id:Date.now(),type,title,content,date:new Date().toISOString()});
@@ -800,34 +850,70 @@ function clearVault() {
 // ══════════════════════════════════════════════════════════════════
 //  QUOTE CARD GENERATOR
 // ══════════════════════════════════════════════════════════════════
+let currentQuoteMeta = { label:'Take Command', book:true, src:'' };
+
+function onQuoteSourceChange() {
+  const v=document.getElementById('quote-source').value;
+  document.getElementById('quote-bank-row').style.display = v==='book' ? '' : 'none';
+  document.getElementById('custom-quote-row').style.display = v==='custom' ? '' : 'none';
+}
+function initQuotePanel() {
+  const th=document.getElementById('quote-theme');
+  th.innerHTML=Object.entries(QUOTE_THEMES).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+  renderQuoteBankList(); onQuoteSourceChange();
+}
+function quoteBankFiltered() {
+  const th=document.getElementById('quote-theme').value;
+  return QUOTE_BANK.map((q,i)=>({...q,i})).filter(q=>th==='all'||q.th===th);
+}
+function renderQuoteBankList() {
+  const list=quoteBankFiltered();
+  document.getElementById('quote-bank-count').textContent=`(${list.length} verified)`;
+  document.getElementById('quote-bank-select').innerHTML='<option value="random">Random from this theme</option>'+
+    list.map(q=>`<option value="${q.i}">${escHtml(q.t.length>90?q.t.slice(0,88)+'…':q.t)} — ${q.src}</option>`).join('');
+}
+
 async function generateQuote() {
-  const pillar=document.getElementById('quote-pillar').value;
-  const custom=document.getElementById('custom-quote').value.trim();
+  const mode=document.getElementById('quote-source').value;
   const aiCard=document.getElementById('ai-quote-card');
   const aiText=document.getElementById('ai-quote-text');
   const shareC=document.getElementById('share-card');
-
+  const themeKey=document.getElementById('quote-theme').value;
+  const themeLbl=themeKey==='all'?'Take Command':QUOTE_THEMES[themeKey];
   aiCard.style.display='block'; shareC.style.display='none';
-  aiText.innerHTML='<span class="spinner"></span> Sourcing quote from <em>Take Command</em>…';
+  let quote='', meta={};
 
-  let quote=custom;
-  if (!custom) {
+  if (mode==='book') {
+    const list=quoteBankFiltered(); if(!list.length){showToast('No quotes for this theme');return;}
+    const pick=document.getElementById('quote-bank-select').value;
+    const q = pick==='random' ? list[Math.floor(Math.random()*list.length)] : QUOTE_BANK[+pick];
+    quote=q.t; meta={label:q.lbl, book:true, src:q.src};
+  } else if (mode==='custom') {
+    quote=document.getElementById('custom-quote').value.trim();
+    if(!quote){showToast('Paste a quote first');return;}
+    const isBook=document.getElementById('custom-is-book').checked;
+    meta={label:themeLbl, book:isBook, src:''};
+  } else {
+    aiText.innerHTML='<span class="spinner"></span> Writing an original line…';
     try {
       quote = await callClaude(VICTOR_VOICE,
-        `Surface a powerful, memorable quote or passage from "Take Command: How to Plan Your Life Like a Military General" by Victor Simz, on the theme of "${pillar}".
-Concise (1–3 sentences), high-impact, representative of Victor's strategic, commanding voice.
-Return ONLY the raw quote text — no quotation marks, no attribution, no explanation.`, 300);
+        `Write ONE original, memorable line (max 25 words) in the spirit of Take Command on the theme "${themeLbl}".
+It will be labelled "Original" — it must NOT claim to be from the book and must not copy any known quotation.
+Plain language, no jargon, no hashtags. Return ONLY the line — no quotation marks, no attribution.`, 200);
     } catch(e) { aiText.textContent='Error: '+e.message; return; }
+    meta={label:themeLbl, book:false, src:''};
   }
 
-  currentQuote = quote.trim().replace(/^["""']|["""']$/g,'');
-  aiText.textContent = '"' + currentQuote + '"';
-  drawCard(currentQuote, pillar);
+  currentQuote = quote.trim().replace(/^["“”']+|["“”']+$/g,'');
+  currentQuoteMeta = meta;
+  aiText.textContent = '"' + currentQuote + '"' + (meta.book && meta.src ? `  — Take Command, ${meta.src}` : '');
+  document.getElementById('quote-src-tag').innerHTML = meta.book ? '<span class="src-tag src-book">From the book</span>' : '<span class="src-tag src-orig">Original</span>';
+  drawCard(currentQuote, meta.label, meta);
   shareC.style.display='block';
-  sessionCards++; trackEvent('quote',pillar,''); updateDashStats();
+  sessionCards++; trackEvent('quote', meta.label, ''); updateDashStats();
 }
 
-async function regenerateQuote() { document.getElementById('custom-quote').value=''; await generateQuote(); }
+async function regenerateQuote() { const sel=document.getElementById('quote-bank-select'); if(sel) sel.value='random'; await generateQuote(); }
 
 // Brand image cache — loaded from localStorage on init
 const BRAND = { logo: null, cover: null };
@@ -862,7 +948,7 @@ function loadBrandImage(type, input) {
         const thumb = document.createElement('img');
         thumb.src = dataUrl; thumb.style.cssText = 'width:100%;height:100%;object-fit:cover;';
         prev.appendChild(thumb);
-        if (currentQuote) drawCard(currentQuote, document.getElementById('quote-pillar').value);
+        if (currentQuote) drawCard(currentQuote, currentQuoteMeta.label, currentQuoteMeta);
         showToast(type === 'logo' ? 'VS Logo saved' : 'Book cover saved');
       };
     };
@@ -901,7 +987,8 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function drawCard(text, pillar) {
+function drawCard(text, pillar, meta) {
+  meta = meta || { book:false, src:'' };
   const cv = document.getElementById('quote-canvas'), ctx = cv.getContext('2d');
   const W = 1080, H = 1080;
   cv.width = W; cv.height = H;
@@ -985,6 +1072,13 @@ function drawCard(text, pillar) {
   });
   ctx.letterSpacing = '0px';
 
+  // ── Attribution under the box: book source or "Original" ──
+  ctx.font = '20px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '2px';
+  ctx.fillStyle = meta.book ? '#e8971a' : 'rgba(255,255,255,0.55)';
+  const attr = meta.book ? ('— TAKE COMMAND' + (meta.src ? ', ' + meta.src.toUpperCase() : '')) : 'ORIGINAL · VICTOR SIMUKONDA';
+  ctx.fillText(attr, boxX, boxY + boxH + 40);
+  ctx.letterSpacing = '0px';
+
   // ── VS Logo circle + name block ──────────────────────────────────
   const logoR = 34, logoX = pad + logoR, logoY = H - 165;
   if (BRAND.logo) {
@@ -1006,10 +1100,10 @@ function drawCard(text, pillar) {
   }
   const nameX = logoX + logoR + 16;
   ctx.fillStyle = '#e8971a'; ctx.font = '24px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '2px';
-  ctx.fillText('VICTOR SIMZ', nameX, logoY - 4);
+  ctx.fillText('VICTOR SIMUKONDA', nameX, logoY - 4);
   ctx.letterSpacing = '0px';
   ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '16px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '1px';
-  ctx.fillText('HISTORIAN  /  STRATEGIST  /  LEADER', nameX, logoY + 18);
+  ctx.fillText('AUTHOR  /  TAKE COMMAND', nameX, logoY + 18);
   ctx.letterSpacing = '0px';
 
   // ── Social icons — clean custom canvas drawing ────────────────────
@@ -1050,16 +1144,11 @@ function drawCard(text, pillar) {
   ctx.fillStyle='#fff'; ctx.fill();
   ix += iconSz + iconGap;
 
-  // ── X (Twitter): black circle + official X letterform ──
-  ctx.fillStyle = '#000';
-  ctx.beginPath(); ctx.arc(icx(ix), icy, iconSz/2, 0, Math.PI*2); ctx.fill();
-  ctx.save();
-  ctx.translate(icx(ix), icy);
-  ctx.scale(iconSz / 24, iconSz / 24);
-  ctx.translate(-12, -12); // centre the 24×24 viewBox
-  ctx.fillStyle = '#fff';
-  ctx.fill(new Path2D('M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z'));
-  ctx.restore();
+  // ── LinkedIn: blue rounded square + 'in' ──
+  ctx.fillStyle = '#0A66C2';
+  roundRect(ctx, ix, iconY, iconSz, iconSz, iconSz*0.18); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.round(iconSz*0.55)}px Arial,sans-serif`; ctx.textAlign = 'center';
+  ctx.fillText('in', icx(ix), icy + iconSz*0.2); ctx.textAlign = 'left';
   ix += iconSz + iconGap;
 
   ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '17px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '1px';
@@ -1089,7 +1178,7 @@ async function shareCard(platform) {
         const blob = await getCardBlob();
         const file = new File([blob], 'take-command-quote.png', { type: 'image/png' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: 'Take Command Quote', text: '— Victor Simz' });
+          await navigator.share({ files: [file], title: 'Take Command Quote', text: '— Victor Simukonda, Take Command' });
           return;
         }
       } catch(e) { if (e.name !== 'AbortError') showToast('Share failed — downloading instead'); else return; }
@@ -1109,7 +1198,7 @@ async function shareCard(platform) {
   // Platform buttons: download card, then open platform
   const urls = {
     whatsapp: 'https://web.whatsapp.com/',
-    twitter:  'https://twitter.com/intent/tweet',
+    instagram:'https://www.instagram.com/',
     facebook: 'https://www.facebook.com/',
     linkedin: 'https://www.linkedin.com/feed/',
   };
@@ -1124,20 +1213,45 @@ async function shareCard(platform) {
 //  SOCIAL POSTS
 // ══════════════════════════════════════════════════════════════════
 const PLATFORM_TIPS={
-  li:'LinkedIn: 150–300 words ideal. Start with a bold hook. End with a question or CTA. 3–5 hashtags. Avoid emojis in first line.',
-  tw:'Twitter/X: Under 280 chars. Threads (up to 7) work well. 1–2 hashtags. Punchy first line is everything.',
-  ig:'Instagram: First line must hook before the "more" cut. 5–10 hashtags. Emotional or visual storytelling wins.',
-  fb:'Facebook: 40–80 words for max engagement. Personal, conversational tone. Questions drive comments.'
+  li:'LinkedIn — Victor Simukonda: 180–260 words. BLUF in the first line (shows before “see more”). Short paragraphs, no emoji in the first line. End with the Commander’s Directive and a question. 3–4 hashtags.',
+  fb:'Facebook — Victor Simz: 80–150 words. Warmer, conversational. Keep the Directive and the question; trim the example. 1–2 hashtags.',
+  yt:'YouTube Short: 60–90 seconds (~160–220 words), seated to camera. Hook in the first 3 seconds. Mark [ON-SCREEN] text and [GRAPHIC] cut-ins (e.g. 7BD wheel). End with one action.',
+  nl:'The Commander’s Brief (monthly newsletter): subject line + 500–800 words. Month’s domain + V-PRO step, one tool or template to download, what’s next.'
 };
-const PLATFORM_LABELS={li:'LinkedIn',tw:'Twitter / X',ig:'Instagram',fb:'Facebook'};
-const CHAR_LIMITS={li:'200–300 words',tw:'under 260 characters',ig:'100–200 words',fb:'50–90 words'};
-const TONE_MAP={
-  thought:"thought leadership — authoritative, commanding, no hedging",
-  challenge:"provocative — disrupt the reader's assumption",
-  narrative:"narrative — personal story that resolves into a strategic insight",
-  insight:"tactical insight — specific, practical, immediately actionable",
-  cta:"call to action — galvanising, movement-building"
-};
+const PLATFORM_LABELS={li:'LinkedIn',fb:'Facebook',yt:'YouTube Short',nl:'Newsletter'};
+const CHAR_LIMITS={li:'180–260 words',fb:'80–150 words',yt:'a 60–90 second spoken script (160–220 words) with [ON-SCREEN] and [GRAPHIC] cues',nl:'a newsletter issue of 500–800 words, starting with "SUBJECT:" on the first line'};
+
+function initPostPanel() {
+  fillSelect('post-series', SERIES, SERIES[0]);
+  fillSelect('post-domain', DOMAINS, '—');
+  fillSelect('post-step', VPRO_STEPS, '—');
+  fillSelect('pod-domain', DOMAINS, 'Spiritual');
+  fillSelect('pod-step', VPRO_STEPS, '—');
+  const today=new Date().toISOString().slice(0,10);
+  const upcoming=TC_PLAN.map((p,i)=>({...p,i})).filter(p=>p.date>=today);
+  const past=TC_PLAN.map((p,i)=>({...p,i})).filter(p=>p.date<today);
+  const opt=p=>`<option value="${p.i}">${p.date} · ${escHtml(p.title)}</option>`;
+  document.getElementById('post-plan').innerHTML='<option value="">— Pick a planned post to pre-fill —</option>'+
+    (upcoming.length?`<optgroup label="Upcoming">${upcoming.map(opt).join('')}</optgroup>`:'')+
+    (past.length?`<optgroup label="Earlier">${past.map(opt).join('')}</optgroup>`:'');
+}
+function syncFormatToSeries() {
+  const s=document.getElementById('post-series').value;
+  document.getElementById('post-format').value = s==='Commander’s Journal'?'journal' : s==='Command Voices'?'voices' : 'bluf';
+}
+function loadPlanItem(i) {
+  if(i==='') return; const p=TC_PLAN[+i];
+  document.getElementById('post-series').value=SERIES_KEY[p.series]; syncFormatToSeries();
+  document.getElementById('post-topic').value=p.title;
+  document.getElementById('post-msg').value=p.brief;
+  const m=p.date.slice(0,7), dom={'2026-11':'Spiritual','2026-12':'Physical','2027-01':'Financial','2027-02':'Relational','2027-03':'Creational'}[m]||'—';
+  document.getElementById('post-domain').value = p.series==='domains' ? dom : '—';
+  const stepMatch=VPRO_STEPS.find(s=>s!=='—' && p.title.startsWith(s.charAt(0)+' —'));
+  document.getElementById('post-step').value = stepMatch||'—';
+  const plat = p.plat==='YouTube'?'yt':'li';
+  const tab=document.querySelector(`.platform-tab.${plat}`); if(tab) setActivePlatform(tab, plat);
+  showToast('Loaded from the content plan');
+}
 
 function setActivePlatform(el, p) {
   document.querySelectorAll('.platform-tab').forEach(t=>t.classList.remove('active'));
@@ -1147,41 +1261,50 @@ function setActivePlatform(el, p) {
 }
 
 async function generatePost() {
-  const pillar=document.getElementById('post-pillar').value;
+  const series=document.getElementById('post-series').value;
+  const domain=document.getElementById('post-domain').value;
+  const step=document.getElementById('post-step').value;
+  const fmt=document.getElementById('post-format').value;
   const topic=document.getElementById('post-topic').value.trim();
-  const tone=document.getElementById('post-tone').value;
   const msg=document.getElementById('post-msg').value.trim();
+  const excerpt=document.getElementById('post-excerpt').value.trim();
   const out=document.getElementById('post-output'), cnt=document.getElementById('post-charcount');
+  if(!topic && !msg){ showToast('Add a topic or pick a planned post'); return; }
 
   out.classList.remove('placeholder');
-  out.innerHTML='<span class="spinner"></span> Generating post…';
+  out.innerHTML='<span class="spinner"></span> Generating…';
   cnt.textContent=''; document.getElementById('hashtag-block').style.display='none';
 
   try {
     const result=await callClaude(VICTOR_VOICE,
-      `Write a ${PLATFORM_LABELS[currentPlatform]} post for Victor Simz.
-Content pillar: "${pillar}"
-${topic?`Topic / angle: ${topic}`:''}
-${msg?`Core message: "${msg}"`:''}
-Tone: ${TONE_MAP[tone]||tone}
-Length: ${CHAR_LIMITS[currentPlatform]}
-Write in Victor Simz's voice. No preamble — output the post directly.
-After the post, write "HASHTAGS:" followed by 3–5 relevant hashtags.`, 900);
+      `Write ${CHAR_LIMITS[currentPlatform]} for ${PLATFORM_LABELS[currentPlatform]}.
+Series: ${series}
+${domain!=='—'?`Battle Domain: ${domain}`:''}
+${step!=='—'?`V-PRO step: ${step}`:''}
+${topic?`Working title / topic: ${topic}`:''}
+${msg?`Brief: ${msg}`:''}
+${excerpt?`Book excerpt to stay faithful to (you may quote it exactly; quote nothing else from the book):
+"""${excerpt}"""`:'No book excerpt supplied — do not quote the book.'}
+${FORMATS[fmt]}
+${currentPlatform==='fb'?'Facebook adaptation: warmer and shorter; keep the Directive and the question.':''}
+No preamble — output the content directly.
+${currentPlatform==='nl'?'':'After the content, write "HASHTAGS:" followed by 3–4 relevant hashtags (always include #TakeCommand).'}`, currentPlatform==='nl'?2200:1100);
 
     const [postPart,hashPart]=result.split(/HASHTAGS:/i);
-    out.textContent=postPart.trim(); cnt.textContent=out.textContent.length+' chars';
+    out.textContent=postPart.trim();
+    cnt.textContent=out.textContent.trim().split(/\s+/).length+' words';
     if(hashPart){
       const tags=hashPart.trim().split(/[\s,]+/).filter(t=>t.startsWith('#'));
       document.getElementById('hashtag-output').innerHTML=tags.map(t=>`<span style="cursor:pointer;padding:3px 8px;background:rgba(0,119,181,.09);border-radius:4px;color:#0055a0;" onclick="navigator.clipboard.writeText(this.textContent).then(()=>showToast('Copied'))">${t}</span>`).join('');
       document.getElementById('hashtag-block').style.display='block';
     }
-    trackEvent('post',pillar,currentPlatform); updateDashStats();
+    trackEvent('post',series,currentPlatform); updateDashStats();
   } catch(e){out.textContent='Error: '+e.message; out.classList.add('placeholder');}
 }
 
 function clearPost() {
   const out=document.getElementById('post-output');
-  out.textContent='Your generated post will appear here. Select your platform, pillar, and topic — then hit Generate.';
+  out.textContent='Your generated post will appear here. Pick a planned post or set the series and topic — then hit Generate.';
   out.classList.add('placeholder');
   document.getElementById('post-charcount').textContent='';
   document.getElementById('hashtag-block').style.display='none';
@@ -1191,7 +1314,9 @@ function clearPost() {
 //  PODCAST SCRIPTS
 // ══════════════════════════════════════════════════════════════════
 async function generateScript() {
-  const pillar=document.getElementById('pod-pillar').value;
+  const domain=document.getElementById('pod-domain').value, step=document.getElementById('pod-step').value;
+  const faith=document.getElementById('pod-faith').checked, excerpt=document.getElementById('pod-excerpt').value.trim();
+  const pillar = domain!=='—' ? domain+' Domain' : (step!=='—' ? step : 'Take Command');
   const topic=document.getElementById('pod-topic').value.trim()||pillar;
   const thesis=document.getElementById('pod-thesis').value.trim();
   const len=document.getElementById('pod-length').value;
@@ -1203,13 +1328,15 @@ async function generateScript() {
 
   try {
     const result=await callClaude(VICTOR_VOICE,
-      `Write a complete Take Command Podcast script for Victor Simz.
+      `Write a complete Take Command podcast script for Victor Simukonda, recorded seated at a table with a microphone — conversational, reflective, warm but direct.
 Episode: ${topic}
-Pillar: ${pillar}
+${domain!=='—'?`Battle Domain: ${domain}`:''}
+${step!=='—'?`V-PRO step: ${step}`:''}
 ${thesis?`Central thesis: ${thesis}`:''}
+${excerpt?`Book excerpt to build on (quote only this text from the book):\n"""${excerpt}"""`:'No book excerpt supplied — do not quote the book.'}
 Target length: ${lenMap[len]}
-Structure: INTRO (hook, stakes, promise) → CORE (3–4 points each with sub-argument, military/historical example, listener application) → TACTICAL TAKEAWAY (1–3 actions) → OUTRO (closing provocation).
-Write in Victor's full podcast voice — commanding, strategic, direct. Output the script only.`, maxToks[len]);
+Structure: COLD OPEN (one honest line or question) → BLUF → CORE (3 points, each with a plain-language explanation of the military idea, a historical or everyday example, and listener application)${faith?' → REFLECTION (one Scripture passage and one Stoic thought — Marcus Aurelius, Seneca or Epictetus — that illuminate the theme; quote only well-known, accurately worded lines and name the reference)':''} → COMMANDER’S DIRECTIVE (one action this week) → CLOSE (a question to carry; invite listeners to the newsletter).
+Output the script only.`, maxToks[len]);
 
     out.textContent=result;
     wc.textContent=result.trim().split(/\s+/).length.toLocaleString()+' words';
@@ -1251,7 +1378,7 @@ function renderDashWeek() {
   const sun=new Date(mon); sun.setDate(mon.getDate()+6);
   const week=cal.filter(e=>{const d=new Date(e.date+'T12:00');return d>=mon&&d<=sun;});
   const el=document.getElementById('dash-week');
-  const pClr={li:'#0077b5',tw:'#000',ig:'#e1306c',fb:'#1877f2',pod:'#e8971a'};
+  const pClr={li:'#0077b5',lf:'#0b4f8a',yt:'#ff0000',nl:'#555',ig:'#e1306c',fb:'#1877f2',pod:'#e8971a',tw:'#000'};
   if(!week.length){el.innerHTML=`<div style="color:var(--text-light);font-size:13px;">No posts scheduled this week. <span style="color:var(--gold);cursor:pointer;" onclick="switchPanel('calendar',null)">Add to calendar →</span></div>`;return;}
   el.innerHTML=week.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>`
     <div style="display:flex;align-items:center;gap:10px;">
@@ -1266,7 +1393,7 @@ function renderDashPillars() {
   log.forEach(e=>{if(e.pillar)pillars[e.pillar]=(pillars[e.pillar]||0)+1;if(e.platform)platforms[e.platform]=(platforms[e.platform]||0)+1;});
   const pS=Object.entries(pillars).sort((a,b)=>b[1]-a[1]).slice(0,5),pMax=pS[0]?.[1]||1;
   document.getElementById('dash-pillar-bars').innerHTML=pS.length?pS.map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${k}</span><span style="color:var(--text-muted);">${v}</span></div><div style="background:#eee;border-radius:4px;height:6px;"><div style="background:var(--gold);height:6px;border-radius:4px;width:${(v/pMax*100).toFixed(0)}%;"></div></div></div>`).join(''):'<div style="color:var(--text-light);font-size:12px;">No content generated yet.</div>';
-  const platLbls={li:'LinkedIn',tw:'Twitter/X',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
+  const platLbls={li:'LinkedIn',lf:'LinkedIn + Facebook',yt:'YouTube',nl:'Newsletter',ig:'Instagram',fb:'Facebook',pod:'Podcast',tw:'Twitter/X'};
   const plS=Object.entries(platforms).sort((a,b)=>b[1]-a[1]),plMax=plS[0]?.[1]||1;
   document.getElementById('dash-platform-mix').innerHTML=plS.length?plS.map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${platLbls[k]||k}</span><span style="color:var(--text-muted);">${v}</span></div><div style="background:#eee;border-radius:4px;height:6px;"><div style="background:var(--dark);height:6px;border-radius:4px;width:${(v/plMax*100).toFixed(0)}%;"></div></div></div>`).join(''):'<div style="color:var(--text-light);font-size:12px;">No posts generated yet.</div>';
 }
@@ -1283,8 +1410,8 @@ function renderCalendar() {
   let html=DAYS.map(d=>`<div class="cal-header">${d}</div>`).join('');
   const prevLast=new Date(calYear,calMonth,0).getDate();
   for(let i=sdow-1;i>=0;i--) html+=`<div class="cal-day other-month"><div class="cal-date">${prevLast-i}</div></div>`;
-  const pCls={li:'ev-li',tw:'ev-tw',ig:'ev-ig',fb:'ev-fb',pod:'ev-pod'};
-  const pLb={li:'LinkedIn',tw:'Twitter',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
+  const pCls={li:'ev-li',lf:'ev-lf',yt:'ev-yt',nl:'ev-nl',tw:'ev-tw',ig:'ev-ig',fb:'ev-fb',pod:'ev-pod'};
+  const pLb={li:'LinkedIn',lf:'LI+FB',yt:'YouTube',nl:'Newsletter',tw:'Twitter',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
   for(let d=1;d<=last.getDate();d++){
     const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isT=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
@@ -1299,11 +1426,28 @@ function renderCalendar() {
 
 function calDayClick(ds) {
   const cal=getState('calendar',[]),evs=cal.filter(e=>e.date===ds);
-  const d=new Date(ds+'T12:00'),pLb={li:'LinkedIn',tw:'Twitter/X',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
+  const d=new Date(ds+'T12:00'),pLb={li:'LinkedIn',lf:'LinkedIn + Facebook',yt:'YouTube',nl:'Newsletter',tw:'Twitter/X',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
   document.getElementById('day-detail-title').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   document.getElementById('day-detail-content').innerHTML=evs.length
-    ?evs.map(e=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><div><strong>${pLb[e.platform]||e.platform}</strong> — ${e.title}</div><button class="btn btn-sm btn-outline" onclick="deleteCalEvent(${e.id})" style="color:#c00;">Remove</button></div>`).join('')
+    ?evs.map(e=>`<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);"><div><strong>${pLb[e.platform]||e.platform}</strong> — ${escHtml(e.title)}${e.series?` <span class="badge badge-dark" style="margin-left:4px;">${SERIES_KEY[e.series]||e.series}</span>`:''}${e.brief?`<div style="font-size:12px;color:var(--text-muted);margin-top:3px;">${escHtml(e.brief)}</div>`:''}</div><div style="display:flex;gap:6px;flex-shrink:0;">${e.planIdx!==undefined?`<button class="btn btn-sm btn-gold" onclick="draftFromCalendar(${e.planIdx})">Draft ✦</button>`:''}<button class="btn btn-sm btn-outline" onclick="deleteCalEvent(${e.id})" style="color:#c00;">Remove</button></div></div>`).join('')
     :`No posts scheduled. <span style="color:var(--gold);cursor:pointer;" onclick="openScheduleModal(null,'${ds}')">+ Add post</span>`;
+}
+
+function importTCPlan() {
+  const cal=getState('calendar',[]); let added=0;
+  TC_PLAN.forEach((p,i)=>{
+    if (cal.some(e=>e.date===p.date && e.title===p.title)) return;
+    const plat = p.plat==='YouTube' ? 'yt' : p.plat==='Facebook' ? 'fb' : 'lf';
+    cal.push({id:Date.now()+i, date:p.date, platform:plat, title:p.title, series:p.series, brief:p.brief, planIdx:i});
+    added++;
+  });
+  setState('calendar',cal); updateDashStats();
+  showToast(added ? `Imported ${added} planned posts — syncing…` : 'Plan already on the calendar');
+  calYear=2026; calMonth=10; renderCalendar();
+}
+function draftFromCalendar(i) {
+  switchPanel('posts',null);
+  document.getElementById('post-plan').value=String(i); loadPlanItem(String(i));
 }
 
 function changeMonth(dir) {
@@ -1346,7 +1490,7 @@ function renderAnalytics() {
   const pillars={},platforms={};
   log.forEach(e=>{if(e.pillar)pillars[e.pillar]=(pillars[e.pillar]||0)+1;if(e.platform)platforms[e.platform]=(platforms[e.platform]||0)+1;});
   renderBarChart('an-pillar-chart',Object.entries(pillars).sort((a,b)=>b[1]-a[1]),'var(--gold)');
-  const pL={li:'LinkedIn',tw:'Twitter',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
+  const pL={li:'LinkedIn',lf:'LI+FB',yt:'YouTube',nl:'Newsletter',tw:'Twitter',ig:'Instagram',fb:'Facebook',pod:'Podcast'};
   renderBarChart('an-platform-chart',Object.entries(platforms).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[pL[k]||k,v]),'var(--dark)');
 }
 function renderBarChart(id,data,color) {
@@ -1370,13 +1514,14 @@ async function init() {
 
   // Set default platform tip
   document.getElementById('platform-tips').textContent = PLATFORM_TIPS['li'];
+  initQuotePanel(); initPostPanel();
 
   // Draw placeholder canvas
   const cv=document.getElementById('quote-canvas'),ctx=cv.getContext('2d');
   cv.width=1080;cv.height=1080;ctx.fillStyle='#0b1117';ctx.fillRect(0,0,1080,1080);
   ctx.fillStyle='#e8971a';ctx.fillRect(0,0,8,1080);ctx.fillRect(0,1072,1080,8);
   ctx.textAlign='center';ctx.fillStyle='rgba(232,151,26,0.5)';ctx.font='bold 36px sans-serif';ctx.letterSpacing='8px';ctx.fillText('TAKE COMMAND',540,500);
-  ctx.fillStyle='rgba(255,255,255,0.22)';ctx.font='20px sans-serif';ctx.letterSpacing='0px';ctx.fillText('Select a pillar → Generate Quote + Card',540,556);ctx.textAlign='left';
+  ctx.fillStyle='rgba(255,255,255,0.22)';ctx.font='20px sans-serif';ctx.letterSpacing='0px';ctx.fillText('Pick a theme → Generate Card',540,556);ctx.textAlign='left';
 
   // Load data from Supabase
   try {
