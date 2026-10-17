@@ -13,7 +13,7 @@
 <title>Take Command HQ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
 <style>
 :root {
   color-scheme: light;
@@ -269,18 +269,18 @@ canvas { width: 100%; border-radius: 6px; display: block; }
   </div>
   <div class="grid-4 section">
     <div class="card-sm"><div class="stat-label">Posts This Month</div><div class="stat-value" id="dash-posts">—</div><div class="stat-delta">From content vault</div></div>
-    <div class="card-sm"><div class="stat-label">Quote Cards</div><div class="stat-value" id="dash-cards">—</div><div class="stat-delta">This session</div></div>
-    <div class="card-sm"><div class="stat-label">Scheduled</div><div class="stat-value" id="dash-sched">—</div><div class="stat-delta">On calendar</div></div>
+    <div class="card-sm"><div class="stat-label">Quote Cards</div><div class="stat-value" id="dash-cards">—</div><div class="stat-delta">All time</div></div>
+    <div class="card-sm"><div class="stat-label">Scheduled</div><div class="stat-value" id="dash-sched">—</div><div class="stat-delta" id="dash-sched-sub">Upcoming on calendar</div></div>
     <div class="card-sm"><div class="stat-label">Vault Items</div><div class="stat-value" id="dash-vault">—</div><div class="stat-delta">Saved pieces</div></div>
   </div>
   <div class="grid-2 section">
     <div class="card">
-      <div class="section-title">This Week's Schedule</div>
+      <div class="section-title">Next Up</div>
       <div id="dash-week" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div class="section-title" style="margin-bottom:0;">Series Mix</div>
+        <div class="section-title" style="margin-bottom:0;">Series Mix</div><span style="font-size:11px;color:var(--text-light);">Content plan</span>
       </div>
       <div id="dash-pillar-bars" style="display:flex;flex-direction:column;gap:8px;"></div>
       <hr class="divider">
@@ -303,12 +303,40 @@ canvas { width: 100%; border-radius: 6px; display: block; }
 <div class="panel" id="panel-quotes">
   <div class="panel-header">
     <div class="panel-title">Quote Card Generator</div>
-    <div class="panel-sub">Lines from the <em>Take Command</em> manuscript — adapted to your quote style or word for word — or clearly labelled original lines, as a branded 1080×1080 card</div>
+    <div class="panel-sub">Book cards from the <em>Take Command</em> manuscript, or Thought cards for your own ideas — branded and ready to post</div>
   </div>
   <div class="grid-2" style="gap:24px;align-items:start;">
     <div style="display:flex;flex-direction:column;gap:14px;">
       <div class="card">
-        <div class="section-title" style="margin-bottom:14px;">Quote Source</div>
+        <div class="section-title" style="margin-bottom:14px;">Card</div>
+        <div class="form-row">
+          <label>Card Style</label>
+          <select id="card-style" onchange="onCardStyleChange()">
+            <option value="book">Book card — Take Command quotes</option>
+            <option value="thought">Thought card — Victor Simz Quotes (your own thoughts)</option>
+          </select>
+        </div>
+        <div id="thought-fields" style="display:none;">
+          <div class="form-row">
+            <label>Your Thought</label>
+            <textarea id="thought-text" rows="4" placeholder="e.g. Life shifts. So must you. Stay grounded in purpose, but flexible in motion."></textarea>
+            <div style="margin-top:6px;"><button class="btn btn-outline btn-sm" onclick="polishThought()">✦ Polish into my style</button> <span class="hint" style="margin-left:6px;">Tightens wording; keeps your meaning</span></div>
+          </div>
+          <div class="form-row">
+            <label>Photo</label>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <div id="photo-preview" style="width:36px;height:36px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-light);overflow:hidden;flex-shrink:0;">Photo</div>
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('photo-upload').click()" style="flex:1;">Upload photo (shown in black &amp; white)</button>
+              <input type="file" id="photo-upload" accept="image/*" style="display:none;" onchange="loadBrandImage('photo',this)">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-row"><label>Size</label>
+              <select id="thought-size"><option value="square">Square 1080×1080</option><option value="portrait">Portrait 1080×1350</option></select></div>
+            <div class="form-row"><label>Hashtag</label><input type="text" id="thought-tag" value="#TakeCommand"></div>
+          </div>
+        </div>
+        <div id="book-fields">
         <div class="form-row">
           <label>Source</label>
           <select id="quote-source" onchange="onQuoteSourceChange()">
@@ -332,11 +360,12 @@ canvas { width: 100%; border-radius: 6px; display: block; }
           <textarea id="custom-quote" rows="3" placeholder="Type a passage. Tick below only if it is word for word from the book."></textarea>
           <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-weight:400;text-transform:none;letter-spacing:0;"><input type="checkbox" id="custom-is-book" style="width:auto;"> This is a word-for-word quote from <em>Take Command</em></label>
         </div>
+        </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-gold" onclick="generateQuote()" style="flex:1;">⚡ Generate Card</button>
           <button class="btn btn-primary" onclick="downloadCard()">⬇ PNG</button>
         </div>
-        <div style="margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="regenerateQuote()">↺ Try Another</button></div>
+        <div style="margin-top:8px;" id="try-another-row"><button class="btn btn-outline btn-sm" onclick="regenerateQuote()">↺ Try Another</button></div>
       </div>
       <div class="card">
         <div class="section-title" style="margin-bottom:10px;">Brand Images</div>
@@ -759,7 +788,7 @@ function saveToVault(type) {
   let content='', title='';
   if (type==='post')    { content=document.getElementById('post-output').textContent; title=`[${currentPlatform.toUpperCase()}] ${document.getElementById('post-series').value} — ${document.getElementById('post-topic').value||'Post'}`; }
   if (type==='podcast') { content=document.getElementById('pod-output').textContent;  title=document.getElementById('pod-topic').value||'Podcast Script'; }
-  if (type==='quote')   { content=document.getElementById('ai-quote-text').textContent; title='Quote — '+(currentQuoteMeta.label||'Take Command')+(currentQuoteMeta.adapted?' (adapted from book)':currentQuoteMeta.book?' (book)':' (original)')+(currentQuoteMeta.adapted?' — book wording: '+currentQuoteMeta.original:''); }
+  if (type==='quote')   { content=document.getElementById('ai-quote-text').textContent; title=(currentQuoteMeta.thought?'Thought card — ':'Quote — ')+(currentQuoteMeta.label||'Take Command')+(currentQuoteMeta.adapted?' (adapted from book)':currentQuoteMeta.book?' (book)':' (original)')+(currentQuoteMeta.adapted?' — book wording: '+currentQuoteMeta.original:''); }
   if (!content||content.includes('will appear here')) { showToast('Generate content first'); return; }
   const vault=getState('vault',[]);
   vault.unshift({id:Date.now(),type,title,content,date:new Date().toISOString()});
@@ -913,7 +942,100 @@ function renderQuoteBankList() {
     list.map(q=>`<option value="${q.i}">${escHtml(q.t.length>90?q.t.slice(0,88)+'…':q.t)} — ${q.src}</option>`).join('');
 }
 
+function onCardStyleChange() {
+  const t=document.getElementById('card-style').value==='thought';
+  document.getElementById('thought-fields').style.display=t?'':'none';
+  document.getElementById('book-fields').style.display=t?'none':'';
+  document.getElementById('try-another-row').style.display=t?'none':'';
+}
+function redrawCurrent() {
+  if (!currentQuote) return;
+  if (currentQuoteMeta.thought) drawThoughtCard(currentQuote, currentQuoteMeta);
+  else drawCard(currentQuote, currentQuoteMeta.label, currentQuoteMeta);
+}
+async function polishThought() {
+  const ta=document.getElementById('thought-text'); const t=ta.value.trim();
+  if(!t){ showToast('Write your thought first'); return; }
+  const before=t; ta.value='Polishing…'; ta.disabled=true;
+  try {
+    const out = await callClaude(VICTOR_VOICE,
+      `Polish this personal thought by Victor for a quote card. It is his own idea, not from the book.
+Thought: "${before}"
+Keep his meaning and his key words where they work. Do not add new ideas or claims.
+${QUOTE_STYLE}`, 220);
+    ta.value = out.trim().replace(/^["“”']+|["“”']+$/g,'');
+    showToast('Polished — edit freely, then Generate Card');
+  } catch(e) { ta.value=before; showToast('Error: '+e.message); }
+  ta.disabled=false;
+}
+async function generateThought() {
+  const text=document.getElementById('thought-text').value.trim();
+  if(!text){ showToast('Write your thought first'); return; }
+  try { await document.fonts.load('italic 600 34px Poppins'); await document.fonts.load('italic 700 34px Poppins'); } catch(e) {}
+  currentQuote = text.replace(/^["“”']+|["“”']+$/g,'');
+  currentQuoteMeta = { thought:true, label:'Victor Simz Quotes', portrait: document.getElementById('thought-size').value==='portrait', tag: document.getElementById('thought-tag').value.trim() };
+  document.getElementById('ai-quote-card').style.display='block';
+  document.getElementById('ai-quote-text').textContent='"'+currentQuote+'"';
+  document.getElementById('quote-src-tag').innerHTML='<span class="src-tag src-orig">Victor Simz thought</span>';
+  drawThoughtCard(currentQuote, currentQuoteMeta);
+  document.getElementById('share-card').style.display='block';
+  if(!BRAND.photo) showToast('Tip: upload a photo for the background');
+  sessionCards++; trackEvent('quote','Thought card',''); updateDashStats();
+}
+
+function drawThoughtCard(text, meta) {
+  const cv=document.getElementById('quote-canvas'), ctx=cv.getContext('2d');
+  const W=1080, H=meta.portrait?1350:1080; cv.width=W; cv.height=H;
+  const GOLD='#F5B400', F='Poppins, "Segoe UI", Arial, sans-serif';
+  // Background photo, black and white, cover-fit
+  ctx.fillStyle='#161616'; ctx.fillRect(0,0,W,H);
+  if (BRAND.photo) {
+    const iw=BRAND.photo.width, ih=BRAND.photo.height, sc=Math.max(W/iw,H/ih);
+    const dw=iw*sc, dh=ih*sc;
+    ctx.filter='grayscale(1) contrast(1.05)';
+    ctx.drawImage(BRAND.photo,(W-dw)/2,(H-dh)/2,dw,dh);
+    ctx.filter='none';
+  } else {
+    const g=ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,'#3a3a3a'); g.addColorStop(1,'#111'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  }
+  const shade=ctx.createLinearGradient(0,H*0.45,0,H); shade.addColorStop(0,'rgba(0,0,0,0)'); shade.addColorStop(1,'rgba(0,0,0,0.45)');
+  ctx.fillStyle=shade; ctx.fillRect(0,0,W,H);
+
+  // Badge: gold ribbon + logo circle
+  ctx.fillStyle=GOLD;
+  ctx.beginPath(); ctx.moveTo(120,108); ctx.lineTo(540,108); ctx.lineTo(518,172); ctx.lineTo(120,172); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font=`italic 700 34px ${F}`; ctx.fillText('Victor Simz Quotes',196,152);
+  const lx=112, ly=140, lr=70;
+  ctx.save(); ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2); ctx.fillStyle='#000'; ctx.fill(); ctx.clip();
+  if (BRAND.logo) { const iw=BRAND.logo.width, ih=BRAND.logo.height, sc=Math.max(lr*2/iw,lr*2/ih); ctx.drawImage(BRAND.logo,lx-iw*sc/2,ly-ih*sc/2,iw*sc,ih*sc); }
+  else { ctx.fillStyle='#fff'; ctx.font=`700 46px ${F}`; ctx.textAlign='center'; ctx.fillText('VS',lx,ly+16); ctx.textAlign='left'; }
+  ctx.restore();
+
+  // Text box
+  const boxX=110, boxW=W-170, textX=boxX+92, maxTW=boxX+boxW-60-textX;
+  let fs=36, lines=[];
+  const wrap=()=>{ ctx.font=`italic 600 ${fs}px ${F}`; lines=[]; let line='';
+    for (const w of text.split(/\s+/)) { const t=line?line+' '+w:w; if (ctx.measureText(t).width>maxTW && line) { lines.push(line); line=w; } else line=t; }
+    if (line) lines.push(line); };
+  wrap(); while (lines.length>(meta.portrait?8:6) && fs>24) { fs-=2; wrap(); }
+  const lh=Math.round(fs*1.42), tag=meta.tag||'';
+  const boxH=86+lines.length*lh+(tag?70:10)+28;
+  const boxY=H-(meta.portrait?150:110)-boxH;
+  ctx.fillStyle='rgba(26,26,26,0.80)'; roundRect(ctx,boxX,boxY,boxW,boxH,64); ctx.fill();
+  // Gold accent bar + text
+  const t0=boxY+86;
+  ctx.fillStyle=GOLD; ctx.fillRect(textX-30, t0-fs*0.9, 7, (lines.length-1)*lh+fs*1.25);
+  ctx.fillStyle='#fff'; ctx.font=`italic 600 ${fs}px ${F}`;
+  lines.forEach((l,i)=>ctx.fillText(l,textX,t0+i*lh));
+  if (tag) { ctx.fillStyle=GOLD; ctx.font=`600 30px ${F}`; ctx.textAlign='center'; ctx.fillText(tag, boxX+boxW/2, t0+(lines.length-1)*lh+72); ctx.textAlign='left'; }
+  // Quote circle
+  const qx=boxX+66, qy=boxY;
+  ctx.fillStyle=GOLD; ctx.beginPath(); ctx.arc(qx,qy,54,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='bold 120px Georgia, serif'; ctx.textAlign='center'; ctx.fillText('“',qx+2,qy+62); ctx.textAlign='left';
+}
+
 async function generateQuote() {
+  if (document.getElementById('card-style').value==='thought') return generateThought();
   const mode=document.getElementById('quote-source').value;
   const aiCard=document.getElementById('ai-quote-card');
   const aiText=document.getElementById('ai-quote-text');
@@ -978,8 +1100,8 @@ function loadBrandImage(type, input) {
     const raw = new Image();
     raw.onload = () => {
       // Resize to a canvas to compress before storing
-      const maxW = type === 'logo' ? 400 : 600;
-      const maxH = type === 'logo' ? 400 : 900;
+      const maxW = type === 'logo' ? 400 : type === 'photo' ? 1400 : 600;
+      const maxH = type === 'logo' ? 400 : type === 'photo' ? 1400 : 900;
       const scale = Math.min(1, maxW / raw.width, maxH / raw.height);
       const cw = Math.round(raw.width * scale);
       const ch = Math.round(raw.height * scale);
@@ -1000,8 +1122,8 @@ function loadBrandImage(type, input) {
         const thumb = document.createElement('img');
         thumb.src = dataUrl; thumb.style.cssText = 'width:100%;height:100%;object-fit:cover;';
         prev.appendChild(thumb);
-        if (currentQuote) drawCard(currentQuote, currentQuoteMeta.label, currentQuoteMeta);
-        showToast(type === 'logo' ? 'VS Logo saved' : 'Book cover saved');
+        redrawCurrent();
+        showToast(type === 'logo' ? 'VS Logo saved' : type === 'photo' ? 'Photo saved' : 'Book cover saved');
       };
     };
     raw.onerror = () => showToast('Could not read image file');
@@ -1011,7 +1133,7 @@ function loadBrandImage(type, input) {
 }
 
 function initBrandImages() {
-  ['logo','cover'].forEach(type => {
+  ['logo','cover','photo'].forEach(type => {
     const saved = localStorage.getItem('tc_brand_'+type);
     if (!saved) return;
     const img = new Image(); img.src = saved;
@@ -1222,7 +1344,7 @@ function drawCard(text, pillar, meta) {
 function downloadCard() {
   if (!currentQuote) { showToast('Generate a quote card first'); return; }
   const a = document.createElement('a');
-  a.download = 'take-command-quote.png';
+  a.download = currentQuoteMeta.thought ? 'victor-simz-quote.png' : 'take-command-quote.png';
   a.href = document.getElementById('quote-canvas').toDataURL('image/png');
   a.click(); showToast('Card downloaded');
 }
@@ -1438,12 +1560,22 @@ function trackEvent(type, pillar, platform) {
   setState('log',log);
 }
 
+function planSource() {
+  // Calendar entries once the plan is synced; otherwise the built-in plan
+  const cal=getState('calendar',[]);
+  if (cal.some(e=>e.planIdx!==undefined)) return cal;
+  return TC_PLAN.map((p,i)=>({date:p.date, platform:({'YouTube':'yt','Facebook':'fb','Newsletter':'nl','Facebook + Instagram':'ig'})[p.plat]||'lf', title:p.title, series:p.series, fmt:p.fmt, planIdx:i}));
+}
 function updateDashStats() {
-  const vault=getState('vault',[]), cal=getState('calendar',[]);
+  const vault=getState('vault',[]), cal=getState('calendar',[]), log=getState('log',[]);
   const now=new Date(), mStart=new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const today=now.toISOString().slice(0,10);
   document.getElementById('dash-posts').textContent=vault.filter(v=>v.type==='post'&&new Date(v.date).getTime()>=mStart).length;
-  document.getElementById('dash-cards').textContent=sessionCards;
-  document.getElementById('dash-sched').textContent=cal.filter(e=>new Date(e.date+'T12:00')>=now).length;
+  document.getElementById('dash-cards').textContent=log.filter(e=>e.type==='quote').length;
+  const up=cal.filter(e=>e.date>=today).length;
+  document.getElementById('dash-sched').textContent=up;
+  const sub=document.getElementById('dash-sched-sub');
+  if (sub) sub.innerHTML = cal.some(e=>e.planIdx!==undefined) ? 'Upcoming on calendar' : '<span style="color:var(--gold);cursor:pointer;" onclick="switchPanel(\'calendar\',null)">Sync the plan →</span>';
   document.getElementById('dash-vault').textContent=vault.length;
 }
 
@@ -1458,29 +1590,32 @@ function renderDashboard() {
 }
 
 function renderDashWeek() {
-  const cal=getState('calendar',[]),now=new Date();
-  const dow=now.getDay(),mon=new Date(now); mon.setDate(now.getDate()-(dow===0?6:dow-1));
-  const sun=new Date(mon); sun.setDate(mon.getDate()+6);
-  const week=cal.filter(e=>{const d=new Date(e.date+'T12:00');return d>=mon&&d<=sun;});
+  const today=new Date().toISOString().slice(0,10);
+  const items=planSource().filter(e=>e.date>=today).sort((x,y)=>x.date.localeCompare(y.date)).slice(0,6);
   const el=document.getElementById('dash-week');
   const pClr={li:'#0077b5',lf:'#0b4f8a',yt:'#ff0000',nl:'#555',ig:'#e1306c',fb:'#1877f2',pod:'#e8971a',tw:'#000'};
-  if(!week.length){el.innerHTML=`<div style="color:var(--text-light);font-size:13px;">No posts scheduled this week. <span style="color:var(--gold);cursor:pointer;" onclick="switchPanel('calendar',null)">Add to calendar →</span></div>`;return;}
-  el.innerHTML=week.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>`
-    <div style="display:flex;align-items:center;gap:10px;">
+  const pLb={li:'LinkedIn',lf:'LinkedIn + Facebook',yt:'YouTube',nl:'Newsletter',ig:'Facebook + Instagram',fb:'Facebook',pod:'Podcast'};
+  if(!items.length){el.innerHTML=`<div style="color:var(--text-light);font-size:13px;">Nothing upcoming. <span style="color:var(--gold);cursor:pointer;" onclick="switchPanel('calendar',null)">Open calendar →</span></div>`;return;}
+  el.innerHTML=items.map(e=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);">
       <div style="width:8px;height:8px;border-radius:50%;background:${pClr[e.platform]||'#999'};flex-shrink:0;"></div>
-      <div style="font-size:12px;color:var(--text-muted);width:70px;">${new Date(e.date+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
-      <div style="font-size:13px;">${e.title}</div>
+      <div style="font-size:12px;color:var(--text-muted);width:92px;flex-shrink:0;">${new Date(e.date+'T12:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(e.title)}</div>
+        <div style="font-size:11px;color:var(--text-light);">${pLb[e.platform]||e.platform}${e.fmt?' · '+escHtml(e.fmt):''}</div>
+      </div>
+      ${e.planIdx!==undefined?`<button class="btn btn-sm ${e.series==='quote'?'btn-outline':'btn-gold'}" onclick="draftFromCalendar(${e.planIdx})" style="flex-shrink:0;">${e.series==='quote'?'Make card':'Draft ✦'}</button>`:''}
     </div>`).join('');
 }
 
 function renderDashPillars() {
-  const log=getState('log',[]),pillars={},platforms={};
-  log.forEach(e=>{if(e.pillar)pillars[e.pillar]=(pillars[e.pillar]||0)+1;if(e.platform)platforms[e.platform]=(platforms[e.platform]||0)+1;});
-  const pS=Object.entries(pillars).sort((a,b)=>b[1]-a[1]).slice(0,5),pMax=pS[0]?.[1]||1;
-  document.getElementById('dash-pillar-bars').innerHTML=pS.length?pS.map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${k}</span><span style="color:var(--text-muted);">${v}</span></div><div style="background:#eee;border-radius:4px;height:6px;"><div style="background:var(--gold);height:6px;border-radius:4px;width:${(v/pMax*100).toFixed(0)}%;"></div></div></div>`).join(''):'<div style="color:var(--text-light);font-size:12px;">No content generated yet.</div>';
-  const platLbls={li:'LinkedIn',lf:'LinkedIn + Facebook',yt:'YouTube',nl:'Newsletter',ig:'Instagram',fb:'Facebook',pod:'Podcast',tw:'Twitter/X'};
-  const plS=Object.entries(platforms).sort((a,b)=>b[1]-a[1]),plMax=plS[0]?.[1]||1;
-  document.getElementById('dash-platform-mix').innerHTML=plS.length?plS.map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${platLbls[k]||k}</span><span style="color:var(--text-muted);">${v}</span></div><div style="background:#eee;border-radius:4px;height:6px;"><div style="background:var(--dark);height:6px;border-radius:4px;width:${(v/plMax*100).toFixed(0)}%;"></div></div></div>`).join(''):'<div style="color:var(--text-light);font-size:12px;">No posts generated yet.</div>';
+  const items=planSource(), ser={}, plat={};
+  items.forEach(e=>{ const k=SERIES_KEY[e.series]||e.series||'Other'; ser[k]=(ser[k]||0)+1; plat[e.platform]=(plat[e.platform]||0)+1; });
+  const bar=(rows,color,lbl)=>{ const max=rows[0]?.[1]||1; return rows.map(([k,v])=>`<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${lbl?lbl[k]||k:k}</span><span style="color:var(--text-muted);">${v}</span></div><div style="background:#eee;border-radius:4px;height:6px;"><div style="background:${color};height:6px;border-radius:4px;width:${(v/max*100).toFixed(0)}%;"></div></div></div>`).join(''); };
+  const sR=Object.entries(ser).sort((a,b)=>b[1]-a[1]), pR=Object.entries(plat).sort((a,b)=>b[1]-a[1]);
+  const platLbls={li:'LinkedIn',lf:'LinkedIn + Facebook',yt:'YouTube',nl:'Newsletter',ig:'Facebook + Instagram (quote cards)',fb:'Facebook',pod:'Podcast'};
+  document.getElementById('dash-pillar-bars').innerHTML=sR.length?bar(sR,'var(--gold)'):'<div style="color:var(--text-light);font-size:12px;">No content planned yet.</div>';
+  document.getElementById('dash-platform-mix').innerHTML=pR.length?bar(pR,'var(--dark)',platLbls):'';
 }
 
 // ══════════════════════════════════════════════════════════════════
