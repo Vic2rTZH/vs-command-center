@@ -1104,7 +1104,7 @@ function drawCard(text, pillar, meta) {
 
   // Quote text — italic Bebas Neue (synthesised oblique), dark, centred inside box
   const maxTW = boxW - 56;
-  const fs = text.length < 80 ? 40 : text.length < 140 ? 35 : text.length < 210 ? 30 : 26;
+  const fs = text.length < 60 ? 40 : text.length < 100 ? 34 : text.length < 150 ? 30 : text.length < 210 ? 27 : 24;
   ctx.fillStyle = '#160a00'; ctx.font = `italic ${fs}px “Bebas Neue”,sans-serif`;
   ctx.letterSpacing = '1px';
   const words = text.split(' '); const lines = []; let line = '';
@@ -1127,7 +1127,18 @@ function drawCard(text, pillar, meta) {
   ctx.font = '20px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '2px';
   ctx.fillStyle = meta.book ? '#e8971a' : 'rgba(255,255,255,0.55)';
   const attr = meta.adapted ? ('— ADAPTED FROM TAKE COMMAND' + (meta.src ? ', ' + meta.src.toUpperCase() : '')) : meta.book ? ('— TAKE COMMAND' + (meta.src ? ', ' + meta.src.toUpperCase() : '')) : 'ORIGINAL · VICTOR SIMUKONDA';
-  ctx.fillText(attr, boxX, boxY + boxH + 40);
+  // Fit inside the left panel: shrink, then wrap onto two lines if still too wide
+  let afs = 20;
+  if (ctx.measureText(attr).width > boxW) ctx.letterSpacing = '1px';
+  while (afs > 12 && ctx.measureText(attr).width > boxW) { afs--; ctx.font = `${afs}px “Bebas Neue”,sans-serif`; }
+  if (ctx.measureText(attr).width <= boxW) {
+    ctx.fillText(attr, boxX, boxY + boxH + 40);
+  } else {
+    const fi = attr.indexOf('FROM '); const cut = fi > 0 ? fi + 4 : attr.lastIndexOf(' ', Math.floor(attr.length * 0.55));
+    const l1 = attr.slice(0, cut), l2 = attr.slice(cut + 1);
+    ctx.fillText(l1, boxX, boxY + boxH + 36);
+    ctx.fillText((l2.startsWith('—') ? '' : '  ') + l2, boxX, boxY + boxH + 36 + afs + 8);
+  }
   ctx.letterSpacing = '0px';
 
   // ── VS Logo circle + name block ──────────────────────────────────
