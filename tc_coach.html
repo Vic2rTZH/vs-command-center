@@ -17,8 +17,8 @@
 <style>
 :root {
   color-scheme: light;
-  --dark:       #0b1117;
-  --gold:       #e8971a;
+  --dark:       #1e1e1e;
+  --gold:       #ea9a23;
   --gold-light: #fff8ee;
   --surface:    #f0f2f5;
   --card:       #ffffff;
@@ -724,6 +724,7 @@ MILITARY LANGUAGE — the military is the METHOD, the reader's life is the SUBJE
 - Keep the useful tools (end state, higher intent, battle rhythm — translated); avoid theatre words such as enemy, warfare, combat, kill, weapon.
 - On faith, family, Spiritual, Relational and Generational topics, use little or no military language and never use combat words in titles (e.g. "Picture Who You're Becoming", not "Spiritual Warfare").`;
 
+// Brand media palette: #1e1e1e near-black · #0d2821 forest green · #ea9a23 amber gold · #a03434 brick red · #EDE6DC warm off-white
 const QUOTE_STYLE = `QUOTE STYLE (Victor's signature):
 - Two or three short, declarative sentences. Rhythm and parallel structure.
 - Favour contrast: "X is not A; it's B." Build to a strong final sentence.
@@ -986,9 +987,9 @@ async function generateThought() {
 function drawThoughtCard(text, meta) {
   const cv=document.getElementById('quote-canvas'), ctx=cv.getContext('2d');
   const W=1080, H=meta.portrait?1350:1080; cv.width=W; cv.height=H;
-  const GOLD='#F5B400', F='Poppins, "Segoe UI", Arial, sans-serif';
+  const GOLD='#ea9a23', F='Poppins, "Segoe UI", Arial, sans-serif';
   // Background photo, black and white, cover-fit
-  ctx.fillStyle='#161616'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#1e1e1e'; ctx.fillRect(0,0,W,H);
   if (BRAND.photo) {
     const iw=BRAND.photo.width, ih=BRAND.photo.height, sc=Math.max(W/iw,H/ih);
     const dw=iw*sc, dh=ih*sc;
@@ -1004,7 +1005,7 @@ function drawThoughtCard(text, meta) {
   // Badge: gold ribbon + logo circle
   ctx.fillStyle=GOLD;
   ctx.beginPath(); ctx.moveTo(120,108); ctx.lineTo(540,108); ctx.lineTo(518,172); ctx.lineTo(120,172); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#fff'; ctx.font=`italic 700 34px ${F}`; ctx.fillText('Victor Simz Quotes',196,152);
+  ctx.fillStyle='#EDE6DC'; ctx.font=`italic 700 34px ${F}`; ctx.fillText('Victor Simz Quotes',196,152);
   const lx=112, ly=140, lr=70;
   ctx.save(); ctx.beginPath(); ctx.arc(lx,ly,lr,0,Math.PI*2); ctx.fillStyle='#000'; ctx.fill(); ctx.clip();
   if (BRAND.logo) { const iw=BRAND.logo.width, ih=BRAND.logo.height, sc=Math.max(lr*2/iw,lr*2/ih); ctx.drawImage(BRAND.logo,lx-iw*sc/2,ly-ih*sc/2,iw*sc,ih*sc); }
@@ -1021,11 +1022,11 @@ function drawThoughtCard(text, meta) {
   const lh=Math.round(fs*1.42), tag=meta.tag||'';
   const boxH=86+lines.length*lh+(tag?70:10)+28;
   const boxY=H-(meta.portrait?150:110)-boxH;
-  ctx.fillStyle='rgba(26,26,26,0.80)'; roundRect(ctx,boxX,boxY,boxW,boxH,64); ctx.fill();
+  ctx.fillStyle='rgba(30,30,30,0.82)'; roundRect(ctx,boxX,boxY,boxW,boxH,64); ctx.fill();
   // Gold accent bar + text
   const t0=boxY+86;
   ctx.fillStyle=GOLD; ctx.fillRect(textX-30, t0-fs*0.9, 7, (lines.length-1)*lh+fs*1.25);
-  ctx.fillStyle='#fff'; ctx.font=`italic 600 ${fs}px ${F}`;
+  ctx.fillStyle='#EDE6DC'; ctx.font=`italic 600 ${fs}px ${F}`;
   lines.forEach((l,i)=>ctx.fillText(l,textX,t0+i*lh));
   if (tag) { ctx.fillStyle=GOLD; ctx.font=`600 30px ${F}`; ctx.textAlign='center'; ctx.fillText(tag, boxX+boxW/2, t0+(lines.length-1)*lh+72); ctx.textAlign='left'; }
   // Quote circle
@@ -1172,7 +1173,7 @@ function drawCard(text, pillar, meta) {
   const splitX = BRAND.cover ? 448 : W;
 
   // Dark left panel
-  ctx.fillStyle = '#0b1117';
+  ctx.fillStyle = '#1e1e1e';
   ctx.fillRect(0, 0, splitX, H);
 
   // Right panel: book cover filling full height, object-cover
@@ -1187,8 +1188,8 @@ function drawCard(text, pillar, meta) {
     ctx.drawImage(BRAND.cover, dx, dy, dw, dh);
     // Subtle left-edge gradient to blend with dark panel
     const grad = ctx.createLinearGradient(splitX, 0, splitX + 60, 0);
-    grad.addColorStop(0, 'rgba(11,17,23,0.7)');
-    grad.addColorStop(1, 'rgba(11,17,23,0)');
+    grad.addColorStop(0, 'rgba(30,30,30,0.7)');
+    grad.addColorStop(1, 'rgba(30,30,30,0)');
     ctx.fillStyle = grad; ctx.fillRect(splitX, 0, 60, H);
     ctx.restore();
   }
@@ -1196,29 +1197,29 @@ function drawCard(text, pillar, meta) {
   const pad = 36;
 
   // ── “TAKE COMMAND” label ─────────────────────────────────────────
-  ctx.fillStyle = '#e8971a'; ctx.font = '18px “Bebas Neue”,sans-serif';
+  ctx.fillStyle = '#ea9a23'; ctx.font = '18px “Bebas Neue”,sans-serif';
   ctx.letterSpacing = '5px'; ctx.fillText('TAKE COMMAND', pad, 68); ctx.letterSpacing = '0px';
 
   // ── “QUOTES” large heading — faux bold via fill + stroke ─────────
   ctx.font = '78px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '4px';
-  ctx.fillStyle = '#ffffff'; ctx.fillText('QUOTES', pad - 2, 172);
-  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+  ctx.fillStyle = '#EDE6DC'; ctx.fillText('QUOTES', pad - 2, 172);
+  ctx.strokeStyle = '#EDE6DC'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
   ctx.strokeText('QUOTES', pad - 2, 172);
   ctx.lineWidth = 1; ctx.letterSpacing = '0px';
 
   // Gold underline
-  ctx.fillStyle = '#e8971a'; ctx.fillRect(pad, 186, 280, 5);
+  ctx.fillStyle = '#ea9a23'; ctx.fillRect(pad, 186, 280, 5);
 
   // Pillar badge
   ctx.font = '14px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '2px';
   const pillW = ctx.measureText(pillar.toUpperCase()).width + 22;
-  ctx.fillStyle = 'rgba(232,151,26,0.18)'; ctx.fillRect(pad, 204, pillW, 26);
-  ctx.fillStyle = '#e8971a'; ctx.fillText(pillar.toUpperCase(), pad + 11, 222);
+  ctx.fillStyle = 'rgba(234,154,35,0.18)'; ctx.fillRect(pad, 204, pillW, 26);
+  ctx.fillStyle = '#ea9a23'; ctx.fillText(pillar.toUpperCase(), pad + 11, 222);
   ctx.letterSpacing = '0px';
 
   // ── Gold quote box ───────────────────────────────────────────────
   const boxX = pad, boxY = 248, boxW = splitX - pad * 2, boxH = 430;
-  ctx.fillStyle = '#e8971a';
+  ctx.fillStyle = '#ea9a23';
   roundRect(ctx, boxX, boxY, boxW, boxH, 16); ctx.fill();
 
   // Opening quote mark (decorative, inside box top-left)
@@ -1249,7 +1250,7 @@ function drawCard(text, pillar, meta) {
 
   // ── Attribution under the box: book source or "Original" ──
   ctx.font = '20px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '2px';
-  ctx.fillStyle = meta.book ? '#e8971a' : 'rgba(255,255,255,0.55)';
+  ctx.fillStyle = meta.book ? '#ea9a23' : 'rgba(255,255,255,0.55)';
   const attr = meta.adapted ? ('— ADAPTED FROM TAKE COMMAND' + (meta.src ? ', ' + meta.src.toUpperCase() : '')) : meta.book ? ('— TAKE COMMAND' + (meta.src ? ', ' + meta.src.toUpperCase() : '')) : 'ORIGINAL · VICTOR SIMUKONDA';
   // Fit inside the left panel: shrink, then wrap onto two lines if still too wide
   let afs = 20;
@@ -1280,12 +1281,12 @@ function drawCard(text, pillar, meta) {
     ctx.save();
     ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI*2);
     ctx.fillStyle = '#000'; ctx.fill();
-    ctx.strokeStyle = '#e8971a'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.strokeStyle = '#ea9a23'; ctx.lineWidth = 2.5; ctx.stroke();
     ctx.fillStyle = '#fff'; ctx.font = '24px “Bebas Neue”,sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('VS', logoX, logoY + 8); ctx.textAlign = 'left'; ctx.restore();
   }
   const nameX = logoX + logoR + 16;
-  ctx.fillStyle = '#e8971a'; ctx.font = '24px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '2px';
+  ctx.fillStyle = '#ea9a23'; ctx.font = '24px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '2px';
   ctx.fillText('VICTOR SIMUKONDA', nameX, logoY - 4);
   ctx.letterSpacing = '0px';
   ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '16px “Bebas Neue”,sans-serif'; ctx.letterSpacing = '1px';
@@ -1744,9 +1745,9 @@ async function init() {
 
   // Draw placeholder canvas
   const cv=document.getElementById('quote-canvas'),ctx=cv.getContext('2d');
-  cv.width=1080;cv.height=1080;ctx.fillStyle='#0b1117';ctx.fillRect(0,0,1080,1080);
-  ctx.fillStyle='#e8971a';ctx.fillRect(0,0,8,1080);ctx.fillRect(0,1072,1080,8);
-  ctx.textAlign='center';ctx.fillStyle='rgba(232,151,26,0.5)';ctx.font='bold 36px sans-serif';ctx.letterSpacing='8px';ctx.fillText('TAKE COMMAND',540,500);
+  cv.width=1080;cv.height=1080;ctx.fillStyle='#1e1e1e';ctx.fillRect(0,0,1080,1080);
+  ctx.fillStyle='#ea9a23';ctx.fillRect(0,0,8,1080);ctx.fillRect(0,1072,1080,8);
+  ctx.textAlign='center';ctx.fillStyle='rgba(234,154,35,0.5)';ctx.font='bold 36px sans-serif';ctx.letterSpacing='8px';ctx.fillText('TAKE COMMAND',540,500);
   ctx.fillStyle='rgba(255,255,255,0.22)';ctx.font='20px sans-serif';ctx.letterSpacing='0px';ctx.fillText('Pick a theme → Generate Card',540,556);ctx.textAlign='left';
 
   // Load data from Supabase
