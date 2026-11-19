@@ -755,11 +755,21 @@ body {
     <button class="tab-btn" data-panel="strategy" style="color:var(--gold2);">◈ Strategy</button>
     <button class="tab-btn" data-panel="schedule">Rhythm</button>
     <button class="tab-btn" data-panel="tc" style="color:var(--gold)">⚔ Take Command</button>
-    <button class="tab-btn" data-panel="aila" style="color:var(--aila)"><span data-ic="sparkles"></span> AILA Sprint</button>
-    <button class="tab-btn" data-panel="uav" style="color:var(--uav)">✈ UAV MVP</button>
-    <button class="tab-btn" data-panel="q4focus" style="color:#10b981">◎ Q4 Focus</button>
-    <button class="tab-btn" data-panel="content" style="color:#a78bfa">✦ Content</button>
-    <button class="tab-btn" data-panel="tzh" style="color:var(--zhist)">📜 Z Historian</button>
+    <button class="tab-btn" data-panel="ndec" style="color:#fb923c">◎ Nov–Dec Sprint</button>
+    <!-- ARCHIVED SPRINTS DROPDOWN -->
+    <div style="position:relative;display:inline-block;" id="archiveDropdownWrap">
+      <button onclick="toggleArchiveMenu()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;letter-spacing:0.5px;" title="Archived sprints">
+        ◫ Archive ▾
+      </button>
+      <div id="archiveMenu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:#1a1f2e;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:6px 0;min-width:180px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+        <div style="font-size:10px;color:var(--text3);padding:4px 14px 6px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:4px;">Archived — Q4 2026</div>
+        <button onclick="switchTab('aila');toggleArchiveMenu()" style="display:block;width:100%;text-align:left;background:none;border:none;color:var(--aila);padding:7px 14px;cursor:pointer;font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">⚡ AILA Sprint</button>
+        <button onclick="switchTab('uav');toggleArchiveMenu()" style="display:block;width:100%;text-align:left;background:none;border:none;color:var(--uav);padding:7px 14px;cursor:pointer;font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">✈ UAV MVP</button>
+        <button onclick="switchTab('q4focus');toggleArchiveMenu()" style="display:block;width:100%;text-align:left;background:none;border:none;color:#10b981;padding:7px 14px;cursor:pointer;font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">◎ Q4 Focus</button>
+        <button onclick="switchTab('content');toggleArchiveMenu()" style="display:block;width:100%;text-align:left;background:none;border:none;color:#a78bfa;padding:7px 14px;cursor:pointer;font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">✦ Content</button>
+        <button onclick="switchTab('tzh');toggleArchiveMenu()" style="display:block;width:100%;text-align:left;background:none;border:none;color:var(--zhist);padding:7px 14px;cursor:pointer;font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">📜 Z Historian</button>
+      </div>
+    </div>
   </div>
 
   <!-- ═══════════════ TODAY ═══════════════ -->
@@ -1599,6 +1609,25 @@ body {
 
   </div>
 
+  <!-- ═══════════════ NOV–DEC SPRINT ═══════════════ -->
+  <div class="panel" id="panel-ndec">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fb923c;margin-bottom:4px;">PREPARATORY SPRINT</div>
+        <div style="font-size:20px;font-weight:700;color:var(--text);">Nov–Dec 2026</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:3px;">Set the foundations. Launch the tracks. Enter 2027 running.</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <div id="ndec-progress-pill" style="background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.3);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;color:#fb923c;"></div>
+        <button class="btn btn-ghost btn-sm" onclick="ndecReset()" style="font-size:11px;color:var(--text3);">Reset all</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button id="ndec-view-combined" class="btn btn-sm" onclick="ndecSetView('combined')" style="font-size:12px;background:rgba(251,146,60,.15);color:#fb923c;border:1px solid rgba(251,146,60,.4);">▤ Priority List</button>
+      <button id="ndec-view-streams" class="btn btn-ghost btn-sm" onclick="ndecSetView('streams')" style="font-size:12px;">⊞ By Workstream</button>
+    </div>
+    <div id="ndec-panels" style="display:flex;flex-direction:column;gap:14px;"></div>
+  </div>
 
 </div><!-- /main -->
 
@@ -1681,7 +1710,7 @@ body {
       <h3>Claude API Key</h3>
       <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Stored in Supabase — enter once on any device, syncs everywhere automatically.</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input type="password" id="apiKeyInput" placeholder="sk-ant-… (leave blank to pull from Supabase)" style="flex:1;min-width:200px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-… (stored on this device only)" style="flex:1;min-width:200px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;">
         <button class="btn btn-gold btn-sm" onclick="saveApiKeyFromSetup()">Save Key</button>
         <button class="btn btn-ghost btn-sm" onclick="syncApiKeyNow()">Sync now</button>
       </div>
@@ -1699,6 +1728,7 @@ body {
       </div>
     </div>
   </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -3402,6 +3432,18 @@ function setSbStatus(state,label) {
   document.getElementById('sbDot').className='sync-dot '+state;
   document.getElementById('sbLabel').textContent=label;
 }
+function toggleArchiveMenu() {
+  const m = document.getElementById('archiveMenu');
+  if (!m) return;
+  const open = m.style.display === 'block';
+  m.style.display = open ? 'none' : 'block';
+  if (!open) {
+    // close on outside click
+    const close = e => { if (!document.getElementById('archiveDropdownWrap').contains(e.target)) { m.style.display='none'; document.removeEventListener('click',close); } };
+    setTimeout(()=>document.addEventListener('click',close),0);
+  }
+}
+
 function switchTab(panelId) {
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.panel===panelId));
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+panelId));
@@ -3414,6 +3456,7 @@ function switchTab(panelId) {
   if(panelId==='q4focus') renderQ4Focus();
   if(panelId==='content') initContentPanel();
   if(panelId==='tzh') renderTZH();
+  if(panelId==='ndec') renderNDec();
   if(panelId==='plan90') render90Day();
   if(panelId==='schedule'){renderSchedule();renderScorecard();}
 }
@@ -4743,13 +4786,13 @@ function setAIKey(key) {
 }
 
 async function sbSaveApiKey(key) {
-  if (!sbOnline) return;
-  try {
-    await SB.upsert('cc_settings', { key:'claude_api_key', value:key, updated_at:new Date().toISOString() }, '?on_conflict=key');
-  } catch(e) { console.warn('sbSaveApiKey:',e.message); }
+  // SECURITY 2026-11-19: API key is device-local only. Never sent to Supabase.
+  return;
 }
 
 async function sbLoadApiKey() {
+  // SECURITY 2026-11-19: API key is device-local only. No Supabase pull/push.
+  return;
   try {
     const rows = await SB.get('cc_settings','?key=eq.claude_api_key');
     const local = getAIKey();
@@ -5844,7 +5887,7 @@ function saveApiKeyFromSetup() {
   if (!key.startsWith('sk-')) { toast('Invalid key — must start with sk-', true); return; }
   setAIKey(key);
   if (inp) inp.value = '';
-  document.getElementById('apiKeyStatus').textContent = '✓ Key saved and synced to Supabase';
+  document.getElementById('apiKeyStatus').textContent = '✓ Key saved on this device only';
   document.getElementById('apiKeyStatus').style.color = 'var(--green)';
   toast('API key saved ✓');
 }
@@ -5871,13 +5914,13 @@ async function syncApiKeyNow() {
     el.textContent = `✓ Key synced (${key.slice(0,12)}…) · Supabase connected`;
     el.style.color = 'var(--green)';
   } else {
-    el.textContent = '✗ No key found in Supabase — paste it above and click Save Key';
+    el.textContent = '✗ No key on this device — paste it above and click Save Key';
     el.style.color = 'var(--red)';
   }
 }
 async function aiSetKey() {
-  // Try Supabase first before prompting
-  if (sbOnline) {
+  // SECURITY 2026-11-19: no Supabase lookup — key is device-local only
+  if (false) {
     try {
       const rows = await SB.get('cc_settings','?key=eq.claude_api_key');
       if (rows.length && rows[0].value && rows[0].value.startsWith('sk-')) {
@@ -5919,6 +5962,7 @@ function renderAll() {
   renderReview();
   renderSdWeeklyQs();
   renderSelfDev();
+  renderNDec();
   applyIcons();
 }
 
@@ -6422,6 +6466,248 @@ function sdSuggestAAR() {
   Object.entries(suggestions).forEach(function(pair){ var domain=pair[0], score=pair[1]; if (score > 0 && !scores[domain]) { if (!sdData.aar[today]) sdData.aar[today] = {}; sdData.aar[today][domain] = score; changed = true; } });
   if (changed) { sdSave(); renderSelfDev(); toast('AAR pre-filled from today\'s habits — adjust as needed'); }
   else { toast('All domains already scored, or no habits completed yet'); }
+}
+
+/* ══════════════════════════════════════════
+   NOV–DEC SPRINT CHECKLIST
+   ══════════════════════════════════════════ */
+const NDEC_LS_KEY = 'vs_ndec_v1';
+const NDEC_WORKSTREAMS = [
+  {
+    id: 'vsimz',
+    label: 'Victor Simz / Take Command',
+    color: '#e8b424',
+    months: [
+      {
+        month: 'November',
+        tasks: [
+          'Wk 1 (10–16 Nov): Channel audit — update name, branding, playlists, About section',
+          'Wk 1 (10–16 Nov): Confirm brand colours, thumbnail template, LinkedIn/FB/IG profiles updated',
+          '⚡ Wk 1 (15–16 Nov): Script Ep B1 — Take Command: 5 Principles for Taking Control of Your Life',
+          'Wk 2 (17–18 Nov): Record + basic edit Ep B1 (talking head, no b-roll)',
+          'Wk 2 (19 Nov): Thumbnail, description, upload unlisted — final check',
+          '⚡ Thu 19 Nov: PUBLISH Ep B1 — first video live',
+          'Wk 2 (17–23 Nov): Script Ep B2 — Discipline Without Motivation',
+          'Wk 3 (17–23 Nov): Email platform set up (ConvertKit or MailerLite)',
+          'Wk 3 (17–23 Nov): Lead Magnet 1 created — Personal Command Review PDF',
+          'Identify AI4P Dec 1 audience, confirm delivery format, send invitations',
+          'Thu 26 Nov: PUBLISH Ep B2 — Discipline Without Motivation'
+        ]
+      },
+      {
+        month: 'December',
+        tasks: [
+          '⚡ AI4P Cohort 1 delivered Dec 1 — collect pre/post feedback',
+          'Thu 3 Dec: PUBLISH Ep B3 — The Mind Is the Battlefield',
+          'Thu 10 Dec: PUBLISH Ep B4 — AI for Professionals',
+          'Wk 5–6 (1–14 Dec): Script Eps 5 & 6 for Q1 2027 buffer',
+          'Wk 7 (15–21 Dec): Record Eps B3–B4 + Shorts',
+          'Wk 8 (22–31 Dec): Edit + upload all buffer as unlisted — Q1 scheduled',
+          'Confirm print route, trim size, ISBN, cover template, budget',
+          'Revise AI curriculum based on Dec 1 cohort feedback'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'bantuwa',
+    label: 'Bantuwa Innovate',
+    color: '#1d4ed8',
+    months: [
+      {
+        month: 'November',
+        tasks: [
+          'Build master portfolio register — every active initiative classified (implement / maintain / pause / stop)',
+          'Confirm NHCC/Heritage360 scope, IP ownership, data access and permissions in writing',
+          'Confirm YPS platform requirements with Y4PZ — agree governance boundaries clearly',
+          'Define what Nexus IS and IS NOT — write a one-page scope boundary document'
+        ]
+      },
+      {
+        month: 'December',
+        tasks: [
+          'NHCC implementation plan drafted with milestones and acceptance criteria',
+          'YPS platform delivery plan agreed with Y4PZ',
+          'Commercial templates prepared: proposal, statement of work, handover',
+          'Nexus MVP scope document finalised — no build yet, scope only'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'tzh',
+    label: 'The Z Historian',
+    color: '#15803d',
+    months: [
+      {
+        month: 'November',
+        tasks: [
+          'Select Dec and Jan flagship story topics',
+          'Build 2-story research pipeline (Dec at production stage, Jan at research stage)',
+          'Set up research database: source register, image permissions log',
+          'Complete Dec story: research, script, record'
+        ]
+      },
+      {
+        month: 'December',
+        tasks: [
+          'Publish Dec flagship story + 2 shorts',
+          'Lock 2027 content calendar: 12 monthly themes confirmed',
+          'Jan story at script-ready stage by Dec 31',
+          'Begin building source catalogue for Q1 2027 stories'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'y4pz',
+    label: 'Y4PZ / Peace Hub',
+    color: '#b45309',
+    months: [
+      {
+        month: 'November',
+        tasks: [
+          'Identify youth channels for Peace Hub promotion: schools, community groups, WhatsApp networks, Facebook groups',
+          'Create Peace Hub explainer content: what it is, how to join, what youth get from it',
+          'Start social media cadence: 3×/week focused on Peace Hub stories and youth spotlights',
+          'Confirm Y4PZ governance baseline and active membership',
+          'Reach out to 3 partner organisations to co-promote Peace Hub'
+        ]
+      },
+      {
+        month: 'December',
+        tasks: [
+          'Track Peace Hub signups — set target number and hit it by Dec 31',
+          'Social media maintained at 3×/week through December',
+          'Plan first 2027 programme activity with confirmed date and participant target',
+          'At least 2 partner organisations engaged and committed'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'vanguard',
+    label: 'VANGUARD',
+    color: '#6b7280',
+    months: [
+      {
+        month: 'November',
+        tasks: [
+          'Confirm Q1 2027 governance structure, Steering Committee responsibilities and decision points',
+          'Review Q4 2026 deliverable status against milestones'
+        ]
+      },
+      {
+        month: 'December',
+        tasks: [
+          'Strategic Recommendations document ready for leadership presentation',
+          'Q1 2027 pilot plan baseline drafted'
+        ]
+      }
+    ]
+  }
+];
+
+function ndecLoad() {
+  try { return JSON.parse(localStorage.getItem(NDEC_LS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function ndecSave(data) {
+  try { localStorage.setItem(NDEC_LS_KEY, JSON.stringify(data)); } catch(e) {}
+}
+function ndecKey(wsId, month, taskIdx) { return `${wsId}-${month}-${taskIdx}`; }
+
+function ndecToggle(wsId, month, taskIdx, checked) {
+  const data = ndecLoad();
+  data[ndecKey(wsId, month, taskIdx)] = checked;
+  ndecSave(data);
+  renderNDec();
+}
+
+function ndecReset() {
+  if (!confirm('Reset all sprint checkboxes?')) return;
+  localStorage.removeItem(NDEC_LS_KEY);
+  renderNDec();
+  toast('Sprint reset ✓');
+}
+
+let ndecView = 'combined';
+function ndecSetView(v) {
+  ndecView = v;
+  const cb = document.getElementById('ndec-view-combined');
+  const sb = document.getElementById('ndec-view-streams');
+  if (cb) { cb.style.background = v==='combined'?'rgba(251,146,60,.15)':''; cb.style.border = v==='combined'?'1px solid rgba(251,146,60,.4)':''; cb.style.color = v==='combined'?'#fb923c':''; }
+  if (sb) { sb.style.background = v==='streams'?'rgba(251,146,60,.15)':''; sb.style.border = v==='streams'?'1px solid rgba(251,146,60,.4)':''; sb.style.color = v==='streams'?'#fb923c':''; }
+  renderNDec();
+}
+
+function renderNDec() {
+  const container = document.getElementById('ndec-panels'); if (!container) return;
+  const pill = document.getElementById('ndec-progress-pill');
+  const data = ndecLoad();
+  let totalAll = 0, doneAll = 0;
+  NDEC_WORKSTREAMS.forEach(ws => ws.months.forEach(m => m.tasks.forEach((_,i) => { totalAll++; if(data[ndecKey(ws.id,m.month,i)]) doneAll++; })));
+  if (pill) { const pct = totalAll ? Math.round((doneAll/totalAll)*100) : 0; pill.textContent = `${doneAll} / ${totalAll} tasks · ${pct}% complete`; }
+
+  function taskRow(ws, month, t, i) {
+    const key = ndecKey(ws.id, month, i);
+    const checked = !!data[key];
+    const urgent = t.startsWith('⚡');
+    return `<div style="display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:${checked?'var(--text3)':'var(--text2)'};${checked?'text-decoration:line-through;':''}">
+      <input type="checkbox" ${checked?'checked':''} onchange="ndecToggle('${ws.id}','${month}',${i},this.checked)" style="margin-top:2px;accent-color:${ws.color};flex-shrink:0;cursor:pointer;">
+      <span style="flex:1;${urgent?'color:#fb923c;font-weight:600;':''}">${esc(t)}</span>
+    </div>`;
+  }
+
+  if (ndecView === 'combined') {
+    const months = ['November','December'];
+    container.innerHTML = months.map(month => {
+      const rows = [];
+      NDEC_WORKSTREAMS.forEach(ws => {
+        const mObj = ws.months.find(m => m.month === month);
+        if (!mObj) return;
+        mObj.tasks.forEach((t, i) => {
+          const key = ndecKey(ws.id, month, i);
+          const checked = !!data[key];
+          const urgent = t.startsWith('⚡');
+          rows.push({ ws, month, t, i, checked, urgent });
+        });
+      });
+      rows.sort((a,b) => (b.urgent?1:0)-(a.urgent?1:0));
+      const html = rows.map(r => {
+        const key = ndecKey(r.ws.id, r.month, r.i);
+        const checked = !!data[key];
+        return `<div style="display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:${checked?'var(--text3)':'var(--text2)'};${checked?'text-decoration:line-through;':''}">
+          <input type="checkbox" ${checked?'checked':''} onchange="ndecToggle('${r.ws.id}','${r.month}',${r.i},this.checked)" style="margin-top:2px;accent-color:${r.ws.color};flex-shrink:0;cursor:pointer;">
+          <span style="flex:1;${r.urgent?'color:#fb923c;font-weight:600;':''}"><span style="display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:${r.ws.color}22;color:${r.ws.color};margin-right:7px;vertical-align:middle;">${r.ws.label.split('/')[0].trim()}</span>${esc(r.t)}</span>
+        </div>`;
+      }).join('');
+      const doneCt = rows.filter(r=>!!data[ndecKey(r.ws.id,r.month,r.i)]).length;
+      return `<div class="card">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fb923c;margin-bottom:10px;">${month} · ${doneCt}/${rows.length} done</div>
+        ${html}
+      </div>`;
+    }).join('');
+  } else {
+    container.innerHTML = NDEC_WORKSTREAMS.map(ws => {
+      let wsTotal = 0, wsDone = 0;
+      const monthsHTML = ws.months.map(m => {
+        const tasksHTML = m.tasks.map((t, i) => { wsTotal++; if(data[ndecKey(ws.id,m.month,i)]) wsDone++; return taskRow(ws,m.month,t,i); }).join('');
+        return `<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:${ws.color};margin-bottom:6px;padding-top:10px;">${m.month}</div>${tasksHTML}</div>`;
+      }).join('');
+      const pct = wsTotal ? Math.round((wsDone/wsTotal)*100) : 0;
+      return `<div class="card" style="border-left:3px solid ${ws.color};">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:14px;font-weight:700;color:var(--text);">${ws.label}</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:12px;color:var(--text3);">${wsDone}/${wsTotal} done</div>
+            <div style="width:80px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${ws.color};border-radius:3px;transition:width .3s;"></div></div>
+            <div style="font-size:12px;font-weight:700;color:${ws.color};">${pct}%</div>
+          </div>
+        </div>
+        ${monthsHTML}
+      </div>`;
+    }).join('');
+  }
 }
 
 /* ── SUPABASE RETRY ── */
